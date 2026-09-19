@@ -27,10 +27,10 @@
  * Historial de versiones
  *   19/09/2026 - Creación: lectura de comentarios y líneas en blanco, y
  *                de las líneas de Q, Σ y Γ.
- *   19/09/2026 - Ampliación, el mismo día: lectura de q0, Z0, F y de las
+ *              - Ampliación, el mismo día: lectura de q0, Z0, F y de las
  *                transiciones, con construcción de la TransitionFunction
  *                completa y numeración de las transiciones al imprimirlas.
- *   19/09/2026 - Ampliación, el mismo día: se extraen a config_reader.h/
+ *              - Ampliación, el mismo día: se extraen a config_reader.h/
  *                .cc todas las funciones de lectura y parseo, dejando
  *                aquí únicamente el punto de entrada.
  */
