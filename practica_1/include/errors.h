@@ -11,11 +11,10 @@
  * @file errors.h
  * @brief Jerarquía de excepciones del simulador.
  *
- * Este fichero contiene, por ahora, las excepciones que necesitan
- * Alphabet, Chain, Stack y la lectura de transiciones. El resto de la
- * jerarquía (errores de línea de comandos, de ficheros, de estados no
- * declarados...) se añadirá cuando se implementen las clases que las
- * lanzan.
+ * Este fichero contiene las excepciones que necesitan Alphabet, Chain,
+ * Stack y AutomatonParser. El resto de la jerarquía (errores de línea de
+ * comandos, de la simulación más allá de EmptyStackError...) se añadirá
+ * cuando se implementen las clases que las lanzan.
  *
  * Historial de versiones
  *   18/09/2026 - Creación del fichero. Definición de la clase base Error:
@@ -29,6 +28,8 @@
  *   19/09/2026 - Ampliación, el mismo día, con InvalidTransitionError,
  *                necesaria para leer las transiciones del fichero de
  *                configuración.
+ *   19/09/2026 - Ampliación, el mismo día, con InvalidStateError y
+ *                FileError, necesarias para AutomatonParser.
  */
 
 #ifndef ERRORS_H_
@@ -74,9 +75,10 @@ class Error : public std::exception {
  * error: por ejemplo, Alphabet valida sus símbolos sin saber en qué línea
  * del fichero está. Por eso el número de línea tiene un valor por defecto
  * (-1, "todavía sin determinar") y puede completarse después con
- * SetLineNumber(), una vez que quien construye el autómata a partir del
- * fichero -y sí conoce el contexto- captura la excepción y la reenvía con
- * la línea correcta.
+ * SetLineNumber(): AutomatonParser, que sí conoce el número de línea real
+ * de cada sección, captura estas excepciones cuando vienen de una clase
+ * de más abajo (Alphabet, Symbol...) y se lo completa antes de dejarlas
+ * seguir propagándose.
  */
 class ConfigurationError : public Error {
  public:
@@ -114,8 +116,9 @@ class MissingSectionError : public ConfigurationError {
 
 /**
  * @class InvalidSymbolError
- * @brief Un símbolo de Σ o Γ no es válido: tiene más de un carácter, o es
- * el carácter reservado '.' (que representa ε).
+ * @brief Un símbolo de Σ o Γ no es válido: tiene más de un carácter, es
+ * el carácter reservado '.' (que representa ε), o (para Z0) no pertenece
+ * al alfabeto de pila.
  */
 class InvalidSymbolError : public ConfigurationError {
  public:
@@ -138,15 +141,41 @@ class DuplicatedElementError : public ConfigurationError {
 /**
  * @class InvalidTransitionError
  * @brief Una línea de transición no es válida: no tiene exactamente cinco
- * campos, algún campo que debe ser un único símbolo no lo es, o la cima
- * consultada es ε (el enunciado exige que una transición nunca consulte
- * ε en la pila).
+ * campos, algún campo que debe ser un único símbolo no lo es, la cima
+ * consultada es ε, o alguno de sus estados o símbolos no está declarado
+ * en Q, Σ o Γ.
  */
 class InvalidTransitionError : public ConfigurationError {
  public:
   explicit InvalidTransitionError(const std::string& message,
                                   int line_number = -1)
       : ConfigurationError(message, line_number) {}
+};
+
+/**
+ * @class InvalidStateError
+ * @brief Un estado usado fuera de Q no pertenece a Q: el estado inicial
+ * (q0 ∉ Q) o algún estado final (F ⊄ Q).
+ */
+class InvalidStateError : public ConfigurationError {
+ public:
+  explicit InvalidStateError(const std::string& message, int line_number = -1)
+      : ConfigurationError(message, line_number) {}
+};
+
+// =============================================================================
+// Errores de fichero
+// =============================================================================
+
+/**
+ * @class FileError
+ * @brief El fichero de configuración no se puede abrir, o está accesible
+ * pero vacío (sin ninguna línea significativa). No es un
+ * ConfigurationError: no hay ninguna línea concreta a la que asociarlo.
+ */
+class FileError : public Error {
+ public:
+  explicit FileError(const std::string& message) : Error(message) {}
 };
 
 // =============================================================================
