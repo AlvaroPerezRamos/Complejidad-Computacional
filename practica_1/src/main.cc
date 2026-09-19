@@ -34,12 +34,17 @@
  *                valida las referencias cruzadas entre Q/Σ/Γ y fija el
  *                número de línea real de cada error). main.cc pasa a
  *                usar PushdownAutomaton en vez de variables sueltas.
+ *   19/09/2026 - Ampliación, el mismo día: se llama a
+ *                AutomatonValidator::Validate() justo después de
+ *                construir el autómata, para los avisos que necesitan el
+ *                grafo de transiciones completo.
  */
 
 #include <cstddef>
 #include <iostream>
 
 #include "../include/automaton_parser.h"
+#include "../include/automaton_validator.h"
 #include "../include/errors.h"
 #include "../include/pushdown_automaton.h"
 #include "../include/state.h"
@@ -54,6 +59,7 @@ int main(int argc, char* argv[]) {
   try {
     AutomatonParser parser(argv[1]);
     const PushdownAutomaton automaton = parser.Parse(std::cout);
+    AutomatonValidator::Validate(automaton, std::cout);
 
     std::cout << "Estados (Q): ";
     for (const State& state : automaton.GetStateDeclarationOrder())
