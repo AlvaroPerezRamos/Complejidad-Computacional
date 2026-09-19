@@ -3,7 +3,7 @@
  * Escuela Superior de Ingeniería y Tecnología
  * Grado en Ingeniería Informática
  * Asignatura: Complejidad Computacional
- * Curso: 3º
+ * Curso: 4º
  * Práctica 1: Simulador de un autómata con pila
  *
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es

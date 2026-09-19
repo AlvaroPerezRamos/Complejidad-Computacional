@@ -10,12 +10,25 @@
  * @date 18/09/2026
  * @file errors.h
  * @brief Jerarquía de excepciones del simulador.
- * 
+ *
+ * Este fichero contiene, por ahora, las excepciones que necesitan
+ * Alphabet, Chain, Stack y la lectura de transiciones. El resto de la
+ * jerarquía (errores de línea de comandos, de ficheros, de estados no
+ * declarados...) se añadirá cuando se implementen las clases que las
+ * lanzan.
+ *
  * Historial de versiones
- *   18/09/2026 - Creación del fichero y definición de la clase base Error
- *   19/09/2026 - Creación: Error, ConfigurationError y sus subclases
- *                MissingSectionError, InvalidSymbolError y
- *                DuplicatedElementError; y ChainError.
+ *   18/09/2026 - Creación del fichero. Definición de la clase base Error:
+ *                constructor y captador what().
+ *   19/09/2026 - Ampliación con ConfigurationError y sus subclases
+ *                (MissingSectionError, InvalidSymbolError,
+ *                DuplicatedElementError), y con ChainError; necesarias
+ *                para Alphabet y Chain respectivamente.
+ *   19/09/2026 - Ampliación, el mismo día, con SimulationError y
+ *                EmptyStackError, necesarias para Stack.
+ *   19/09/2026 - Ampliación, el mismo día, con InvalidTransitionError,
+ *                necesaria para leer las transiciones del fichero de
+ *                configuración.
  */
 
 #ifndef ERRORS_H_
@@ -35,6 +48,9 @@ class Error : public std::exception {
    * @param message Descripción del error.
    */
   explicit Error(const std::string& message) : message_(message) {}
+
+  /** @brief Destructor por defecto. */
+  ~Error() override = default;
 
   /** @brief Devuelve el mensaje de error como cadena de estilo C. */
   const char* what() const noexcept override { return message_.c_str(); }
@@ -58,8 +74,9 @@ class Error : public std::exception {
  * error: por ejemplo, Alphabet valida sus símbolos sin saber en qué línea
  * del fichero está. Por eso el número de línea tiene un valor por defecto
  * (-1, "todavía sin determinar") y puede completarse después con
- * SetLineNumber(), una vez que AutomatonParser -que sí conoce el contexto-
- * captura la excepción y la reenvía con la línea correcta.
+ * SetLineNumber(), una vez que quien construye el autómata a partir del
+ * fichero -y sí conoce el contexto- captura la excepción y la reenvía con
+ * la línea correcta.
  */
 class ConfigurationError : public Error {
  public:
@@ -118,6 +135,20 @@ class DuplicatedElementError : public ConfigurationError {
       : ConfigurationError(message, line_number) {}
 };
 
+/**
+ * @class InvalidTransitionError
+ * @brief Una línea de transición no es válida: no tiene exactamente cinco
+ * campos, algún campo que debe ser un único símbolo no lo es, o la cima
+ * consultada es ε (el enunciado exige que una transición nunca consulte
+ * ε en la pila).
+ */
+class InvalidTransitionError : public ConfigurationError {
+ public:
+  explicit InvalidTransitionError(const std::string& message,
+                                  int line_number = -1)
+      : ConfigurationError(message, line_number) {}
+};
+
 // =============================================================================
 // Errores de las cadenas de entrada
 // =============================================================================
@@ -131,6 +162,36 @@ class DuplicatedElementError : public ConfigurationError {
 class ChainError : public Error {
  public:
   explicit ChainError(const std::string& message) : Error(message) {}
+};
+
+// =============================================================================
+// Errores de la simulación
+// =============================================================================
+
+/**
+ * @class SimulationError
+ * @brief Clase base de los errores que pueden ocurrir mientras se explora
+ * el árbol de descripciones instantáneas de una cadena concreta. Igual que
+ * ChainError, no aborta el programa: solo esa cadena se descarta.
+ */
+class SimulationError : public Error {
+ public:
+  explicit SimulationError(const std::string& message) : Error(message) {}
+};
+
+/**
+ * @class EmptyStackError
+ * @brief Se ha intentado consultar (Top()) o desapilar (Pop()) la cima de
+ * una pila vacía. En un uso correcto del simulador no debería llegar a
+ * lanzarse nunca: una pila vacía significa que no hay cima que consultar,
+ * así que Simulator debe comprobar Stack::IsEmpty() antes de explorar más
+ * transiciones, no dejar que Stack detecte el problema. Se lanza de todos
+ * modos como salvaguarda defensiva ante un error de programación.
+ */
+class EmptyStackError : public SimulationError {
+ public:
+  explicit EmptyStackError(const std::string& message)
+      : SimulationError(message) {}
 };
 
 #endif  // ERRORS_H_
