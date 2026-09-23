@@ -22,7 +22,12 @@
  * (Transition), no de Stack.
  *
  * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa.
+ *   19/09/2026 - Creación del fichero e implementación completa: no ha
+ *                habido una fase previa de solo esqueleto, a diferencia
+ *                de Symbol/State/Alphabet/Chain, que partían de ficheros
+ *                ya creados el 18/09/2026.
+ *   23/09/2026 - Ampliación, con operator<, necesario para
+ *                InstantaneousDescription.
  */
 
 #ifndef STACK_H_
@@ -48,8 +53,7 @@ class Stack {
    * inicializarla directamente con el símbolo inicial de la pila (Z0).
    * @param initial_symbol Símbolo que queda como única entrada de la pila.
    */
-  explicit Stack(const Symbol& initial_symbol)
-      : symbols_(initial_symbol.ToString()) {}
+  explicit Stack(const Symbol& initial_symbol) : symbols_(initial_symbol.ToString()) {}
 
   /** @brief Destructor por defecto. */
   ~Stack() = default;
@@ -80,22 +84,25 @@ class Stack {
   /** @brief Devuelve el número de símbolos de la pila. */
   std::size_t Size() const { return symbols_.size(); }
 
-  /** @brief Operador de igualdad entre pilas (mismo contenido, en el mismo
-   * orden). */
-  bool operator==(const Stack& other) const {
-    return symbols_ == other.symbols_;
-  }
+  /** @brief Operador de igualdad entre pilas (mismo contenido, en el mismo orden). */
+  bool operator==(const Stack& other) const { return symbols_ == other.symbols_; }
 
   /** @brief Operador de desigualdad entre pilas. */
   bool operator!=(const Stack& other) const { return !(*this == other); }
 
-  /** @brief Sobrecarga del operador de salida: imprime la pila de la cima al
-   * fondo. */
-  friend std::ostream& operator<<(std::ostream& output_stream,
-                                  const Stack& stack);
+  /**
+   * @brief Orden total arbitrario entre pilas (lexicográfico sobre su
+   * contenido). No tiene ningún significado en la teoría de autómatas:
+   * existe solo para poder usar Stack (y, con ella,
+   * InstantaneousDescription) como clave de un std::set.
+   */
+  bool operator<(const Stack& other) const { return symbols_ < other.symbols_; }
+
+  /** @brief Sobrecarga del operador de salida: imprime la pila de la cima al fondo. */
+  friend std::ostream& operator<<(std::ostream& output_stream, const Stack& stack);
 
  private:
-  std::string symbols_; /**< Contenido de la pila; symbols_[0] es la cima. */
+  std::string symbols_;  /**< Contenido de la pila; symbols_[0] es la cima. */
 };
 
 #endif  // STACK_H_
