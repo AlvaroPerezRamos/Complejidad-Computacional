@@ -18,8 +18,8 @@
  *                operadores de comparación y de flujo.
  */
 
-#ifndef PDA_SYMBOL_H_
-#define PDA_SYMBOL_H_
+#ifndef SYMBOL_H_
+#define SYMBOL_H_
 
 #include <iostream>
 #include <string>
@@ -84,4 +84,4 @@ class Symbol {
   char character_; /**< Carácter que representa el símbolo. */
 };
 
-#endif  // PDA_SYMBOL_H_
+#endif  // SYMBOL_H_
