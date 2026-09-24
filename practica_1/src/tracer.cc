@@ -73,6 +73,7 @@ void Tracer::ReportDescription(
 
   const unsigned long description_id = next_description_id_++;
   description_id_stack_.push_back(description_id);
+  last_applicable_transitions_count_ = applicable_transitions.size();
 
   const std::string remaining_input = description.GetRemainingInput().empty()
                                           ? "ε"
@@ -99,6 +100,10 @@ void Tracer::ReportDescription(
 
 void Tracer::ReportAppliedTransition(const Transition& transition) {
   if (!is_enabled_) return;
+  if (last_applicable_transitions_count_ <= 1) {
+    return;  // Única transición aplicable: no era una elección real, no hace
+             // falta anunciarla.
+  }
   FlushPendingBacktracks();
   output_stream_ << "  -> se aplica la transición "
                  << GetTransitionNumber(transition) << ": " << transition

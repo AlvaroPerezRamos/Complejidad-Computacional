@@ -44,6 +44,19 @@
  * algo pendiente de una cadena anterior abortada por una excepción (que
  * no llega a llamar a EndChain()).
  *
+ * Cuando una descripción solo tiene una transición aplicable, no hay
+ * ninguna decisión que anunciar -es un paso mecánico, no una elección
+ * entre alternativas-, así que ReportAppliedTransition() no imprime nada
+ * en ese caso: la fila de ReportDescription() ya deja claro cuál es la
+ * única transición ("Transiciones aplicables: 3"), repetirlo en la línea
+ * siguiente no añade información. Solo se anuncia "se aplica" cuando de
+ * verdad había más de una opción entre las que elegir. Es Tracer quien
+ * decide esto, no Simulator: recuerda cuántas transiciones tenía la
+ * última descripción reportada (last_applicable_transitions_count_) y
+ * consulta ese dato, así que Simulator sigue llamando a
+ * ReportAppliedTransition() exactamente igual en todos los casos, sin
+ * tener que conocer esta política de formato.
+ *
  * Historial de versiones
  *   23/09/2026 - Creación del fichero e implementación completa.
  *   23/09/2026 - Ampliación, el mismo día: los retrocesos consecutivos
@@ -52,6 +65,9 @@
  *                retrocesos por un ID propio de cada descripción, así
  *                que la línea de retroceso agrupado dice a qué
  *                descripción concreta se vuelve, no cuántos pasos deshace.
+ *   23/09/2026 - Ampliación, el mismo día: se omite "se aplica" cuando
+ *                solo había una transición aplicable (no era una
+ *                elección real).
  */
 
 #ifndef TRACER_H_
@@ -109,8 +125,10 @@ class Tracer {
                          const std::vector<Transition>& applicable_transitions);
 
   /**
-   * @brief Informa de qué transición se aplica. Antes, vacía los
-   * retrocesos pendientes. No hace nada si la traza está desactivada.
+   * @brief Informa de qué transición se aplica, salvo que fuera la única
+   * aplicable en la última descripción reportada (no había elección real
+   * que anunciar). Antes, si va a imprimir, vacía los retrocesos
+   * pendientes. No hace nada si la traza está desactivada.
    */
   void ReportAppliedTransition(const Transition& transition);
 
@@ -156,6 +174,8 @@ class Tracer {
       false; /**< Si hay retrocesos sin imprimir todavía. */
   unsigned long pending_backtrack_from_id_ =
       0; /**< ID de la primera descripción abandonada en la racha actual. */
+  std::size_t last_applicable_transitions_count_ =
+      0; /**< Cuántas transiciones tenía la última descripción reportada. */
 };
 
 #endif  // TRACER_H_
