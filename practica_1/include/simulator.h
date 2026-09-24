@@ -17,11 +17,12 @@
  * tamaño máximo de la pila, número máximo de descripciones exploradas) y
  * la protección de profundidad de recursión.
  *
- * Todavía sin Tracer: esta versión solo determina si una cadena se
- * acepta o no, sin producir traza. Cuando exista Tracer, se añadirá como
- * miembro (tal y como recoge el diseño aprobado) y ExploreDescription()
- * lo usará para notificar cada descripción explorada, cada transición
- * aplicada y cada retroceso, sin tener que cambiar el algoritmo en sí.
+ * Ya con Tracer integrado: el constructor construye internamente el
+ * Tracer (a partir del ostream y el booleano que recibe) y le asigna la
+ * numeración de transiciones una sola vez, para que quien use Simulator
+ * no tenga que acordarse de hacerlo. Accepts()/ExploreDescription() lo
+ * usan para notificar cada descripción explorada, cada transición
+ * aplicada y cada retroceso, sin que el algoritmo en sí haya cambiado.
  *
  * GetApplicableTransitions() es un método privado que no estaba en el
  * diseño original (solo se listaban ExploreDescription() y
@@ -31,18 +32,24 @@
  *
  * Historial de versiones
  *   23/09/2026 - Creación del fichero e implementación completa.
+ *   23/09/2026 - Ampliación, el mismo día: se integra Tracer (ya
+ *                implementado). Simulator pasa a construirlo él mismo, a
+ *                partir del ostream y el booleano -trace que recibe en
+ *                su constructor.
  */
 
 #ifndef SIMULATOR_H_
 #define SIMULATOR_H_
 
 #include <cstddef>
+#include <ostream>
 #include <set>
 #include <vector>
 
 #include "chain.h"
 #include "instantaneous_description.h"
 #include "pushdown_automaton.h"
+#include "tracer.h"
 #include "transition.h"
 
 /**
@@ -56,9 +63,12 @@ class Simulator {
    * @brief Construye el simulador para un autómata concreto.
    * @param automaton Autómata ya construido y validado (por
    * AutomatonParser).
+   * @param trace_stream Flujo donde escribir la traza (pantalla o
+   * fichero).
+   * @param trace_enabled Si la traza está activada (-trace y/n).
    */
-  explicit Simulator(const PushdownAutomaton& automaton)
-      : automaton_(automaton) {}
+  Simulator(const PushdownAutomaton& automaton, std::ostream& trace_stream,
+            bool trace_enabled);
 
   /** @brief Destructor por defecto. */
   ~Simulator() = default;
@@ -127,6 +137,7 @@ class Simulator {
       const Transition& transition) const;
 
   PushdownAutomaton automaton_; /**< Autómata que se está simulando. */
+  Tracer tracer_; /**< Traza de la exploración (no-op si está desactivada). */
   unsigned long explored_descriptions_count_ =
       0; /**< Descripciones exploradas en la cadena actual. */
 };

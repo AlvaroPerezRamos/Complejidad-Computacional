@@ -45,6 +45,11 @@
  *                grafo de transiciones completo.
  *   23/09/2026 - Ampliación: bucle de comprobación de cadenas por
  *                teclado con Simulator, ahora que existe.
+ *   23/09/2026 - Ampliación, el mismo día: Tracer ya existe e integrado
+ *                en Simulator; se añade un '-trace' opcional como tercer
+ *                argumento (sin CommandLineOptions todavía, así que no
+ *                es '-trace y|n' real: su sola presencia activa la
+ *                traza).
  */
 
 #include <cstddef>
@@ -103,8 +108,9 @@ void PrintAutomatonSummary(const PushdownAutomaton& automaton) {
  * cadena y se continúa con la siguiente, tal y como exige la sección 6
  * del enunciado; no abortan el programa.
  */
-void RunInteractiveLoop(const PushdownAutomaton& automaton) {
-  Simulator simulator(automaton);
+void RunInteractiveLoop(const PushdownAutomaton& automaton,
+                        bool trace_enabled) {
+  Simulator simulator(automaton, std::cout, trace_enabled);
 
   std::cout << "\nIntroduce cadenas para comprobar (una por línea; '.' para "
                "la cadena vacía; 'exit' o Ctrl+D para terminar):\n";
@@ -118,7 +124,9 @@ void RunInteractiveLoop(const PushdownAutomaton& automaton) {
     try {
       const Chain chain(line, automaton.GetInputAlphabet());
       const bool accepted = simulator.Accepts(chain);
-      std::cout << (accepted ? "ACEPTADA" : "RECHAZADA") << "\n";
+      if (!trace_enabled) {
+        std::cout << (accepted ? "ACEPTADA" : "RECHAZADA") << "\n";
+      }
     } catch (const Error& error) {
       std::cerr << "Error: " << error.what() << "\n";
     }
@@ -128,10 +136,11 @@ void RunInteractiveLoop(const PushdownAutomaton& automaton) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  if (argc != 2) {
-    std::cerr << "Uso: " << argv[0] << " <fichero_configuracion>\n";
+  if (argc != 2 && argc != 3) {
+    std::cerr << "Uso: " << argv[0] << " <fichero_configuracion> [-trace]\n";
     return 1;
   }
+  const bool trace_enabled = (argc == 3 && std::string(argv[2]) == "-trace");
 
   try {
     AutomatonParser parser(argv[1]);
@@ -139,7 +148,7 @@ int main(int argc, char* argv[]) {
     AutomatonValidator::Validate(automaton, std::cout);
 
     PrintAutomatonSummary(automaton);
-    RunInteractiveLoop(automaton);
+    RunInteractiveLoop(automaton, trace_enabled);
 
   } catch (const ConfigurationError& error) {
     std::cerr << "Error (línea " << error.GetLineNumber()

@@ -19,7 +19,11 @@
  * todavía sin implementar).
  *
  * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa.
+ *   19/09/2026 - Creación del fichero e implementación completa: no ha
+ *                habido una fase previa de solo esqueleto, a diferencia
+ *                de Symbol/State/Alphabet/Chain, que partían de ficheros
+ *                ya creados el 18/09/2026.
+ *   23/09/2026 - Ampliación con operator<, necesario para Tracer.
  */
 
 #ifndef TRANSITION_H_
@@ -121,6 +125,20 @@ class Transition {
 
   /** @brief Operador de desigualdad. */
   bool operator!=(const Transition& other) const { return !(*this == other); }
+
+  /**
+   * @brief Orden total arbitrario entre transiciones (por sus cinco
+   * campos). No tiene ningún significado en la teoría de autómatas:
+   * existe solo para poder usar Transition como clave de un std::map
+   * (Tracer la necesita para asociar cada transición con su número).
+   */
+  bool operator<(const Transition& other) const {
+    return std::tie(origin_state_, input_symbol_, stack_symbol_,
+                    destination_state_, symbols_to_push_) <
+           std::tie(other.origin_state_, other.input_symbol_,
+                    other.stack_symbol_, other.destination_state_,
+                    other.symbols_to_push_);
+  }
 
   /** @brief Sobrecarga del operador de salida (usa ToString()). */
   friend std::ostream& operator<<(std::ostream& output_stream,

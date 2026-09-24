@@ -13,14 +13,25 @@
  *
  * Historial de versiones
  *   23/09/2026 - Creación e implementación completa.
+ *   23/09/2026 - Ampliación, el mismo día: integración de Tracer.
  */
 
-#include "../include/errors.h"
 #include "../include/simulator.h"
+
+#include "../include/errors.h"
 #include "../include/symbol.h"
+
+Simulator::Simulator(const PushdownAutomaton& automaton,
+                     std::ostream& trace_stream, bool trace_enabled)
+    : automaton_(automaton), tracer_(trace_stream, trace_enabled) {
+  tracer_.AssignTransitionNumbers(
+      automaton_.GetTransitionFunction().GetOrderedTransitions(
+          automaton_.GetStateDeclarationOrder()));
+}
 
 bool Simulator::Accepts(const Chain& chain) {
   explored_descriptions_count_ = 0;
+  tracer_.BeginChain(chain);
 
   const InstantaneousDescription initial_description(
       automaton_.GetInitialState(), chain.GetText(),
@@ -29,7 +40,10 @@ bool Simulator::Accepts(const Chain& chain) {
   std::set<InstantaneousDescription> visited_descriptions;
   visited_descriptions.insert(initial_description);
 
-  return ExploreDescription(initial_description, 0, visited_descriptions);
+  const bool accepted =
+      ExploreDescription(initial_description, 0, visited_descriptions);
+  tracer_.EndChain(accepted, explored_descriptions_count_);
+  return accepted;
 }
 
 bool Simulator::ExploreDescription(
@@ -37,6 +51,7 @@ bool Simulator::ExploreDescription(
     std::set<InstantaneousDescription>& visited_descriptions) {
   if (description.IsInputConsumed() &&
       automaton_.IsFinalState(description.GetState())) {
+    tracer_.ReportDescription(description, {});
     return true;
   }
 
@@ -60,7 +75,11 @@ bool Simulator::ExploreDescription(
         std::to_string(kMaxExploredDescriptions) + ").");
   }
 
-  for (const Transition& transition : GetApplicableTransitions(description)) {
+  const std::vector<Transition> applicable_transitions =
+      GetApplicableTransitions(description);
+  tracer_.ReportDescription(description, applicable_transitions);
+
+  for (const Transition& transition : applicable_transitions) {
     const InstantaneousDescription next_description =
         ApplyTransition(description, transition);
 
@@ -68,6 +87,7 @@ bool Simulator::ExploreDescription(
       continue;  // Ya visitada en esta rama: se poda para evitar ciclos.
     }
 
+    tracer_.ReportAppliedTransition(transition);
     visited_descriptions.insert(next_description);
     if (ExploreDescription(next_description, recursion_depth + 1,
                            visited_descriptions)) {
@@ -75,6 +95,7 @@ bool Simulator::ExploreDescription(
     }
     visited_descriptions.erase(
         next_description);  // Retroceso: libre para otras ramas.
+    tracer_.ReportBacktracking();
   }
 
   return false;
