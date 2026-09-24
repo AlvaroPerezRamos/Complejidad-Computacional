@@ -15,6 +15,8 @@
  *   23/09/2026 - Creación e implementación completa.
  *   23/09/2026 - Ampliación, el mismo día: agrupación de retrocesos
  *                consecutivos en una sola línea.
+ *   23/09/2026 - Rediseño, el mismo día: IDs de descripción en vez de un
+ *                simple contador de retrocesos.
  */
 
 #include "../include/tracer.h"
@@ -40,21 +42,23 @@ std::size_t Tracer::GetTransitionNumber(const Transition& transition) const {
 }
 
 void Tracer::FlushPendingBacktracks() {
-  if (pending_backtrack_count_ == 0) {
+  if (!has_pending_backtrack_) {
     return;
   }
-  output_stream_ << "  <- retroceso";
-  if (pending_backtrack_count_ > 1) {
-    output_stream_ << " x" << pending_backtrack_count_;
-  }
-  output_stream_ << "\n";
-  pending_backtrack_count_ = 0;
+  const unsigned long current_id =
+      description_id_stack_.empty() ? 0 : description_id_stack_.back();
+  output_stream_ << "  <- retroceso: de la descripción "
+                 << pending_backtrack_from_id_ << " a la " << current_id
+                 << "\n";
+  has_pending_backtrack_ = false;
 }
 
 void Tracer::BeginChain(const Chain& chain) {
   if (!is_enabled_) return;
-  pending_backtrack_count_ =
-      0;  // Descarta lo pendiente de una cadena anterior abortada.
+  description_id_stack_.clear();
+  next_description_id_ = 1;
+  has_pending_backtrack_ =
+      false;  // Descarta lo pendiente de una cadena anterior abortada.
 
   output_stream_ << std::string(kSeparatorWidth, '=') << "\n";
   output_stream_ << " Traza del reconocimiento de la cadena: " << chain << "\n";
@@ -67,11 +71,15 @@ void Tracer::ReportDescription(
   if (!is_enabled_) return;
   FlushPendingBacktracks();
 
+  const unsigned long description_id = next_description_id_++;
+  description_id_stack_.push_back(description_id);
+
   const std::string remaining_input = description.GetRemainingInput().empty()
                                           ? "ε"
                                           : description.GetRemainingInput();
 
-  output_stream_ << "Estado: " << description.GetState()
+  output_stream_ << "ID: " << description_id
+                 << "    Estado: " << description.GetState()
                  << "    Cadena pendiente: " << remaining_input
                  << "    Pila: " << description.GetStack()
                  << "    Transiciones aplicables: ";
@@ -99,7 +107,21 @@ void Tracer::ReportAppliedTransition(const Transition& transition) {
 
 void Tracer::ReportBacktracking() {
   if (!is_enabled_) return;
-  ++pending_backtrack_count_;
+  if (description_id_stack_.empty()) {
+    return;  // Salvaguarda: no debería llamarse sin ninguna descripción
+             // abierta.
+  }
+
+  const unsigned long abandoned_id = description_id_stack_.back();
+  description_id_stack_.pop_back();
+
+  if (!has_pending_backtrack_) {
+    pending_backtrack_from_id_ = abandoned_id;
+    has_pending_backtrack_ = true;
+  }
+  // Si ya había un retroceso pendiente, pending_backtrack_from_id_ se queda
+  // como estaba: es el primero (más profundo) de la racha actual, que es
+  // el dato que hace falta para el mensaje final ("de X a Y").
 }
 
 void Tracer::EndChain(bool accepted, unsigned long explored_descriptions) {
