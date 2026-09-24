@@ -11,14 +11,19 @@
  * @file main.cc
  * @brief Programa principal, versión provisional.
  *
- * Usa AutomatonParser para construir el PushdownAutomaton completo a
- * partir del fichero de configuración, con todas las comprobaciones de
- * la sección 6 del enunciado que abortan la carga. Todavía no comprueba
- * cadenas de entrada (no existe Simulator) ni ejecuta los avisos que
- * necesitan el autómata completo (no existe AutomatonValidator): solo
- * imprime lo que se ha leído, incluidos los estados alcanzables desde
- * q0, para poder revisarlo. Por eso este fichero se sustituirá y no
- * forma parte todavía de la arquitectura final descrita en el README.
+ * Usa AutomatonParser para construir el PushdownAutomaton, lo pasa por
+ * AutomatonValidator, y ya deja comprobar cadenas de verdad con
+ * Simulator: se leen por teclado, una por línea ('.' para la cadena
+ * vacía, 'exit' o Ctrl+D para terminar), tal y como describe la sección
+ * 2 del enunciado para el modo teclado.
+ *
+ * Sigue siendo provisional: no acepta todavía las opciones reales de la
+ * línea de comandos (-config/-trace/-in/-out), solo el fichero de
+ * configuración como argumento único, y siempre lee las cadenas por
+ * teclado (no hay -in ni -out porque no existe CommandLineOptions). Y
+ * como tampoco existe Tracer, no hay modo traza: Simulator solo dice si
+ * acepta o rechaza. Por eso este fichero se sustituirá y no forma parte
+ * todavía de la arquitectura final descrita en el README.
  *
  * Historial de versiones
  *   19/09/2026 - Creación: lectura de comentarios y líneas en blanco, y
@@ -38,17 +43,89 @@
  *                AutomatonValidator::Validate() justo después de
  *                construir el autómata, para los avisos que necesitan el
  *                grafo de transiciones completo.
+ *   23/09/2026 - Ampliación: bucle de comprobación de cadenas por
+ *                teclado con Simulator, ahora que existe.
  */
 
 #include <cstddef>
 #include <iostream>
+#include <string>
 
 #include "../include/automaton_parser.h"
 #include "../include/automaton_validator.h"
+#include "../include/chain.h"
 #include "../include/errors.h"
 #include "../include/pushdown_automaton.h"
+#include "../include/simulator.h"
 #include "../include/state.h"
 #include "../include/transition.h"
+
+namespace {
+
+/**
+ * @brief Imprime el resumen del autómata ya construido: Q, Σ, Γ, q0, Z0,
+ * F, los estados alcanzables desde q0 y las transiciones numeradas.
+ */
+void PrintAutomatonSummary(const PushdownAutomaton& automaton) {
+  std::cout << "Estados (Q): ";
+  for (const State& state : automaton.GetStateDeclarationOrder())
+    std::cout << state << " ";
+  std::cout << "\n";
+  std::cout << "Alfabeto de entrada (Σ): " << automaton.GetInputAlphabet()
+            << "\n";
+  std::cout << "Alfabeto de pila (Γ): " << automaton.GetStackAlphabet() << "\n";
+  std::cout << "Estado inicial (q0): " << automaton.GetInitialState() << "\n";
+  std::cout << "Símbolo inicial de pila (Z0): "
+            << automaton.GetInitialStackSymbol() << "\n";
+  std::cout << "Estados finales (F): ";
+  for (const State& state : automaton.GetFinalStates())
+    std::cout << state << " ";
+  std::cout << "\n";
+  std::cout << "Estados alcanzables desde q0: ";
+  for (const State& state : automaton.ComputeReachableStates())
+    std::cout << state << " ";
+  std::cout << "\n";
+
+  const TransitionFunction& transition_function =
+      automaton.GetTransitionFunction();
+  std::cout << "Transiciones (" << transition_function.Size() << "):\n";
+  std::size_t transition_number = 1;
+  for (const Transition& transition : transition_function.GetOrderedTransitions(
+           automaton.GetStateDeclarationOrder())) {
+    std::cout << "  " << transition_number++ << ". " << transition << "\n";
+  }
+}
+
+/**
+ * @brief Bucle de comprobación de cadenas por teclado: una por línea,
+ * '.' para la cadena vacía, 'exit' o Ctrl+D para terminar. Un ChainError
+ * (símbolo fuera de Σ) o un SimulationLimitExceededError descartan esa
+ * cadena y se continúa con la siguiente, tal y como exige la sección 6
+ * del enunciado; no abortan el programa.
+ */
+void RunInteractiveLoop(const PushdownAutomaton& automaton) {
+  Simulator simulator(automaton);
+
+  std::cout << "\nIntroduce cadenas para comprobar (una por línea; '.' para "
+               "la cadena vacía; 'exit' o Ctrl+D para terminar):\n";
+
+  std::string line;
+  while (true) {
+    std::cout << "> ";
+    if (!std::getline(std::cin, line) || line == "exit") {
+      break;
+    }
+    try {
+      const Chain chain(line, automaton.GetInputAlphabet());
+      const bool accepted = simulator.Accepts(chain);
+      std::cout << (accepted ? "ACEPTADA" : "RECHAZADA") << "\n";
+    } catch (const Error& error) {
+      std::cerr << "Error: " << error.what() << "\n";
+    }
+  }
+}
+
+}  // namespace
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
@@ -61,35 +138,8 @@ int main(int argc, char* argv[]) {
     const PushdownAutomaton automaton = parser.Parse(std::cout);
     AutomatonValidator::Validate(automaton, std::cout);
 
-    std::cout << "Estados (Q): ";
-    for (const State& state : automaton.GetStateDeclarationOrder())
-      std::cout << state << " ";
-    std::cout << "\n";
-    std::cout << "Alfabeto de entrada (Σ): " << automaton.GetInputAlphabet()
-              << "\n";
-    std::cout << "Alfabeto de pila (Γ): " << automaton.GetStackAlphabet()
-              << "\n";
-    std::cout << "Estado inicial (q0): " << automaton.GetInitialState() << "\n";
-    std::cout << "Símbolo inicial de pila (Z0): "
-              << automaton.GetInitialStackSymbol() << "\n";
-    std::cout << "Estados finales (F): ";
-    for (const State& state : automaton.GetFinalStates())
-      std::cout << state << " ";
-    std::cout << "\n";
-    std::cout << "Estados alcanzables desde q0: ";
-    for (const State& state : automaton.ComputeReachableStates())
-      std::cout << state << " ";
-    std::cout << "\n";
-
-    const TransitionFunction& transition_function =
-        automaton.GetTransitionFunction();
-    std::cout << "Transiciones (" << transition_function.Size() << "):\n";
-    std::size_t transition_number = 1;
-    for (const Transition& transition :
-         transition_function.GetOrderedTransitions(
-             automaton.GetStateDeclarationOrder())) {
-      std::cout << "  " << transition_number++ << ". " << transition << "\n";
-    }
+    PrintAutomatonSummary(automaton);
+    RunInteractiveLoop(automaton);
 
   } catch (const ConfigurationError& error) {
     std::cerr << "Error (línea " << error.GetLineNumber()
