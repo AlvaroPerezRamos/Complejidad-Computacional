@@ -30,6 +30,8 @@
  *                configuración.
  *   19/09/2026 - Ampliación, el mismo día, con InvalidStateError y
  *                FileError, necesarias para AutomatonParser.
+ *   23/09/2026 - Ampliación con SimulationLimitExceededError, necesaria
+ *                para las salvaguardas de Simulator.
  */
 
 #ifndef ERRORS_H_
@@ -220,6 +222,22 @@ class SimulationError : public Error {
 class EmptyStackError : public SimulationError {
  public:
   explicit EmptyStackError(const std::string& message)
+      : SimulationError(message) {}
+};
+
+/**
+ * @class SimulationLimitExceededError
+ * @brief Se ha superado alguna de las tres salvaguardas de la sección 5
+ * del enunciado durante la exploración del árbol de descripciones
+ * instantáneas de una cadena: el tamaño máximo de la pila (1000
+ * símbolos), el número máximo de descripciones exploradas (200 000), o
+ * la profundidad máxima de la recursión (2000). Como cualquier
+ * SimulationError, no aborta el programa: solo esa cadena se descarta y
+ * se continúa con la siguiente.
+ */
+class SimulationLimitExceededError : public SimulationError {
+ public:
+  explicit SimulationLimitExceededError(const std::string& message)
       : SimulationError(message) {}
 };
 
