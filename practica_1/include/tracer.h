@@ -57,6 +57,13 @@
  * ReportAppliedTransition() exactamente igual en todos los casos, sin
  * tener que conocer esta política de formato.
  *
+ * BeginChain() y EndChain() vacían explícitamente el flujo (flush())
+ * después de escribir: un '<<' con "\n" dentro no garantiza que el
+ * sistema operativo entregue el texto de inmediato, solo que se ha
+ * escrito en el buffer interno del flujo. Sin este flush(), la traza de
+ * varias cadenas podía quedar retenida y aparecer toda junta al final del
+ * programa, en vez de cadena a cadena según se van comprobando.
+ *
  * Historial de versiones
  *   23/09/2026 - Creación del fichero e implementación completa.
  *   23/09/2026 - Ampliación: los retrocesos consecutivos
@@ -65,8 +72,13 @@
  *                retrocesos por un ID propio de cada descripción, así
  *                que la línea de retroceso agrupado dice a qué
  *                descripción concreta se vuelve, no cuántos pasos deshace.
- *   23/09/2026 - Ampliación: se omite "se aplica" cuando solo había una 
- *                transición aplicable (no era una elección real).
+ *   23/09/2026 - Ampliación: se omite "se aplica" cuando
+ *                solo había una transición aplicable (no era una
+ *                elección real).
+ *   23/09/2026 - Ampliación: BeginChain() y EndChain()
+ *                vacían el buffer de salida (flush()) explícitamente,
+ *                para que la traza de cada cadena se vea al momento y no
+ *                se acumule sin mostrarse hasta que el programa termina.
  */
 
 #ifndef TRACER_H_

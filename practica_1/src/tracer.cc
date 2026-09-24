@@ -13,10 +13,12 @@
  *
  * Historial de versiones
  *   23/09/2026 - Creación e implementación completa.
- *   23/09/2026 - Ampliación, el mismo día: agrupación de retrocesos
+ *   23/09/2026 - Ampliación: agrupación de retrocesos
  *                consecutivos en una sola línea.
- *   23/09/2026 - Rediseño, el mismo día: IDs de descripción en vez de un
+ *   23/09/2026 - Rediseño: IDs de descripción en vez de un
  *                simple contador de retrocesos.
+ *   23/09/2026 - Ampliación: flush() explícito en
+ *                BeginChain() y EndChain().
  */
 
 #include "../include/tracer.h"
@@ -63,6 +65,7 @@ void Tracer::BeginChain(const Chain& chain) {
   output_stream_ << std::string(kSeparatorWidth, '=') << "\n";
   output_stream_ << " Traza del reconocimiento de la cadena: " << chain << "\n";
   output_stream_ << std::string(kSeparatorWidth, '=') << "\n";
+  output_stream_.flush();
 }
 
 void Tracer::ReportDescription(
@@ -141,4 +144,5 @@ void Tracer::EndChain(bool accepted, unsigned long explored_descriptions) {
                                  : "descripciones instantáneas")
                  << ".\n";
   output_stream_ << std::string(kSeparatorWidth, '=') << "\n";
+  output_stream_.flush();
 }

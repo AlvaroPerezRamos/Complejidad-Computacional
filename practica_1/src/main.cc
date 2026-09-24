@@ -22,33 +22,37 @@
  * Historial de versiones
  *   19/09/2026 - Creación: lectura de comentarios y líneas en blanco, y
  *                de las líneas de Q, Σ y Γ.
- *   19/09/2026 - Ampliación, el mismo día: lectura de q0, Z0, F y de las
+ *   19/09/2026 - Ampliación: el mismo día: lectura de q0, Z0, F y de las
  *                transiciones, con construcción de la TransitionFunction
  *                completa y numeración de las transiciones al imprimirlas.
- *   19/09/2026 - Ampliación, el mismo día: se extraen a config_reader.h/
+ *   19/09/2026 - Ampliación: se extraen a config_reader.h/
  *                .cc todas las funciones de lectura y parseo, dejando
  *                aquí únicamente el punto de entrada.
- *   19/09/2026 - Reescritura, el mismo día: config_reader.h/.cc
+ *   19/09/2026 - Reescritura: config_reader.h/.cc
  *                desaparece, sustituido por AutomatonParser (que además
  *                valida las referencias cruzadas entre Q/Σ/Γ y fija el
  *                número de línea real de cada error). main.cc pasa a
  *                usar PushdownAutomaton en vez de variables sueltas.
- *   19/09/2026 - Ampliación, el mismo día: se llama a
+ *   19/09/2026 - Ampliación: se llama a
  *                AutomatonValidator::Validate() justo después de
  *                construir el autómata, para los avisos que necesitan el
  *                grafo de transiciones completo.
  *   23/09/2026 - Ampliación: bucle de comprobación de cadenas por
  *                teclado con Simulator, ahora que existe.
- *   23/09/2026 - Ampliación, el mismo día: Tracer ya existe e integrado
+ *   23/09/2026 - Ampliación: Tracer ya existe e integrado
  *                en Simulator; se añade un '-trace' opcional como tercer
  *                argumento (sin CommandLineOptions todavía, así que no
  *                es '-trace y|n' real: su sola presencia activa la
  *                traza).
- *   23/09/2026 - Reescritura, el mismo día: CommandLineOptions ya existe.
+ *   23/09/2026 - Reescritura: CommandLineOptions ya existe.
  *                Se sustituye el '-trace' ad hoc por las opciones reales
  *                del enunciado (-config/-trace/-in/-out/-h), con
  *                lectura de cadenas desde -in y traza hacia -out cuando
  *                se especifican.
+ *   23/09/2026 - Ampliación: flush() explícito tras el
+ *                prompt y tras el veredicto en RunChainLoop(), para que
+ *                se vean al momento (ver también la explicación en
+ *                tracer.h sobre BeginChain()/EndChain()).
  */
 
 #include <cstddef>
@@ -128,7 +132,11 @@ void RunChainLoop(const PushdownAutomaton& automaton, Simulator& simulator,
 
   std::string line;
   while (true) {
-    if (is_interactive) std::cout << "> ";
+    if (is_interactive) {
+      std::cout << "> ";
+      std::cout.flush();  // Sin esto, el "> " puede quedar sin mostrarse hasta
+                          // el siguiente flush.
+    }
     if (!std::getline(input_stream, line)) break;
     if (is_interactive && line == "exit") break;
 
@@ -137,6 +145,7 @@ void RunChainLoop(const PushdownAutomaton& automaton, Simulator& simulator,
       const bool accepted = simulator.Accepts(chain);
       if (!trace_enabled) {
         std::cout << (accepted ? "ACEPTADA" : "RECHAZADA") << "\n";
+        std::cout.flush();
       }
     } catch (const Error& error) {
       std::cerr << "Error: " << error.what() << "\n";
