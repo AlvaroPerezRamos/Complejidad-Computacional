@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 # Directorios de los archivos fuente y encabezados
 set(SRC_DIR src)
-set(INCLUDE_DIR includes)
+set(INCLUDE_DIR include)
 
 # Buscar todos los archivos .cc en el directorio src
 file(GLOB SOURCES "${SRC_DIR}/*.cc")
