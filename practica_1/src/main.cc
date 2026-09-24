@@ -9,21 +9,15 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 19/09/2026
  * @file main.cc
- * @brief Programa principal, versión provisional.
+ * @brief Programa principal.
  *
- * Usa AutomatonParser para construir el PushdownAutomaton, lo pasa por
- * AutomatonValidator, y ya deja comprobar cadenas de verdad con
- * Simulator: se leen por teclado, una por línea ('.' para la cadena
- * vacía, 'exit' o Ctrl+D para terminar), tal y como describe la sección
- * 2 del enunciado para el modo teclado.
- *
- * Sigue siendo provisional: no acepta todavía las opciones reales de la
- * línea de comandos (-config/-trace/-in/-out), solo el fichero de
- * configuración como argumento único, y siempre lee las cadenas por
- * teclado (no hay -in ni -out porque no existe CommandLineOptions). Y
- * como tampoco existe Tracer, no hay modo traza: Simulator solo dice si
- * acepta o rechaza. Por eso este fichero se sustituirá y no forma parte
- * todavía de la arquitectura final descrita en el README.
+ * Ya con CommandLineOptions real: -config y -trace obligatorios, -in y
+ * -out opcionales, -h/--help para la ayuda. Las cadenas se leen de -in
+ * si se especifica, o por teclado si no (una por línea, '.' para la
+ * cadena vacía, 'exit' o Ctrl+D para terminar -esto último solo tiene
+ * sentido en modo teclado, así que RunChainLoop() solo lo comprueba
+ * cuando is_interactive es true-). La traza va a -out si se especifica,
+ * o a pantalla si no.
  *
  * Historial de versiones
  *   19/09/2026 - Creación: lectura de comentarios y líneas en blanco, y
@@ -50,15 +44,22 @@
  *                argumento (sin CommandLineOptions todavía, así que no
  *                es '-trace y|n' real: su sola presencia activa la
  *                traza).
+ *   23/09/2026 - Reescritura, el mismo día: CommandLineOptions ya existe.
+ *                Se sustituye el '-trace' ad hoc por las opciones reales
+ *                del enunciado (-config/-trace/-in/-out/-h), con
+ *                lectura de cadenas desde -in y traza hacia -out cuando
+ *                se especifican.
  */
 
 #include <cstddef>
+#include <fstream>
 #include <iostream>
 #include <string>
 
 #include "../include/automaton_parser.h"
 #include "../include/automaton_validator.h"
 #include "../include/chain.h"
+#include "../include/command_line_options.h"
 #include "../include/errors.h"
 #include "../include/pushdown_automaton.h"
 #include "../include/simulator.h"
@@ -102,25 +103,35 @@ void PrintAutomatonSummary(const PushdownAutomaton& automaton) {
 }
 
 /**
- * @brief Bucle de comprobación de cadenas por teclado: una por línea,
- * '.' para la cadena vacía, 'exit' o Ctrl+D para terminar. Un ChainError
- * (símbolo fuera de Σ) o un SimulationLimitExceededError descartan esa
- * cadena y se continúa con la siguiente, tal y como exige la sección 6
- * del enunciado; no abortan el programa.
+ * @brief Comprueba, una por una, las cadenas que llegan por input_stream.
+ * Un ChainError (símbolo fuera de Σ) o un SimulationLimitExceededError
+ * descartan esa cadena y se continúa con la siguiente, tal y como exige
+ * la sección 6 del enunciado; no abortan el programa.
+ * @param automaton Autómata ya construido.
+ * @param simulator Simulador a usar (ya construido con el ostream y el
+ * booleano de traza correctos).
+ * @param input_stream De dónde leer las cadenas: std::cin o el fichero
+ * de -in.
+ * @param is_interactive Si input_stream es el teclado: solo entonces se
+ * imprime el símbolo de espera ("> ") y solo entonces 'exit' termina el
+ * bucle antes de llegar a EOF (no tiene sentido para un fichero de -in).
+ * @param trace_enabled Si la traza está activada: si lo está, el
+ * veredicto ya lo dice Tracer::EndChain(), así que no se repite aquí.
  */
-void RunInteractiveLoop(const PushdownAutomaton& automaton,
-                        bool trace_enabled) {
-  Simulator simulator(automaton, std::cout, trace_enabled);
-
-  std::cout << "\nIntroduce cadenas para comprobar (una por línea; '.' para "
-               "la cadena vacía; 'exit' o Ctrl+D para terminar):\n";
+void RunChainLoop(const PushdownAutomaton& automaton, Simulator& simulator,
+                  std::istream& input_stream, bool is_interactive,
+                  bool trace_enabled) {
+  if (is_interactive) {
+    std::cout << "\nIntroduce cadenas para comprobar (una por línea; '.' para "
+                 "la cadena vacía; 'exit' o Ctrl+D para terminar):\n";
+  }
 
   std::string line;
   while (true) {
-    std::cout << "> ";
-    if (!std::getline(std::cin, line) || line == "exit") {
-      break;
-    }
+    if (is_interactive) std::cout << "> ";
+    if (!std::getline(input_stream, line)) break;
+    if (is_interactive && line == "exit") break;
+
     try {
       const Chain chain(line, automaton.GetInputAlphabet());
       const bool accepted = simulator.Accepts(chain);
@@ -136,19 +147,37 @@ void RunInteractiveLoop(const PushdownAutomaton& automaton,
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  if (argc != 2 && argc != 3) {
-    std::cerr << "Uso: " << argv[0] << " <fichero_configuracion> [-trace]\n";
-    return 1;
-  }
-  const bool trace_enabled = (argc == 3 && std::string(argv[2]) == "-trace");
-
   try {
-    AutomatonParser parser(argv[1]);
+    const CommandLineOptions options = CommandLineOptions::Parse(argc, argv);
+
+    if (options.IsHelpRequested()) {
+      std::cout << CommandLineOptions::BuildHelpText(
+          argc > 0 ? argv[0] : "pda_simulator");
+      return 0;
+    }
+
+    AutomatonParser parser(options.GetConfigurationFilePath());
     const PushdownAutomaton automaton = parser.Parse(std::cout);
     AutomatonValidator::Validate(automaton, std::cout);
-
     PrintAutomatonSummary(automaton);
-    RunInteractiveLoop(automaton, trace_enabled);
+
+    std::ofstream trace_output_file;
+    std::ostream* trace_stream = &std::cout;
+    if (options.HasOutputFile()) {
+      trace_output_file.open(options.GetOutputFilePath());
+      trace_stream = &trace_output_file;
+    }
+
+    Simulator simulator(automaton, *trace_stream, options.IsTraceEnabled());
+
+    if (options.HasInputFile()) {
+      std::ifstream input_file(options.GetInputFilePath());
+      RunChainLoop(automaton, simulator, input_file, /*is_interactive=*/false,
+                   options.IsTraceEnabled());
+    } else {
+      RunChainLoop(automaton, simulator, std::cin, /*is_interactive=*/true,
+                   options.IsTraceEnabled());
+    }
 
   } catch (const ConfigurationError& error) {
     std::cerr << "Error (línea " << error.GetLineNumber()

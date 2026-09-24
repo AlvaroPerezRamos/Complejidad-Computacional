@@ -59,15 +59,14 @@
  *
  * Historial de versiones
  *   23/09/2026 - Creación del fichero e implementación completa.
- *   23/09/2026 - Ampliación, el mismo día: los retrocesos consecutivos
+ *   23/09/2026 - Ampliación: los retrocesos consecutivos
  *                se agrupan en una sola línea ("<- retroceso xN").
- *   23/09/2026 - Rediseño, el mismo día: se sustituye el contador de
+ *   23/09/2026 - Rediseño: se sustituye el contador de
  *                retrocesos por un ID propio de cada descripción, así
  *                que la línea de retroceso agrupado dice a qué
  *                descripción concreta se vuelve, no cuántos pasos deshace.
- *   23/09/2026 - Ampliación, el mismo día: se omite "se aplica" cuando
- *                solo había una transición aplicable (no era una
- *                elección real).
+ *   23/09/2026 - Ampliación: se omite "se aplica" cuando solo había una 
+ *                transición aplicable (no era una elección real).
  */
 
 #ifndef TRACER_H_

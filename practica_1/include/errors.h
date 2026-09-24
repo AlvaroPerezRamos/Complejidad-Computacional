@@ -32,6 +32,8 @@
  *                FileError, necesarias para AutomatonParser.
  *   23/09/2026 - Ampliación con SimulationLimitExceededError, necesaria
  *                para las salvaguardas de Simulator.
+ *   23/09/2026 - Ampliación, el mismo día, con CommandLineError,
+ *                necesaria para CommandLineOptions.
  */
 
 #ifndef ERRORS_H_
@@ -178,6 +180,24 @@ class InvalidStateError : public ConfigurationError {
 class FileError : public Error {
  public:
   explicit FileError(const std::string& message) : Error(message) {}
+};
+
+// =============================================================================
+// Errores de la línea de comandos
+// =============================================================================
+
+/**
+ * @class CommandLineError
+ * @brief Los argumentos de la línea de comandos no son válidos (falta
+ * una opción obligatoria, una opción está repetida o sin valor, un valor
+ * no es el esperado, una opción es desconocida, o hay una incoherencia
+ * entre ficheros: -config/-in inaccesibles, -out no creable, -out junto
+ * a -trace n, o -out coincide con un fichero de entrada). No es un
+ * ConfigurationError: no depende de ninguna línea de ningún fichero.
+ */
+class CommandLineError : public Error {
+ public:
+  explicit CommandLineError(const std::string& message) : Error(message) {}
 };
 
 // =============================================================================

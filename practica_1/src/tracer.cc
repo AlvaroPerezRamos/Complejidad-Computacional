@@ -133,9 +133,12 @@ void Tracer::EndChain(bool accepted, unsigned long explored_descriptions) {
   if (!is_enabled_) return;
   FlushPendingBacktracks();
 
+  const bool is_singular = (explored_descriptions == 1);
   output_stream_ << std::string(kSeparatorWidth, '-') << "\n";
   output_stream_ << " Cadena " << (accepted ? "ACEPTADA" : "RECHAZADA")
-                 << " tras explorar " << explored_descriptions
-                 << " descripciones instantáneas.\n";
+                 << " tras explorar " << explored_descriptions << " "
+                 << (is_singular ? "descripción instantánea"
+                                 : "descripciones instantáneas")
+                 << ".\n";
   output_stream_ << std::string(kSeparatorWidth, '=') << "\n";
 }
