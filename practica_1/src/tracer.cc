@@ -13,6 +13,8 @@
  *
  * Historial de versiones
  *   23/09/2026 - Creación e implementación completa.
+ *   23/09/2026 - Ampliación, el mismo día: agrupación de retrocesos
+ *                consecutivos en una sola línea.
  */
 
 #include "../include/tracer.h"
@@ -37,8 +39,23 @@ std::size_t Tracer::GetTransitionNumber(const Transition& transition) const {
   return found_entry == transition_numbers_.end() ? 0 : found_entry->second;
 }
 
+void Tracer::FlushPendingBacktracks() {
+  if (pending_backtrack_count_ == 0) {
+    return;
+  }
+  output_stream_ << "  <- retroceso";
+  if (pending_backtrack_count_ > 1) {
+    output_stream_ << " x" << pending_backtrack_count_;
+  }
+  output_stream_ << "\n";
+  pending_backtrack_count_ = 0;
+}
+
 void Tracer::BeginChain(const Chain& chain) {
   if (!is_enabled_) return;
+  pending_backtrack_count_ =
+      0;  // Descarta lo pendiente de una cadena anterior abortada.
+
   output_stream_ << std::string(kSeparatorWidth, '=') << "\n";
   output_stream_ << " Traza del reconocimiento de la cadena: " << chain << "\n";
   output_stream_ << std::string(kSeparatorWidth, '=') << "\n";
@@ -48,6 +65,7 @@ void Tracer::ReportDescription(
     const InstantaneousDescription& description,
     const std::vector<Transition>& applicable_transitions) {
   if (!is_enabled_) return;
+  FlushPendingBacktracks();
 
   const std::string remaining_input = description.GetRemainingInput().empty()
                                           ? "ε"
@@ -73,6 +91,7 @@ void Tracer::ReportDescription(
 
 void Tracer::ReportAppliedTransition(const Transition& transition) {
   if (!is_enabled_) return;
+  FlushPendingBacktracks();
   output_stream_ << "  -> se aplica la transición "
                  << GetTransitionNumber(transition) << ": " << transition
                  << "\n";
@@ -80,11 +99,13 @@ void Tracer::ReportAppliedTransition(const Transition& transition) {
 
 void Tracer::ReportBacktracking() {
   if (!is_enabled_) return;
-  output_stream_ << "  <- retroceso\n";
+  ++pending_backtrack_count_;
 }
 
 void Tracer::EndChain(bool accepted, unsigned long explored_descriptions) {
   if (!is_enabled_) return;
+  FlushPendingBacktracks();
+
   output_stream_ << std::string(kSeparatorWidth, '-') << "\n";
   output_stream_ << " Cadena " << (accepted ? "ACEPTADA" : "RECHAZADA")
                  << " tras explorar " << explored_descriptions

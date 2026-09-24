@@ -30,8 +30,23 @@
  * declaración en Q, autobucles antes que el resto) en vez de repetir su
  * forma completa en cada fila.
  *
+ * ReportBacktracking() no imprime nada al momento: solo cuenta. Cuando
+ * varios niveles de la recursión retroceden uno detrás de otro sin nada
+ * interesante en medio (ningún estado nuevo, ninguna transición
+ * aplicada), el resultado son muchas líneas idénticas seguidas que no
+ * aportan nada. En vez de eso, el contador se "vacía" -se imprime como
+ * una sola línea, "<- retroceso" o "<- retroceso xN"- justo antes de
+ * cualquier otra cosa que sí sea distinta (una nueva descripción, una
+ * transición aplicada, o el final de la cadena). BeginChain() lo
+ * reinicia sin imprimir nada, por si quedara algo pendiente de una
+ * cadena anterior abortada por una excepción (que no llega a llamar a
+ * EndChain()).
+ *
  * Historial de versiones
  *   23/09/2026 - Creación del fichero e implementación completa.
+ *   23/09/2026 - Ampliación, el mismo día: los retrocesos consecutivos
+ *                se agrupan en una sola línea ("<- retroceso xN") en vez
+ *                de imprimir una línea idéntica por cada uno.
  */
 
 #ifndef TRACER_H_
@@ -72,30 +87,38 @@ class Tracer {
   void AssignTransitionNumbers(
       const std::vector<Transition>& ordered_transitions);
 
-  /** @brief Marca el comienzo de la traza de una cadena. No hace nada si la
-   * traza está desactivada. */
+  /**
+   * @brief Marca el comienzo de la traza de una cadena. Descarta (sin
+   * imprimir) cualquier retroceso pendiente de una cadena anterior. No
+   * hace nada si la traza está desactivada.
+   */
   void BeginChain(const Chain& chain);
 
   /**
    * @brief Informa de una descripción instantánea y de las transiciones
-   * aplicables desde ella (por su número). No hace nada si la traza está
-   * desactivada.
+   * aplicables desde ella (por su número). Antes, vacía los retrocesos
+   * pendientes. No hace nada si la traza está desactivada.
    */
   void ReportDescription(const InstantaneousDescription& description,
                          const std::vector<Transition>& applicable_transitions);
 
-  /** @brief Informa de qué transición se aplica. No hace nada si la traza está
-   * desactivada. */
+  /**
+   * @brief Informa de qué transición se aplica. Antes, vacía los
+   * retrocesos pendientes. No hace nada si la traza está desactivada.
+   */
   void ReportAppliedTransition(const Transition& transition);
 
-  /** @brief Informa de un retroceso. No hace nada si la traza está desactivada.
+  /**
+   * @brief Cuenta un retroceso más. No imprime nada todavía: se acumula
+   * hasta que otra llamada distinta lo vacíe (ver la explicación en la
+   * cabecera del fichero). No hace nada si la traza está desactivada.
    */
   void ReportBacktracking();
 
   /**
    * @brief Marca el final de la traza de una cadena, con el veredicto y
-   * el número de descripciones exploradas. No hace nada si la traza está
-   * desactivada.
+   * el número de descripciones exploradas. Antes, vacía los retrocesos
+   * pendientes. No hace nada si la traza está desactivada.
    */
   void EndChain(bool accepted, unsigned long explored_descriptions);
 
@@ -108,10 +131,19 @@ class Tracer {
    */
   std::size_t GetTransitionNumber(const Transition& transition) const;
 
+  /**
+   * @brief Si hay retrocesos acumulados sin imprimir, escribe la línea
+   * correspondiente ("<- retroceso" o "<- retroceso xN") y reinicia el
+   * contador a 0. Si no hay ninguno pendiente, no hace nada.
+   */
+  void FlushPendingBacktracks();
+
   std::ostream& output_stream_; /**< Flujo donde escribir la traza. */
   bool is_enabled_;             /**< Si la traza está activada. */
   std::map<Transition, std::size_t>
       transition_numbers_; /**< Número asignado a cada transición. */
+  unsigned long pending_backtrack_count_ =
+      0; /**< Retrocesos consecutivos todavía sin imprimir. */
 };
 
 #endif  // TRACER_H_
