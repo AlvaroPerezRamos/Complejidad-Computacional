@@ -10,18 +10,12 @@
  * @date 18/09/2026
  * @file alphabet.cc
  * @brief Implementación de la clase Alphabet.
- *
- * Historial de versiones
- *   18/09/2026 - Creación del fichero.
- *   19/09/2026 - Implementación del constructor, de
- *                ValidateSymbolToken(), InsertSymbol() y del operador de
- *                salida.
  */
 
-#include "../include/alphabet.h"
 
 #include <sstream>
 
+#include "../include/alphabet.h"
 #include "../include/errors.h"
 
 Alphabet::Alphabet(const std::string& symbols_line) {

@@ -1,4 +1,45 @@
 ================================================================================
+ Traza del reconocimiento de la cadena: a
+================================================================================
+ID: 1    Estado: s    Cadena pendiente: a    Pila: A    Transiciones aplicables: 8
+ID: 2    Estado: q0    Cadena pendiente: a    Pila: SA    Transiciones aplicables: 3, 4, 5
+  -> se aplica la transición 3: δ(q0, ., S) ∋ (q0, aSB)
+ID: 3    Estado: q0    Cadena pendiente: a    Pila: aSBA    Transiciones aplicables: 1
+ID: 4    Estado: q0    Cadena pendiente: ε    Pila: SBA    Transiciones aplicables: 3, 4, 5
+  -> se aplica la transición 3: δ(q0, ., S) ∋ (q0, aSB)
+ID: 5    Estado: q0    Cadena pendiente: ε    Pila: aSBBA    Transiciones aplicables: ninguna
+  <- retroceso: de la descripción 5 a la 4
+ID: 6    Estado: q0    Cadena pendiente: ε    Pila: aBBA    Transiciones aplicables: ninguna
+  <- retroceso: de la descripción 6 a la 4
+ID: 7    Estado: q0    Cadena pendiente: ε    Pila: BA    Transiciones aplicables: 6
+ID: 8    Estado: q0    Cadena pendiente: ε    Pila: bA    Transiciones aplicables: ninguna
+  <- retroceso: de la descripción 8 a la 2
+ID: 9    Estado: q0    Cadena pendiente: a    Pila: aBA    Transiciones aplicables: 1
+ID: 10    Estado: q0    Cadena pendiente: ε    Pila: BA    Transiciones aplicables: 6
+ID: 11    Estado: q0    Cadena pendiente: ε    Pila: bA    Transiciones aplicables: ninguna
+  <- retroceso: de la descripción 11 a la 2
+ID: 12    Estado: q0    Cadena pendiente: a    Pila: A    Transiciones aplicables: 7
+ID: 13    Estado: r    Cadena pendiente: a    Pila: A    Transiciones aplicables: ninguna
+  <- retroceso: de la descripción 13 a la 1
+--------------------------------------------------------------------------------
+ Cadena RECHAZADA tras explorar 13 descripciones instantáneas.
+================================================================================
+================================================================================
+ Traza del reconocimiento de la cadena: .
+================================================================================
+ID: 1    Estado: s    Cadena pendiente: ε    Pila: A    Transiciones aplicables: 8
+ID: 2    Estado: q0    Cadena pendiente: ε    Pila: SA    Transiciones aplicables: 3, 4, 5
+  -> se aplica la transición 3: δ(q0, ., S) ∋ (q0, aSB)
+ID: 3    Estado: q0    Cadena pendiente: ε    Pila: aSBA    Transiciones aplicables: ninguna
+  <- retroceso: de la descripción 3 a la 2
+ID: 4    Estado: q0    Cadena pendiente: ε    Pila: aBA    Transiciones aplicables: ninguna
+  <- retroceso: de la descripción 4 a la 2
+ID: 5    Estado: q0    Cadena pendiente: ε    Pila: A    Transiciones aplicables: 7
+ID: 6    Estado: r    Cadena pendiente: ε    Pila: A    Transiciones aplicables: ninguna
+--------------------------------------------------------------------------------
+ Cadena ACEPTADA tras explorar 5 descripciones instantáneas.
+================================================================================
+================================================================================
  Traza del reconocimiento de la cadena: .
 ================================================================================
 ID: 1    Estado: s    Cadena pendiente: ε    Pila: A    Transiciones aplicables: 8
@@ -32,48 +73,4 @@ ID: 9    Estado: q0    Cadena pendiente: ε    Pila: A    Transiciones aplicable
 ID: 10    Estado: r    Cadena pendiente: ε    Pila: A    Transiciones aplicables: ninguna
 --------------------------------------------------------------------------------
  Cadena ACEPTADA tras explorar 9 descripciones instantáneas.
-================================================================================
-================================================================================
- Traza del reconocimiento de la cadena: aabbb
-================================================================================
-ID: 1    Estado: s    Cadena pendiente: aabbb    Pila: A    Transiciones aplicables: 8
-ID: 2    Estado: q0    Cadena pendiente: aabbb    Pila: SA    Transiciones aplicables: 3, 4, 5
-  -> se aplica la transición 3: δ(q0, ., S) ∋ (q0, aSB)
-ID: 3    Estado: q0    Cadena pendiente: aabbb    Pila: aSBA    Transiciones aplicables: 1
-ID: 4    Estado: q0    Cadena pendiente: abbb    Pila: SBA    Transiciones aplicables: 3, 4, 5
-  -> se aplica la transición 3: δ(q0, ., S) ∋ (q0, aSB)
-ID: 5    Estado: q0    Cadena pendiente: abbb    Pila: aSBBA    Transiciones aplicables: 1
-ID: 6    Estado: q0    Cadena pendiente: bbb    Pila: SBBA    Transiciones aplicables: 3, 4, 5
-  -> se aplica la transición 3: δ(q0, ., S) ∋ (q0, aSB)
-ID: 7    Estado: q0    Cadena pendiente: bbb    Pila: aSBBBA    Transiciones aplicables: ninguna
-  <- retroceso: de la descripción 7 a la 6
-ID: 8    Estado: q0    Cadena pendiente: bbb    Pila: aBBBA    Transiciones aplicables: ninguna
-  <- retroceso: de la descripción 8 a la 6
-ID: 9    Estado: q0    Cadena pendiente: bbb    Pila: BBA    Transiciones aplicables: 6
-ID: 10    Estado: q0    Cadena pendiente: bbb    Pila: bBA    Transiciones aplicables: 2
-ID: 11    Estado: q0    Cadena pendiente: bb    Pila: BA    Transiciones aplicables: 6
-ID: 12    Estado: q0    Cadena pendiente: bb    Pila: bA    Transiciones aplicables: 2
-ID: 13    Estado: q0    Cadena pendiente: b    Pila: A    Transiciones aplicables: 7
-ID: 14    Estado: r    Cadena pendiente: b    Pila: A    Transiciones aplicables: ninguna
-  <- retroceso: de la descripción 14 a la 4
-ID: 15    Estado: q0    Cadena pendiente: abbb    Pila: aBBA    Transiciones aplicables: 1
-ID: 16    Estado: q0    Cadena pendiente: bbb    Pila: BBA    Transiciones aplicables: 6
-ID: 17    Estado: q0    Cadena pendiente: bbb    Pila: bBA    Transiciones aplicables: 2
-ID: 18    Estado: q0    Cadena pendiente: bb    Pila: BA    Transiciones aplicables: 6
-ID: 19    Estado: q0    Cadena pendiente: bb    Pila: bA    Transiciones aplicables: 2
-ID: 20    Estado: q0    Cadena pendiente: b    Pila: A    Transiciones aplicables: 7
-ID: 21    Estado: r    Cadena pendiente: b    Pila: A    Transiciones aplicables: ninguna
-  <- retroceso: de la descripción 21 a la 4
-ID: 22    Estado: q0    Cadena pendiente: abbb    Pila: BA    Transiciones aplicables: 6
-ID: 23    Estado: q0    Cadena pendiente: abbb    Pila: bA    Transiciones aplicables: ninguna
-  <- retroceso: de la descripción 23 a la 2
-ID: 24    Estado: q0    Cadena pendiente: aabbb    Pila: aBA    Transiciones aplicables: 1
-ID: 25    Estado: q0    Cadena pendiente: abbb    Pila: BA    Transiciones aplicables: 6
-ID: 26    Estado: q0    Cadena pendiente: abbb    Pila: bA    Transiciones aplicables: ninguna
-  <- retroceso: de la descripción 26 a la 2
-ID: 27    Estado: q0    Cadena pendiente: aabbb    Pila: A    Transiciones aplicables: 7
-ID: 28    Estado: r    Cadena pendiente: aabbb    Pila: A    Transiciones aplicables: ninguna
-  <- retroceso: de la descripción 28 a la 1
---------------------------------------------------------------------------------
- Cadena RECHAZADA tras explorar 28 descripciones instantáneas.
 ================================================================================

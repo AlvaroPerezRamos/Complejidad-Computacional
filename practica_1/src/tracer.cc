@@ -10,15 +10,6 @@
  * @date 23/09/2026
  * @file tracer.cc
  * @brief Implementación de la clase Tracer.
- *
- * Historial de versiones
- *   23/09/2026 - Creación e implementación completa.
- *   23/09/2026 - Ampliación: agrupación de retrocesos
- *                consecutivos en una sola línea.
- *   23/09/2026 - Rediseño: IDs de descripción en vez de un
- *                simple contador de retrocesos.
- *   23/09/2026 - Ampliación: flush() explícito en
- *                BeginChain() y EndChain().
  */
 
 #include "../include/tracer.h"

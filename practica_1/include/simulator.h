@@ -9,33 +9,9 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 23/09/2026
  * @file simulator.h
- * @brief Definición de la clase Simulator.
- *
- * Implementa el algoritmo de la sección 5 del enunciado: búsqueda en
- * profundidad con retroceso sobre el árbol de descripciones instantáneas,
- * con sus tres salvaguardas (descripciones repetidas en la rama actual,
- * tamaño máximo de la pila, número máximo de descripciones exploradas) y
- * la protección de profundidad de recursión.
- *
- * Ya con Tracer integrado: el constructor construye internamente el
- * Tracer (a partir del ostream y el booleano que recibe) y le asigna la
- * numeración de transiciones una sola vez, para que quien use Simulator
- * no tenga que acordarse de hacerlo. Accepts()/ExploreDescription() lo
- * usan para notificar cada descripción explorada, cada transición
- * aplicada y cada retroceso, sin que el algoritmo en sí haya cambiado.
- *
- * GetApplicableTransitions() es un método privado que no estaba en el
- * diseño original (solo se listaban ExploreDescription() y
- * ApplyTransition()); lo añado para no repetir dentro de
- * ExploreDescription() la lógica de unir δ(q, a, X) con δ(q, ε, X), que
- * el enunciado exige explícitamente en la sección 5.
- *
- * Historial de versiones
- *   23/09/2026 - Creación del fichero e implementación completa.
- *   23/09/2026 - Ampliación, el mismo día: se integra Tracer (ya
- *                implementado). Simulator pasa a construirlo él mismo, a
- *                partir del ostream y el booleano -trace que recibe en
- *                su constructor.
+ * @brief Definición de Simulator: búsqueda en profundidad con retroceso
+ * sobre el árbol de descripciones instantáneas (algoritmo y salvaguardas
+ * en AutomataPila.md, sección 5). Construye internamente su Tracer.
  */
 
 #ifndef SIMULATOR_H_

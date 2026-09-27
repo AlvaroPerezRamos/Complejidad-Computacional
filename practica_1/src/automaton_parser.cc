@@ -10,9 +10,6 @@
  * @date 19/09/2026
  * @file automaton_parser.cc
  * @brief Implementación de la clase AutomatonParser.
- *
- * Historial de versiones
- *   19/09/2026 - Creación e implementación completa.
  */
 
 #include <fstream>

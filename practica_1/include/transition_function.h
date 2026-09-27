@@ -9,18 +9,7 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 19/09/2026
  * @file transition_function.h
- * @brief Definición de la clase TransitionFunction.
- *
- * Mantiene dos vistas de las mismas transiciones porque tienen usos
- * distintos: transitions_by_key_ (indexada por TransitionKey) es la que
- * consulta Simulator al explorar el árbol de descripciones instantáneas;
- * insertion_order_ conserva el orden exacto en que se leyeron del fichero
- * de configuración, y es la que necesita GetOrderedTransitions() para
- * numerar las transiciones en la traza como se ha acordado: agrupadas por
- * estado de origen, con los autobucles antes que el resto.
- *
- * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa.
+ * @brief Definición de la clase TransitionFunction (la función δ completa).
  */
 
 #ifndef TRANSITION_FUNCTION_H_

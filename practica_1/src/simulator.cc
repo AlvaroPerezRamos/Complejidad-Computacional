@@ -10,16 +10,10 @@
  * @date 23/09/2026
  * @file simulator.cc
  * @brief Implementación de la clase Simulator.
- *
- * Historial de versiones
- *   23/09/2026 - Creación e implementación completa.
- *   23/09/2026 - Ampliación, el mismo día: integración de Tracer.
  */
 
 #include "../include/simulator.h"
-
 #include "../include/errors.h"
-#include "../include/symbol.h"
 
 Simulator::Simulator(const PushdownAutomaton& automaton,
                      std::ostream& trace_stream, bool trace_enabled)

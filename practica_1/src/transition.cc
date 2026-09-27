@@ -10,9 +10,6 @@
  * @date 19/09/2026
  * @file transition.cc
  * @brief Implementación de la clase Transition.
- *
- * Historial de versiones
- *   19/09/2026 - Creación e implementación completa.
  */
 
 #include "../include/transition.h"

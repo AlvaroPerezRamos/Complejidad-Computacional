@@ -9,31 +9,8 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 23/09/2026
  * @file instantaneous_description.h
- * @brief Definición de la clase InstantaneousDescription.
- *
- * Representa la terna (q, w, α) de la sección 5 del enunciado: el estado
- * actual, la cadena de entrada todavía pendiente de consumir, y la pila
- * en ese instante de la computación. Es inmutable: Simulator no modifica
- * una InstantaneousDescription existente, construye una nueva a partir de
- * ella cada vez que aplica una transición (así cada rama de la búsqueda
- * en profundidad conserva su propia copia, sin interferir con las demás).
- *
- * No guarda una Chain como entrada, sino un std::string ya "en curso":
- * Chain solo tiene sentido para la cadena completa, validada de una vez
- * contra Σ al principio; aquí lo que importa es ir consumiendo esa cadena
- * carácter a carácter, sin volver a validar nada en cada paso.
- *
- * operator==() y operator<() existen porque el algoritmo de la sección 5
- * los necesita: la salvaguarda "descripciones repetidas en la rama
- * actual" (para podar los ciclos de ε-transiciones) exige poder comparar
- * dos descripciones instantáneas y guardar las ya visitadas en un
- * std::set<InstantaneousDescription>, lo que a su vez exige que Stack
- * tenga su propio operator< (añadido ahora en stack.h con este único
- * propósito: no tiene ningún significado en la teoría de autómatas, solo
- * sirve para poder ordenar).
- *
- * Historial de versiones
- *   23/09/2026 - Creación del fichero e implementación completa.
+ * @brief Definición de InstantaneousDescription: la terna (q, w, α).
+ * Inmutable; Simulator construye una nueva por cada transición aplicada.
  */
 
 #ifndef INSTANTANEOUS_DESCRIPTION_H_
@@ -45,6 +22,7 @@
 #include "stack.h"
 #include "state.h"
 #include "symbol.h"
+#include "errors.h"
 
 /**
  * @class InstantaneousDescription
@@ -86,7 +64,14 @@ class InstantaneousDescription {
    * Simulator debe comprobar IsInputConsumed() antes de llamar a este
    * método, no dejar que este método detecte el problema.
    */
-  Symbol GetNextInputSymbol() const;
+  Symbol GetNextInputSymbol() const {
+    if (IsInputConsumed()) {
+      throw SimulationError(
+          "No se puede consultar el siguiente símbolo de "
+          "entrada: la entrada ya está consumida.");
+    }
+    return Symbol(remaining_input_.front());
+  }
 
   /** @brief Operador de igualdad: mismo estado, misma entrada pendiente y misma pila. */
   bool operator==(const InstantaneousDescription& other) const {

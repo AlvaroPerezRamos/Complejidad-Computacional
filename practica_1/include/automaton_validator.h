@@ -9,26 +9,8 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 19/09/2026
  * @file automaton_validator.h
- * @brief Definición de la clase AutomatonValidator.
- *
- * Comprueba exactamente los cinco avisos de la sección 6 del enunciado
- * que necesitan el PushdownAutomaton ya construido -no antes, porque
- * requieren el grafo de transiciones completo-: autómata sin
- * transiciones, estados inalcanzables desde q0, ningún estado de F
- * alcanzable, Σ ∩ Γ ≠ ∅, y ninguna transición aplicable en (q0, Z0).
- * Ninguno de los cinco aborta el programa: solo informan.
- *
- * Deliberadamente NO comprueba, porque el enunciado no lo pide, si un
- * estado alcanzable desde q0 puede a su vez llegar a algún estado de F
- * (alcanzabilidad hacia atrás desde F, el "estado muerto" o "trampa" en
- * el sentido clásico de minimización de autómatas). Es un chequeo más
- * fino que el que pide la tabla de avisos.
- *
- * Es una clase de utilidad sin estado: todos sus métodos son estáticos y
- * su constructor está borrado para impedir instanciarla.
- *
- * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa.
+ * @brief Definición de AutomatonValidator: los 5 avisos que necesitan el
+ * PushdownAutomaton ya construido. Ninguno aborta el programa.
  */
 
 #ifndef AUTOMATON_VALIDATOR_H_

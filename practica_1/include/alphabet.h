@@ -9,22 +9,7 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 18/09/2026
  * @file alphabet.h
- * @brief Definición de la clase Alphabet.
- *
- * Se usa una única clase Alphabet tanto para Σ (alfabeto de entrada) como
- * para Γ (alfabeto de pila): ambos comparten exactamente las mismas reglas
- * de validación (símbolos de un único carácter, sin repetidos, sin el
- * carácter reservado '.'). Lo que los distingue -qué valida cada uno- es
- * su papel dentro de PushdownAutomaton (input_alphabet_ y
- * stack_alphabet_), no su implementación.
- *
- * Historial de versiones
- *   18/09/2026 - Creación del fichero. Esqueleto de la clase Alphabet:
- *                constructor, destructor y captadores GetAlphabet(),
- *                Size() e IsEmpty().
- *   19/09/2026 - Implementación del constructor (tokenización de la línea
- *                del fichero por espacios en blanco), de InsertSymbol(),
- *                Contains() y del operador de salida.
+ * @brief Definición de la clase Alphabet: se usa tanto para Σ como para Γ.
  */
 
 #ifndef ALPHABET_H_

@@ -10,9 +10,6 @@
  * @date 19/09/2026
  * @file pushdown_automaton.cc
  * @brief Implementación de la clase PushdownAutomaton.
- *
- * Historial de versiones
- *   19/09/2026 - Creación e implementación completa.
  */
 
 #include <vector>

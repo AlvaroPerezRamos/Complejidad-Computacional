@@ -9,21 +9,10 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 19/09/2026
  * @file transition.h
- * @brief Definición de la clase Transition y de la clave TransitionKey.
+ * @brief Definición de Transition y de la clave TransitionKey.
  *
- * Transition no valida nada: no comprueba que sus estados pertenezcan a Q,
- * que sus símbolos pertenezcan a Σ/Γ, ni que la secuencia a apilar use
- * símbolos declarados en Γ. Es una quíntupla y nada más; esas
- * comprobaciones semánticas son responsabilidad de quien la construya a
- * partir del fichero de configuración (AutomatonParser/AutomatonValidator,
- * todavía sin implementar).
- *
- * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa: no ha
- *                habido una fase previa de solo esqueleto, a diferencia
- *                de Symbol/State/Alphabet/Chain, que partían de ficheros
- *                ya creados el 18/09/2026.
- *   23/09/2026 - Ampliación con operator<, necesario para Tracer.
+ * Transition no valida nada (ni estados en Q, ni símbolos en Σ/Γ): es una
+ * quíntupla, la validación es cosa de AutomatonParser.
  */
 
 #ifndef TRANSITION_H_

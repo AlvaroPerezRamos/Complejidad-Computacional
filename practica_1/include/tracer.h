@@ -9,76 +9,9 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 23/09/2026
  * @file tracer.h
- * @brief Definición de la clase Tracer.
- *
- * Formatea y encamina la traza (a pantalla o a fichero, según el
- * ostream& que reciba: la elección entre uno u otro es cosa de quien
- * construya el Tracer, no suya). Cada fila muestra los cuatro campos que
- * se acordaron -estado, cadena pendiente, pila y transiciones
- * aplicables- en vez de las columnas ID/Profundidad del ejemplo original
- * del README, que se descartaron explícitamente por no pedirse.
- *
- * is_enabled_ (el equivalente a -trace y/n) hace que todos los métodos de
- * reporte sean no-op cuando es false: así Simulator puede llamarlos
- * siempre, sin comprobar el modo en cada paso.
- *
- * AssignTransitionNumbers() debe llamarse una vez, con
- * TransitionFunction::GetOrderedTransitions() ya calculado, antes de
- * comprobar ninguna cadena: es lo que permite que ReportDescription() y
- * ReportAppliedTransition() se refieran a cada transición por su número
- * (1..N, en el orden que ya se resolvió: por estado de origen, según su
- * declaración en Q, autobucles antes que el resto) en vez de repetir su
- * forma completa en cada fila.
- *
- * Cada descripción que se reporta recibe también un ID propio (1, 2,
- * 3...), que Tracer apila en description_id_stack_ mientras dura su
- * exploración (empuja en ReportDescription(), retira en
- * ReportBacktracking()). Como esta pila sigue exactamente la recursión
- * de Simulator, cuando varios niveles retroceden uno detrás de otro sin
- * nada interesante en medio, no hace falta contarlos: basta con recordar
- * el ID del primero que se abandona y, al imprimir, decir a qué ID se ha
- * vuelto -que es el que queda en la cima de la pila tras retirar todos
- * los intermedios-. Una sola línea sirve igual para un retroceso que
- * para ocho, y además dice adónde se vuelve, no solo cuántos hay.
- * BeginChain() reinicia toda esta pila sin imprimir nada, por si quedara
- * algo pendiente de una cadena anterior abortada por una excepción (que
- * no llega a llamar a EndChain()).
- *
- * Cuando una descripción solo tiene una transición aplicable, no hay
- * ninguna decisión que anunciar -es un paso mecánico, no una elección
- * entre alternativas-, así que ReportAppliedTransition() no imprime nada
- * en ese caso: la fila de ReportDescription() ya deja claro cuál es la
- * única transición ("Transiciones aplicables: 3"), repetirlo en la línea
- * siguiente no añade información. Solo se anuncia "se aplica" cuando de
- * verdad había más de una opción entre las que elegir. Es Tracer quien
- * decide esto, no Simulator: recuerda cuántas transiciones tenía la
- * última descripción reportada (last_applicable_transitions_count_) y
- * consulta ese dato, así que Simulator sigue llamando a
- * ReportAppliedTransition() exactamente igual en todos los casos, sin
- * tener que conocer esta política de formato.
- *
- * BeginChain() y EndChain() vacían explícitamente el flujo (flush())
- * después de escribir: un '<<' con "\n" dentro no garantiza que el
- * sistema operativo entregue el texto de inmediato, solo que se ha
- * escrito en el buffer interno del flujo. Sin este flush(), la traza de
- * varias cadenas podía quedar retenida y aparecer toda junta al final del
- * programa, en vez de cadena a cadena según se van comprobando.
- *
- * Historial de versiones
- *   23/09/2026 - Creación del fichero e implementación completa.
- *   23/09/2026 - Ampliación: los retrocesos consecutivos
- *                se agrupan en una sola línea ("<- retroceso xN").
- *   23/09/2026 - Rediseño: se sustituye el contador de
- *                retrocesos por un ID propio de cada descripción, así
- *                que la línea de retroceso agrupado dice a qué
- *                descripción concreta se vuelve, no cuántos pasos deshace.
- *   23/09/2026 - Ampliación: se omite "se aplica" cuando
- *                solo había una transición aplicable (no era una
- *                elección real).
- *   23/09/2026 - Ampliación: BeginChain() y EndChain()
- *                vacían el buffer de salida (flush()) explícitamente,
- *                para que la traza de cada cadena se vea al momento y no
- *                se acumule sin mostrarse hasta que el programa termina.
+ * @brief Definición de Tracer: formatea y escribe la traza de Simulator
+ * (a pantalla o fichero, según el ostream& recibido). Ver AutomataPila.md
+ * para el formato completo (IDs de descripción, agrupación de retrocesos).
  */
 
 #ifndef TRACER_H_

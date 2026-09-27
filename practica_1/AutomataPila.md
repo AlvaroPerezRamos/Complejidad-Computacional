@@ -10,12 +10,23 @@
 
 > **El simulador implementa un autómata con pila con finalización por ESTADO FINAL (APf).**
 
-Una cadena `w` pertenece al lenguaje reconocido si existe alguna secuencia de transiciones que, partiendo de la descripción instantánea `(q0, w, Z0)`, consuma la cadena por completo y alcance un estado del conjunto `F`. **El contenido final de la pila es irrelevante.**
+Una cadena `w` pertenece al lenguaje reconocido si existe alguna secuencia de transiciones que,
+partiendo de la descripción instantánea `(q0, w, Z0)`, consuma la cadena por completo y alcance un
+estado del conjunto `F`. **El contenido final de la pila es irrelevante.**
 
-Por tanto, el fichero de configuración **debe incluir la línea del conjunto `F`**. Si se le proporciona un fichero pensado para un autómata por vaciado de pila (APv, sin esa línea), el programa lo detecta con una heurística (ver §6) y lo indica expresamente en lugar de fallar con un error confuso.
+Por tanto, el fichero de configuración **debe incluir la línea del conjunto `F`**. Si se le
+proporciona un fichero pensado para un autómata por vaciado de pila (APv, sin esa línea), el
+programa lo detecta con una heurística (ver §6) y lo indica expresamente en lugar de fallar con un
+error confuso.
 
->[!WARNING]
-Diseñar un autómata para APf no es solo "quitar la comprobación de pila vacía" de un APv: si tu autómata alcanza un estado que solo pretendías usar como marca intermedia, con la entrada ya consumida, **se dará por aceptado aunque la pila tenga cualquier cosa dentro**. Un caso típico es un autómata que reconoce `{w·wᴿ}` adivinando el punto medio con una ε-transición: si el estado al que se llega tras adivinar es el mismo que el de aceptación final, el simulador aceptará cadenas que no son palíndromos (aceptó "antes de tiempo"). La solución es tener un estado de aceptación *distinto*, que solo se alcanza cuando se ha vuelto a ver `Z0` en la cima (es decir, cuando de verdad se ha desapilado todo lo que se apiló). Ver `test/APf/APf-2.txt` para el ejemplo correcto.
+⚠️ Diseñar un autómata para APf no es solo "quitar la comprobación de pila vacía" de un APv: si tu
+autómata alcanza un estado que solo pretendías usar como marca intermedia, con la entrada ya
+consumida, **se dará por aceptado aunque la pila tenga cualquier cosa dentro**. Un caso típico es un
+autómata que reconoce `{w·wᴿ}` adivinando el punto medio con una ε-transición: si el estado al que se
+llega tras adivinar es el mismo que el de aceptación final, el simulador aceptará cadenas que no son
+palíndromos (aceptó "antes de tiempo"). La solución es tener un estado de aceptación *distinto*, que
+solo se alcanza cuando se ha vuelto a ver `Z0` en la cima (es decir, cuando de verdad se ha desapilado
+todo lo que se apiló). Ver `test/APf/APf-2.txt` para el ejemplo correcto.
 
 ---
 
@@ -74,6 +85,7 @@ En el modo teclado, `.` representa la cadena vacía y `exit` (o `Ctrl+D`) termin
 ## 3. Formato del fichero de configuración
 
 ```
+# Las líneas en blanco y el texto que sigue a '#' se ignoran
 q1 q2 q3        # conjunto Q
 a b             # conjunto Sigma   (un carácter por símbolo)
 S A             # conjunto Gamma   (un carácter por símbolo)
@@ -84,12 +96,14 @@ q1 a S q1 AS    # transición: (q1, AS) pertenece a delta(q1, a, S)
 q1 . A q2 .     # una transición por línea
 ```
 
-> [!IMPORTAnT]
 Convenios:
-Las líneas en blanco y el texto que sigue a '#' se ignoran
-El carácter `.` representa a **ε**, tanto en el símbolo de entrada como en la secuencia a apilar. Por ese motivo `.` **no puede** pertenecer a `Σ` ni a `Γ`.
-El campo de símbolos a apilar se escribe **sin espacios** (`AAA` apila tres símbolos, quedando el primero en la cima).
-El símbolo de la cima consultado por una transición debe ser siempre un símbolo concreto de `Γ`: una transición nunca consulta `ε`.
+
+- El carácter `.` representa a **ε**, tanto en el símbolo de entrada como en la secuencia a apilar.
+  Por ese motivo `.` **no puede** pertenecer a `Σ` ni a `Γ`.
+- El campo de símbolos a apilar se escribe **sin espacios** (`AAA` apila tres símbolos, quedando el
+  primero en la cima).
+- El símbolo de la cima consultado por una transición debe ser siempre un símbolo concreto de `Γ`:
+  una transición nunca consulta `ε`.
 
 ---
 
@@ -257,9 +271,10 @@ classDiagram
     AutomatonValidator ..> PushdownAutomaton : comprueba
 ```
 
->[!Note]
 `AutomatonParser` tiene más métodos privados que los mostrados (uno por sección del fichero:
-`ParseInitialStateSection`, `ParseInitialStackSymbolSection`, `ParseFinalStatesSection`, `CheckNoDuplicateStates`...); el diagrama solo lista una muestra representativa. El detalle completo está en `include/automaton_parser.h`.
+`ParseInitialStateSection`, `ParseInitialStackSymbolSection`, `ParseFinalStatesSection`,
+`CheckNoDuplicateStates`...); el diagrama solo lista una muestra representativa. El detalle completo
+está en `include/automaton_parser.h`.
 
 ### 4.2 Jerarquía de excepciones
 
@@ -297,7 +312,10 @@ classDiagram
     SimulationError <|-- SimulationLimitExceededError
 ```
 
-`ConfigurationError` nace normalmente sin línea fijada (-1): la clase que detecta el problema (`Alphabet`, por ejemplo) no siempre sabe en qué línea del fichero está. `AutomatonParser`, que sí lo sabe, captura la excepción y llama a `SetLineNumber()` antes de dejarla seguir propagándose — por eso todo mensaje de error que llega a consola incluye siempre el número de línea real.
+`ConfigurationError` nace normalmente sin línea fijada (-1): la clase que detecta el problema
+(`Alphabet`, por ejemplo) no siempre sabe en qué línea del fichero está. `AutomatonParser`, que sí lo
+sabe, captura la excepción y llama a `SetLineNumber()` antes de dejarla seguir propagándose — por eso
+todo mensaje de error que llega a consola incluye siempre el número de línea real.
 
 ### 4.3 Flujo de ejecución
 
@@ -349,17 +367,34 @@ sequenceDiagram
 
 Decisiones de diseño que merecen justificarse:
 
-1. **El reconocimiento no vive en `PushdownAutomaton`, sino en `Simulator`.** El autómata es una estructura de datos inmutable y consultable; la simulación necesita estado mutable (contadores, descripciones visitadas) y un destino de traza. Separarlos evita que el autómata arrastre estado propio de una ejecución concreta.
-2. **El estado inicial y los finales pertenecen al autómata, no a `State`.** Así dos copias del mismo estado nunca pueden discrepar sobre si son iniciales o finales.
-3. **`AutomatonParser` valida las referencias cruzadas (`q0 ∈ Q`, `Z0 ∈ Γ`, `F ⊆ Q`, estados/símbolos de cada transición), no `AutomatonValidator`.** Puede hacerlo sin esperar al autómata completo: cuando lee `q0` ya conoce `Q` (se leyó antes); cuando lee cada transición ya conoce `Q`, `Σ` y `Γ` enteros. `AutomatonValidator` solo hace falta para lo que sí necesita el grafo de transiciones completo (alcanzabilidad, `F` alcanzable...), y por eso solo emite avisos, nunca errores: la frontera entre las dos clases es "¿necesito el autómata ya construido, o me basta lo leído hasta ahora?", no "¿es grave o no?".
+1. **El reconocimiento no vive en `PushdownAutomaton`, sino en `Simulator`.** El autómata es una
+   estructura de datos inmutable y consultable; la simulación necesita estado mutable (contadores,
+   descripciones visitadas) y un destino de traza. Separarlos evita que el autómata arrastre estado
+   propio de una ejecución concreta.
+2. **El estado inicial y los finales pertenecen al autómata, no a `State`.** Así dos copias del mismo
+   estado nunca pueden discrepar sobre si son iniciales o finales.
+3. **`AutomatonParser` valida las referencias cruzadas (`q0 ∈ Q`, `Z0 ∈ Γ`, `F ⊆ Q`, estados/símbolos
+   de cada transición), no `AutomatonValidator`.** Puede hacerlo sin esperar al autómata completo:
+   cuando lee `q0` ya conoce `Q` (se leyó antes); cuando lee cada transición ya conoce `Q`, `Σ` y `Γ`
+   enteros. `AutomatonValidator` solo hace falta para lo que sí necesita el grafo de transiciones
+   completo (alcanzabilidad, `F` alcanzable...), y por eso solo emite avisos, nunca errores: la
+   frontera entre las dos clases es "¿necesito el autómata ya construido, o me basta lo leído hasta
+   ahora?", no "¿es grave o no?".
 4. **`Tracer` numera cada descripción explorada (no solo las transiciones) con un ID propio,
-   incremental.** Esto permite que un retroceso, o varios seguidos sin nada interesante en medio, se impriman como una única línea ("de la descripción X a la Y") en vez de una línea por cada paso: al ID de destino le basta con ser el que queda en la cima de la pila interna de IDs tras retirar todos los intermedios. Por el mismo motivo, cuando una descripción solo tiene una transición aplicable, `Tracer` omite el aviso de "se aplica" (no hay ninguna decisión que anunciar, es un paso mecánico).
+   incremental.** Esto permite que un retroceso, o varios seguidos sin nada interesante en medio, se
+   impriman como una única línea ("de la descripción X a la Y") en vez de una línea por cada paso: al
+   ID de destino le basta con ser el que queda en la cima de la pila interna de IDs tras retirar todos
+   los intermedios. Por el mismo motivo, cuando una descripción solo tiene una transición aplicable,
+   `Tracer` omite el aviso de "se aplica" (no hay ninguna decisión que anunciar, es un paso mecánico).
 
 ---
 
 ## 5. Algoritmo de reconocimiento
 
-Un autómata con pila no determinista no puede simularse avanzando un conjunto de estados, como se hacía con los autómatas finitos: **cada rama de la computación arrastra su propia pila**. El simulador realiza por ello una **búsqueda en profundidad con retroceso** sobre el árbol de descripciones instantáneas:
+Un autómata con pila no determinista no puede simularse avanzando un conjunto de estados, como se
+hacía con los autómatas finitos: **cada rama de la computación arrastra su propia pila**. El
+simulador realiza por ello una **búsqueda en profundidad con retroceso** sobre el árbol de
+descripciones instantáneas:
 
 ```
 ExploreDescription(q, w, alfa):
@@ -370,7 +405,8 @@ ExploreDescription(q, w, alfa):
     --> retroceder
 ```
 
-Como un AP puede contener ciclos de ε-transiciones que apilan sin consumir entrada, la exploración incorpora salvaguardas que convierten un cuelgue en un error legible:
+Como un AP puede contener ciclos de ε-transiciones que apilan sin consumir entrada, la exploración
+incorpora salvaguardas que convierten un cuelgue en un error legible:
 
 | Salvaguarda                               | Límite        | Motivo                                             |
 | ----------------------------------------- | ------------- | -------------------------------------------------- |
@@ -379,12 +415,15 @@ Como un AP puede contener ciclos de ε-transiciones que apilan sin consumir entr
 | Descripciones exploradas por cadena       | 200 000       | Cota global de trabajo.                            |
 | Profundidad de la recursión               | 2000          | Evita el desbordamiento de la pila del proceso.    |
 
-Al superarse cualquiera de ellas se lanza `SimulationLimitExceededError`, se informa de la cadena afectada y **el programa continúa con la siguiente**.
+Al superarse cualquiera de ellas se lanza `SimulationLimitExceededError`, se informa de la cadena
+afectada y **el programa continúa con la siguiente**.
 
 ### Ejemplo de traza
 
-Cada descripción explorada recibe un ID; las filas muestran **ID, estado, cadena pendiente, pila y transiciones aplicables** (por su número, ya calculado por `TransitionFunction::GetOrderedTransitions`).
-Cuando solo hay una transición aplicable no se anuncia "se aplica" (no hay elección real); un retroceso, o varios seguidos, se imprimen como una sola línea que dice a qué ID se vuelve:
+Cada descripción explorada recibe un ID; las filas muestran **ID, estado, cadena pendiente, pila y
+transiciones aplicables** (por su número, ya calculado por `TransitionFunction::GetOrderedTransitions`).
+Cuando solo hay una transición aplicable no se anuncia "se aplica" (no hay elección real); un
+retroceso, o varios seguidos, se imprimen como una sola línea que dice a qué ID se vuelve:
 
 ```
 ================================================================================
@@ -414,7 +453,9 @@ ID: 5    Estado: l4    Cadena pendiente: a    Pila: S    Transiciones aplicables
 
 ## 6. Gestión de errores
 
-Los errores **abortan** la carga del autómata; los avisos (`[Aviso]`) sólo informan y la ejecución continúa. Todos los errores del fichero de configuración indican el **número de línea real** del fichero, comentarios y líneas en blanco incluidos.
+Los errores **abortan** la carga del autómata; los avisos (`[Aviso]`) sólo informan y la ejecución
+continúa. Todos los errores del fichero de configuración indican el **número de línea real** del
+fichero, comentarios y líneas en blanco incluidos.
 
 ### Línea de comandos
 
@@ -455,8 +496,9 @@ Todas las excepciones de esta tabla son `CommandLineError`.
 | Secuencia a apilar con símbolos ajenos a `Γ`              | `InvalidTransitionError`                         |
 | Secuencia a apilar que mezcla `.` con símbolos de `Γ`     | `InvalidTransitionError`                         |
 
-> [!NOTE]
-La detección de formato APv es una heurística (§1, §7): si la línea de `F` tiene exactamente 5 tokens y no todos son ya estados declarados en `Q`, se interpreta como la primera transición de un fichero sin línea de `F`. Un `F` genuino de exactamente 5 estados, todos declarados, no la dispara.
+> La detección de formato APv es una heurística (§1, §7): si la línea de `F` tiene exactamente 5
+> tokens y no todos son ya estados declarados en `Q`, se interpreta como la primera transición de un
+> fichero sin línea de `F`. Un `F` genuino de exactamente 5 estados, todos declarados, no la dispara.
 
 ### Avisos
 
@@ -483,7 +525,8 @@ falta el autómata completo); el resto necesita el grafo de transiciones ya cons
 
 ## 7. Batería de pruebas
 
-`test/` contiene ficheros de configuración organizados por el tipo de autómata que describen, no por el tipo de error que ejercitan (a diferencia de lo planteado inicialmente en este documento):
+`test/` contiene ficheros de configuración organizados por el tipo de autómata que describen, no por
+el tipo de error que ejercitan (a diferencia de lo planteado inicialmente en este documento):
 
 ### `test/APf/` — autómatas con finalización por estado final (el tipo que implementa esta práctica)
 
@@ -495,7 +538,8 @@ falta el autómata completo); el resto necesita el grafo de transiciones ya cons
 
 ### `test/APv/` — los mismos autómatas, pero en formato de vaciado de pila (sin línea de `F`)
 
-Sirven para comprobar la detección de formato APv de §6: al no llevar línea de `F`, `AutomatonParser` debe rechazarlos con el diagnóstico específico, no con un error confuso.
+Sirven para comprobar la detección de formato APv de §6: al no llevar línea de `F`, `AutomatonParser`
+debe rechazarlos con el diagnóstico específico, no con un error confuso.
 
 | Fichero     | Correspondiente en `test/APf/` |
 | ----------- | ------------------------------ |
@@ -511,14 +555,20 @@ for f in test/APv/*.txt; do
   ./build/bin/automata_pila -config "$f" -trace n < /dev/null
 done
 ```
->[!NOTE]
-Esta batería cubre la distinción APf/APv y un caso no determinista real, pero no ejercita todavía, uno por uno, cada error concreto de la tabla de §6 (símbolo repetido, transición con campos de más, etc.). Ampliarla con un fichero por fila de esa tabla queda como trabajo pendiente.
+
+> Esta batería cubre la distinción APf/APv y un caso no determinista real, pero no ejercita todavía,
+> uno por uno, cada error concreto de la tabla de §6 (símbolo repetido, transición con campos de más,
+> etc.). Ampliarla con un fichero por fila de esa tabla queda como trabajo pendiente.
 
 ---
 
 ## 8. Estructura del proyecto
 
-Este directorio (`practica_1/`) es una de las prácticas del repositorio `Complejidad-Computacional`; sigue la disposición estándar descrita en [*Organizing a C++ Project*](https://www.studyplan.dev/cmake/organizing-a-cpp-project): cabeceras en `include/`, implementación en `src/`, compilación fuera del árbol de fuentes en `build/`, pruebas en `test/` y el enunciado en `docs/`.
+Este directorio (`practica_1/`) es una de las prácticas del repositorio `Complejidad-Computacional`;
+sigue la disposición estándar descrita en
+[*Organizing a C++ Project*](https://www.studyplan.dev/cmake/organizing-a-cpp-project): cabeceras en
+`include/`, implementación en `src/`, compilación fuera del árbol de fuentes en `build/`, pruebas en
+`test/` y el enunciado en `docs/`.
 
 ```
 practica_1/
@@ -561,6 +611,10 @@ practica_1/
 │   └── CC_2627_Practica1 - CC_2627_Practica1.pdf   # Enunciado de la práctica
 └── build/                           # Generado por CMake (no se versiona)
 ```
+
+A diferencia de un planteamiento inicial de este documento, no existe una biblioteca estática
+separada (`pda_core`): todos los `.cc` de `src/` se compilan directamente en el único ejecutable
+`automata_pila`, generado en `build/bin/`.
 
 ---
 

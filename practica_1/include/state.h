@@ -11,16 +11,8 @@
  * @file state.h
  * @brief Definición de la clase State.
  *
- * La pertenencia de un estado a q0 o a F se consulta siempre en
- * PushdownAutomaton, nunca en el propio estado: así dos copias del mismo
- * estado nunca pueden discrepar sobre si son iniciales o finales.
- *
- * Historial de versiones
- *   18/09/2026 - Creación del fichero. Esqueleto de la clase State:
- *                constructor, destructor y captador GetName().
- *   19/09/2026 - Implementación de los operadores de comparación y del
- *                operador de salida.
- */
+ * La pertenencia a q0/F se consulta en PushdownAutomaton, no aquí.
+*/
 
 #ifndef STATE_H_
 #define STATE_H_

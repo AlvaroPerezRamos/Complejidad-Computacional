@@ -9,32 +9,10 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 19/09/2026
  * @file automaton_parser.h
- * @brief Definición de la clase AutomatonParser.
- *
- * Absorbe lo que antes eran las funciones libres de config_reader.h/.cc
- * (ese módulo desaparece) como métodos privados, y añade todo lo que le
- * faltaba: las comprobaciones cruzadas contra Q/Σ/Γ (q0 ∈ Q, Z0 ∈ Γ,
- * F ⊆ Q, y que los estados y símbolos de cada transición estén
- * declarados), que son errores que abortan la carga según la sección 6
- * del enunciado, no avisos.
- *
- * AutomatonParser puede hacer estas comprobaciones sin esperar a tener el
- * autómata completo: en el momento de leer q0 ya conoce Q (se leyó
- * antes), en el momento de leer Z0 ya conoce Γ, y en el momento de leer
- * cada transición ya conoce Q, Σ y Γ enteros. Por eso son suyas y no de
- * AutomatonValidator: AutomatonValidator solo hará falta para lo que
- * necesita el grafo de transiciones completo (alcanzabilidad, F
- * alcanzable...), que además son avisos, no errores.
- *
- * Lee el fichero entero de una vez (ReadSignificantLines()), guardando el
- * número de línea real de cada línea significativa junto a su contenido
- * (SourceLine), en vez de mantener un std::ifstream abierto durante todo
- * el parseo: así, cuando una comprobación de más abajo (Alphabet...)
- * lanza una ConfigurationError sin número de línea, quien la atrapa aquí
- * ya tiene ese número a mano para completarla antes de relanzarla.
- *
- * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa.
+ * @brief Definición de AutomatonParser: construye un PushdownAutomaton a
+ * partir del fichero de configuración, comprobando todo lo que la
+ * sección 6 del enunciado trata como error (ver AutomataPila.md para el
+ * reparto de responsabilidades con AutomatonValidator).
  */
 
 #ifndef AUTOMATON_PARSER_H_

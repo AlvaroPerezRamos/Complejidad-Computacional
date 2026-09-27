@@ -9,33 +9,17 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 23/09/2026
  * @file command_line_options.h
- * @brief Definición de la clase CommandLineOptions.
- *
- * Analiza y valida los argumentos de la línea de comandos según la
- * sección 6 del enunciado: -config y -trace obligatorios, -in y -out
- * opcionales, -h/--help para la ayuda. Todas las comprobaciones de esa
- * tabla ("Línea de comandos") viven aquí: opción repetida, sin valor,
- * desconocida, valor de -trace inválido, ficheros de -config/-in
- * inaccesibles, -out no creable, -out junto a -trace n, y -out
- * coincidiendo con un fichero de entrada (-config o -in).
- *
- * -h/--help no es un error: si aparece en cualquier posición, Parse()
- * devuelve inmediatamente unas opciones con IsHelpRequested() a true, sin
- * comprobar el resto (no tendría sentido exigir -config y -trace solo
- * para poder pedir ayuda).
- *
- * El constructor es privado: solo Parse() puede construir unas opciones
- * completas, para no dejar la clase en un estado a medio validar desde
- * fuera.
- *
- * Historial de versiones
- *   23/09/2026 - Creación del fichero e implementación completa.
+ * @brief Definición de CommandLineOptions: analiza y valida los argumentos
+ * (-config/-trace obligatorios, -in/-out opcionales, -h/--help). Ver la
+ * tabla "Línea de comandos" de AutomataPila.md para cada comprobación.
  */
 
 #ifndef COMMAND_LINE_OPTIONS_H_
 #define COMMAND_LINE_OPTIONS_H_
 
 #include <string>
+#include "pushdown_automaton.h"
+#include "simulator.h"
 
 /**
  * @class CommandLineOptions
@@ -99,5 +83,31 @@ class CommandLineOptions {
       output_file_path_; /**< Ruta de -out, o vacía si no se especificó. */
   bool is_trace_enabled_ = false; /**< Si -trace es 'y'. */
 };
+
+/**
+ * @brief Imprime el resumen del autómata ya construido: Q, Σ, Γ, q0, Z0,
+ * F, los estados alcanzables desde q0 y las transiciones numeradas.
+ */
+void PrintAutomatonSummary(const PushdownAutomaton& automaton);
+
+/**
+ * @brief Comprueba, una por una, las cadenas que llegan por input_stream.
+ * Un ChainError (símbolo fuera de Σ) o un SimulationLimitExceededError
+ * descartan esa cadena y se continúa con la siguiente, tal y como exige
+ * la sección 6 del enunciado; no abortan el programa.
+ * @param automaton Autómata ya construido.
+ * @param simulator Simulador a usar (ya construido con el ostream y el
+ * booleano de traza correctos).
+ * @param input_stream De dónde leer las cadenas: std::cin o el fichero
+ * de -in.
+ * @param is_interactive Si input_stream es el teclado: solo entonces se
+ * imprime el símbolo de espera ("> ") y solo entonces 'exit' termina el
+ * bucle antes de llegar a EOF (no tiene sentido para un fichero de -in).
+ * @param trace_enabled Si la traza está activada: si lo está, el
+ * veredicto ya lo dice Tracer::EndChain(), así que no se repite aquí.
+ */
+void RunChainLoop(const PushdownAutomaton& automaton, Simulator& simulator,
+                  std::istream& input_stream, bool is_interactive,
+                  bool trace_enabled);
 
 #endif  // COMMAND_LINE_OPTIONS_H_

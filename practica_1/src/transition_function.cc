@@ -10,9 +10,6 @@
  * @date 19/09/2026
  * @file transition_function.cc
  * @brief Implementación de la clase TransitionFunction.
- *
- * Historial de versiones
- *   19/09/2026 - Creación e implementación completa.
  */
 
 #include "../include/transition_function.h"

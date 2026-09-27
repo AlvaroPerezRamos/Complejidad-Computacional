@@ -9,11 +9,7 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 18/09/2026
  * @file chain.h
- * @brief Definición de la clase Chain
- *
- * Historial de versiones
- *   18/09/2026 - Creación del fichero y definición de la clase Chain.
- *   19/09/2026 - Creación (primera versión) del código.
+ * @brief Definición de la clase Chain.
  */
 
 #ifndef CHAIN_H_
@@ -22,7 +18,7 @@
 #include <iostream>
 #include <string>
 
-#include "../include/alphabet.h"
+#include "alphabet.h"
 
 /**
  * @class Chain

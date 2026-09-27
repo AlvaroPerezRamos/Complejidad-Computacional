@@ -9,25 +9,8 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 19/09/2026
  * @file pushdown_automaton.h
- * @brief Definición de la clase PushdownAutomaton.
- *
- * PushdownAutomaton es una estructura de datos inmutable: su constructor
- * NO valida nada (ni que initial_state_ pertenezca a states_, ni que
- * final_states_ ⊆ states_, ni que initial_stack_symbol_ pertenezca a
- * stack_alphabet_...). Esas comprobaciones son responsabilidad de
- * AutomatonParser, que las hace de forma incremental, línea a línea,
- * mientras lee el fichero -y en ese momento tiene información que aquí ya
- * no está (el número de línea real de cada dato)-. Por eso todas esas
- * comprobaciones son errores que abortan la carga, no algo que se pueda
- * delegar en esta clase.
- *
- * Solo guarda además el orden de declaración de los estados
- * (state_declaration_order_), aparte del propio std::set<State>: lo
- * necesita Tracer para numerar las transiciones en la traza según el
- * orden en que Q se declaró en el fichero, que un std::set no conserva.
- *
- * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa.
+ * @brief Definición de PushdownAutomaton. Estructura de datos inmutable;
+ * el constructor no valida nada (lo hace AutomatonParser antes).
  */
 
 #ifndef PUSHDOWN_AUTOMATON_H_

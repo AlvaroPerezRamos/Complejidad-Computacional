@@ -10,13 +10,9 @@
  * @date 19/09/2026
  * @file automaton_validator.cc
  * @brief Implementación de la clase AutomatonValidator.
- *
- * Historial de versiones
- *   19/09/2026 - Creación e implementación completa.
  */
 
 #include "../include/automaton_validator.h"
-
 #include "../include/symbol.h"
 #include "../include/transition.h"
 

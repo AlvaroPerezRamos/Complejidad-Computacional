@@ -10,12 +10,6 @@
  * @date 18/09/2026
  * @file symbol.h
  * @brief Definición de la clase Symbol.
- *
- * Historial de versiones
- *   18/09/2026 - Creación del fichero. Esqueleto de la clase Symbol:
- *                constructor, destructor y captador GetCharacter().
- *   19/09/2026 - Implementación de IsEpsilon(), ToString() y de los
- *                operadores de comparación y de flujo.
  */
 
 #ifndef SYMBOL_H_

@@ -16,7 +16,6 @@
  */
 
 #include "../include/stack.h"
-
 #include "../include/errors.h"
 
 Symbol Stack::Top() const {

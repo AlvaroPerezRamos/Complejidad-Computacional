@@ -9,25 +9,8 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 19/09/2026
  * @file stack.h
- * @brief Definición de la clase Stack.
- *
- * La pila se representa internamente como una cadena en la que la
- * posición 0 es la cima, tal y como se describe en el README del
- * proyecto. Push() recibe la secuencia de símbolos a apilar en el mismo
- * orden en que aparece en el fichero de configuración (el primer carácter
- * de la secuencia es el que queda en la cima), y se limita a anteponerla
- * al contenido actual: no conoce ni valida el convenio de las
- * transiciones (que un símbolo '.' significa "no apilar nada"); esa
- * traducción es responsabilidad de quien construya la cadena a apilar
- * (Transition), no de Stack.
- *
- * Historial de versiones
- *   19/09/2026 - Creación del fichero e implementación completa: no ha
- *                habido una fase previa de solo esqueleto, a diferencia
- *                de Symbol/State/Alphabet/Chain, que partían de ficheros
- *                ya creados el 18/09/2026.
- *   23/09/2026 - Ampliación, con operator<, necesario para
- *                InstantaneousDescription.
+ * @brief Definición de la clase Stack. Se representa como un string; la
+ * posición 0 es la cima.
  */
 
 #ifndef STACK_H_

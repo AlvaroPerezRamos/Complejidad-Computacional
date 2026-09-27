@@ -10,11 +10,6 @@
  * @date 18/09/2026
  * @file chain.cc
  * @brief Implementación de la clase Chain.
- *
- * Historial de versiones
- *   18/09/2026 - Creación del fichero.
- *   19/09/2026 - Implementación del constructor, de
- *                ValidateAgainstAlphabet() y del operador de salida.
  */
 
 #include "../include/chain.h"
