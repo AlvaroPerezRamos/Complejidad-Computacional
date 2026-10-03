@@ -52,7 +52,7 @@ void PrintMachineSummary(const TuringMachine& machine) {
 void RunChainLoop(const TuringMachine& machine, const Simulator& simulator,
                   std::istream& input_stream, bool is_interactive) {
   if (is_interactive) {
-    std::cout << "\nIntroduce cadenas para comprobar (una por línea; 'exit' o Ctrl+D "
+    std::cout << "\nIntroduce cadenas para comprobar (una por línea; o Ctrl+D "
         "para terminar):\n";
   }
 
@@ -63,7 +63,6 @@ void RunChainLoop(const TuringMachine& machine, const Simulator& simulator,
       std::cout.flush();
     }
     if (!std::getline(input_stream, line)) break;
-    if (is_interactive && line == "exit") break;
 
     try {
       const Chain chain(line, machine.GetInputAlphabet());
