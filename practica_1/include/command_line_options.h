@@ -84,30 +84,4 @@ class CommandLineOptions {
   bool is_trace_enabled_ = false; /**< Si -trace es 'y'. */
 };
 
-/**
- * @brief Imprime el resumen del autómata ya construido: Q, Σ, Γ, q0, Z0,
- * F, los estados alcanzables desde q0 y las transiciones numeradas.
- */
-void PrintAutomatonSummary(const PushdownAutomaton& automaton);
-
-/**
- * @brief Comprueba, una por una, las cadenas que llegan por input_stream.
- * Un ChainError (símbolo fuera de Σ) o un SimulationLimitExceededError
- * descartan esa cadena y se continúa con la siguiente, tal y como exige
- * la sección 6 del enunciado; no abortan el programa.
- * @param automaton Autómata ya construido.
- * @param simulator Simulador a usar (ya construido con el ostream y el
- * booleano de traza correctos).
- * @param input_stream De dónde leer las cadenas: std::cin o el fichero
- * de -in.
- * @param is_interactive Si input_stream es el teclado: solo entonces se
- * imprime el símbolo de espera ("> ") y solo entonces 'exit' termina el
- * bucle antes de llegar a EOF (no tiene sentido para un fichero de -in).
- * @param trace_enabled Si la traza está activada: si lo está, el
- * veredicto ya lo dice Tracer::EndChain(), así que no se repite aquí.
- */
-void RunChainLoop(const PushdownAutomaton& automaton, Simulator& simulator,
-                  std::istream& input_stream, bool is_interactive,
-                  bool trace_enabled);
-
 #endif  // COMMAND_LINE_OPTIONS_H_
