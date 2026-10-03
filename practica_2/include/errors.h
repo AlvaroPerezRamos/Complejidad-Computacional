@@ -73,6 +73,32 @@ class DuplicatedElementError : public ConfigurationError {
       : ConfigurationError(message, line_number) {}
 };
 
+/** @brief q0 ∉ Q, o algún estado de F ∉ Q. */
+class InvalidStateError : public ConfigurationError {
+ public:
+  explicit InvalidStateError(const std::string& message, int line_number = -1)
+      : ConfigurationError(message, line_number) {}
+};
+
+/** @brief Una transición no es válida: campos incorrectos, estado/símbolo no declarado, o movimiento ajeno a {L,R,S}. */
+class InvalidTransitionError : public ConfigurationError {
+ public:
+  explicit InvalidTransitionError(const std::string& message, int line_number = -1)
+      : ConfigurationError(message, line_number) {}
+};
+
+/**
+ * @brief Dos transiciones comparten (estado, símbolos leídos) pero difieren
+ * en el resto: el fichero describe una MT que no es determinista. A
+ * diferencia de una transición repetida idéntica (aviso, se ignora), esto
+ * aborta la carga.
+ */
+class NonDeterministicTransitionError : public ConfigurationError {
+ public:
+  explicit NonDeterministicTransitionError(const std::string& message, int line_number = -1)
+      : ConfigurationError(message, line_number) {}
+};
+
 // =============================================================================
 // Errores de fichero
 // =============================================================================
