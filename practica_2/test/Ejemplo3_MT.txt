@@ -1,0 +1,25 @@
+# MT que reconoce el lenguaje L = { a^n b^m | m >= n, n > 0 }
+#
+# q0: inicial. Solo tiene transicion para 'a' (nunca para 'b' ni blanco):
+#     asi una cadena que empiece por 'b', o la cadena vacia, se rechaza
+#     de raiz (n=0), sin tener que comprobarlo despues.
+# q1: modo 'a'. Marca cada 'a' en C2 y sigue viendo 'a' (autobucle) o
+#     pasa a modo 'b' en cuanto aparece la primera 'b'.
+# q2: modo 'b'. Consume una marca de C2 por cada 'b' (delta hacia q2 con
+#     cima 'a'); en cuanto C2 se agota, sigue consumiendo 'b' sin marca
+#     (delta hacia q2 con cima '.'). Si aparece una 'a' aqui, no hay
+#     transicion: se rechaza (orden incorrecto).
+# q3: final.
+q0 q1 q2 q3
+a b
+. a b
+q0
+.
+q3
+2
+q0 a . q1 a a R R
+q1 a . q1 a a R R
+q1 b . q2 b . S L
+q2 b a q2 b a R L
+q2 b . q2 b . R S
+q2 . . q3 . . S S
