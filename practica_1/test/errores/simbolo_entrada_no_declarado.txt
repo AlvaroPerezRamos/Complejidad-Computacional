@@ -1,0 +1,7 @@
+q1 q2
+a
+S
+q1
+S
+q2
+q1 b S q2 S

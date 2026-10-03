@@ -1,0 +1,11 @@
+# ciclo de e-transiciones que apila sin consumir entrada: supera el
+# limite de tamano de pila (1000 simbolos)
+p q
+a
+S A
+p
+S
+q
+p . S p AS
+p . A p AA
+p a S q S

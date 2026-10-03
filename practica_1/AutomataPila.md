@@ -556,9 +556,24 @@ for f in test/APv/*.txt; do
 done
 ```
 
-> Esta batería cubre la distinción APf/APv y un caso no determinista real, pero no ejercita todavía,
-> uno por uno, cada error concreto de la tabla de §6 (símbolo repetido, transición con campos de más,
-> etc.). Ampliarla con un fichero por fila de esa tabla queda como trabajo pendiente.
+### `test/errores/`, `test/avisos/` y `test/cadenas_erroneas/` — una fila de la sección 6 por fichero
+
+Un fichero por cada error (`test/errores/`, 19 casos) y cada aviso (`test/avisos/`, 6 casos) de la
+tabla de §6, más dos casos de error en cadenas de entrada (`test/cadenas_erroneas/`: símbolo fuera
+de `Σ`, y límite de exploración superado). El script `test/run_error_and_warning_tests.sh` los pasa
+todos (más los 10 casos de línea de comandos, que no necesitan fichero propio) y comprueba que cada
+uno dispara exactamente lo que le corresponde — 37 comprobaciones en total:
+
+```bash
+./test/run_error_and_warning_tests.sh                    # usa build/bin/automata_pila por defecto
+./test/run_error_and_warning_tests.sh ruta/al/ejecutable  # o uno distinto, si hace falta
+```
+
+> La única fila de la tabla de §6 que no tiene un fichero dedicado es "`Q` vacío": como se explica en
+> la documentación de `AutomatonParser`, es inalcanzable por el propio diseño del formato (cualquier
+> línea con contenido produce al menos un token, y las líneas realmente vacías se saltan como
+> decorativas entre secciones) — se mantiene la comprobación en el código por si acaso, pero no hay
+> forma de construir un fichero real que la dispare.
 
 ---
 
@@ -606,7 +621,11 @@ practica_1/
 │   └── transition_function.cc
 ├── test/
 │   ├── APf/                         # Autómatas APf (el tipo implementado)
-│   └── APv/                         # Los mismos, en formato APv (para probar su rechazo)
+│   ├── APv/                         # Los mismos, en formato APv (para probar su rechazo)
+│   ├── errores/                     # Un fichero por cada error de la tabla de §6 (19 casos)
+│   ├── avisos/                      # Un fichero por cada aviso de la tabla de §6 (6 casos)
+│   ├── cadenas_erroneas/            # Símbolo fuera de Σ, límite de exploración superado
+│   └── run_error_and_warning_tests.sh  # Pasa los 37 casos y comprueba el resultado esperado
 ├── docs/
 │   └── CC_2627_Practica1 - CC_2627_Practica1.pdf   # Enunciado de la práctica
 └── build/                           # Generado por CMake (no se versiona)
