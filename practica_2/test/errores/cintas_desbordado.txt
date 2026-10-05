@@ -1,0 +1,9 @@
+# Error esperado: ConfigurationError (el numero de cintas no cabe en un entero)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+99999999999999999999
+q0 0 q1 0 R

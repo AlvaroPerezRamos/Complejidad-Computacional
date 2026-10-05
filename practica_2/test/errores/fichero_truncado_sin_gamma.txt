@@ -1,0 +1,3 @@
+# Error esperado: MissingSectionError (el fichero termina antes de Gamma)
+q0 q1
+0 1

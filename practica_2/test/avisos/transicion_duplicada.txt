@@ -1,0 +1,10 @@
+# Aviso esperado: transicion duplicada (se ignora la repeticion)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+1
+q0 0 q1 0 R
+q0 0 q1 0 R

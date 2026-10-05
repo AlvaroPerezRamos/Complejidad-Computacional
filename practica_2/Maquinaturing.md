@@ -405,24 +405,24 @@ de transiciones").
 
 ### Fichero de configuración
 
-| Situación                                                                 | Excepción                         |
-| ------------------------------------------------------------------------- | --------------------------------- |
-| Fichero vacío o inaccesible                                               | `FileError`                       |
-| El fichero termina antes de una sección obligatoria                       | `MissingSectionError`             |
-| `Q` vacío                                                                 | `MissingSectionError`             |
-| Más de un estado inicial, o línea del blanco con más de un token          | `MissingSectionError`             |
-| Estado repetido en `Q` o `F`                                              | `DuplicatedElementError`          |
-| Símbolo repetido en `Σ` o `Γ`                                             | `DuplicatedElementError`          |
-| Símbolo de más de un carácter (en `Σ`, `Γ`, o el blanco)                  | `InvalidSymbolError`              |
-| El blanco no pertenece a `Γ`                                              | `InvalidSymbolError`              |
-| El blanco pertenece a `Σ`                                                 | `InvalidSymbolError`              |
-| `q0 ∉ Q`, o algún estado de `F ∉ Q`                                       | `InvalidStateError`               |
-| Número de cintas no es un entero positivo                                 | `ConfigurationError`              |
-| Transición con un número de campos distinto del esperado (`2+3·N`)        | `InvalidTransitionError`          |
-| Estado de origen o destino no declarado                                   | `InvalidTransitionError`          |
-| Símbolo leído o escrito que no pertenece a `Γ`                            | `InvalidTransitionError`          |
-| Movimiento ajeno a `{L, R, S}`                                            | `InvalidTransitionError`          |
-| Dos transiciones con la misma clave y distinto resto (MT no determinista) | `NonDeterministicTransitionError` |
+| Situación                                                                           | Excepción                         |
+| ----------------------------------------------------------------------------------- | --------------------------------- |
+| Fichero vacío o inaccesible                                                         | `FileError`                       |
+| El fichero termina antes de una sección obligatoria                                 | `MissingSectionError`             |
+| `Q` vacío                                                                           | `MissingSectionError`             |
+| Más de un estado inicial, o línea del blanco o del nº de cintas con más de un valor | `MissingSectionError`             |
+| Estado repetido en `Q` o `F`                                                        | `DuplicatedElementError`          |
+| Símbolo repetido en `Σ` o `Γ`                                                       | `DuplicatedElementError`          |
+| Símbolo de más de un carácter (en `Σ`, `Γ`, o el blanco)                            | `InvalidSymbolError`              |
+| El blanco no pertenece a `Γ`                                                        | `InvalidSymbolError`              |
+| El blanco pertenece a `Σ`                                                           | `InvalidSymbolError`              |
+| `q0 ∉ Q`, o algún estado de `F ∉ Q`                                                 | `InvalidStateError`               |
+| Número de cintas no es un entero positivo                                           | `ConfigurationError`              |
+| Transición con un número de campos distinto del esperado (`2+3·N`)                  | `InvalidTransitionError`          |
+| Estado de origen o destino no declarado                                             | `InvalidTransitionError`          |
+| Símbolo leído o escrito que no pertenece a `Γ`                                      | `InvalidTransitionError`          |
+| Movimiento ajeno a `{L, R, S}`                                                      | `InvalidTransitionError`          |
+| Dos transiciones con la misma clave y distinto resto (MT no determinista)           | `NonDeterministicTransitionError` |
 
 ### Avisos (no abortan)
 
@@ -545,6 +545,35 @@ stateDiagram-v2
 ```
 
 
+### Batería de errores y avisos
+
+Un fichero por cada fila de las tablas de §6 (con variantes donde un mismo error se puede cometer de
+varias formas), y un script que los pasa todos:
+
+| Carpeta                               | Contenido                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `test/errores/`                       | 37 ficheros de configuración inválidos: ficheros vacío y truncado en cada sección posible (Σ, Γ, q0, blanco, F, nº de cintas), duplicados, símbolos inválidos, reglas del blanco, estados inicial y finales, 6 formas de equivocarse en el nº de cintas, 9 formas de equivocarse en una transición y el no determinismo (con 1 y con 2 cintas). |
+| `test/avisos/`                        | 4 ficheros que disparan, cada uno, solo sus avisos: transición duplicada, sin transiciones, estado inalcanzable, ningún final alcanzable.                                                                                                                                                                                                       |
+| `test/cadenas_erroneas/`              | Entrada con un símbolo ajeno a `Σ` entre cadenas válidas (se descarta esa cadena y se continúa con la siguiente).                                                                                                                                                                                                                               |
+| `test/cadena_vacia/`                  | El convenio de la cadena vacía: el blanco solo, una línea vacía, y una MT con otro blanco (`_`) donde `.` deja de serlo.                                                                                                                                                                                                                        |
+| `test/run_error_and_warning_tests.sh` | Pasa los 65 casos (10 de línea de comandos, 37 de errores, 8 de avisos, 4 de MT válidas sin avisos, 2 de cadenas, 4 de cadena vacía) y comprueba el resultado de cada uno.                                                                                                                                                                      |
+
+```bash
+./test/run_error_and_warning_tests.sh                    # usa build/bin/maquina_turing por defecto
+./test/run_error_and_warning_tests.sh ruta/al/ejecutable  # o uno distinto
+```
+
+El script es más estricto que una simple búsqueda de texto: los errores de configuración se comprueban
+**con su número de línea real**, los avisos se **cuentan** (cada fichero debe emitir exactamente los
+suyos, ni uno menos ni uno de más) y las cuatro MT válidas del repositorio deben emitir **cero**
+avisos, lo que detecta falsos positivos del validador. Termina con código 0 si todo pasa y 1 si algo
+falla.
+
+> La única fila de §6 sin fichero propio es "`Q` vacío": es inalcanzable por el propio diseño del
+> formato (cualquier línea con contenido produce al menos un token, y las líneas realmente vacías se
+> saltan como decorativas), así que no hay forma de construir un fichero real que la dispare. La
+> comprobación se mantiene en el código por si acaso.
+
 ---
 
 ## 8. Estructura del proyecto
@@ -588,7 +617,12 @@ practica_2/
 │   ├── Ejemplo1_MT.txt
 │   ├── Ejemplo2_MT.txt
 │   ├── Problema1_anbm.txt
-│   └── Problema2_conteo.txt
+│   ├── Problema2_conteo.txt
+│   ├── errores/                     # 37 configuraciones inválidas
+│   ├── avisos/                      # 4 configuraciones que avisan
+│   ├── cadenas_erroneas/            # símbolo ajeno a Σ en la entrada
+│   ├── cadena_vacia/                # convenio de la cadena vacía
+│   └── run_error_and_warning_tests.sh  # pasa los 65 casos
 └── docs/
     ├── CC_2627_Practica2.pdf
     ├── grafo_problema1.{dot,png,svg,mmd}

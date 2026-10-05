@@ -1,0 +1,8 @@
+# Aviso esperado: la maquina no tiene ninguna transicion
+q0
+0 1
+. 0 1
+q0
+.
+q0
+1

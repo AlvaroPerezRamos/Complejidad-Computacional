@@ -1,0 +1,9 @@
+# MT con blanco '_' (en vez de '.'): la cadena vacia se escribe '_'
+q0 q1
+0 1
+_ 0 1
+q0
+_
+q1
+1
+q0 _ q1 _ S

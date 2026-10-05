@@ -1,0 +1,9 @@
+# Error esperado: InvalidTransitionError (N=2 espera 8 campos; esta tiene 5, como si fuera de 1 cinta)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+2
+q0 0 q1 0 R

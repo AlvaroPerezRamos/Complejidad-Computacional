@@ -1,0 +1,9 @@
+# Error esperado: InvalidSymbolError (simbolo de mas de un caracter en Sigma)
+q0 q1
+0 11
+. 0 1
+q0
+.
+q1
+1
+q0 0 q1 0 R

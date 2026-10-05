@@ -1,0 +1,10 @@
+# Error esperado: NonDeterministicTransitionError (misma clave (q0,0,.) con 2 cintas, distinta escritura)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+2
+q0 0 . q1 0 . R S
+q0 0 . q1 1 . R S

@@ -1,0 +1,9 @@
+# Aviso esperado: q_isla es inalcanzable desde q0
+q0 q1 q_isla
+0 1
+. 0 1
+q0
+.
+q1
+1
+q0 0 q1 0 R

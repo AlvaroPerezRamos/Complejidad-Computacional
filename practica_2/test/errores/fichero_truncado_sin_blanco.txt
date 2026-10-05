@@ -1,0 +1,5 @@
+# Error esperado: MissingSectionError (el fichero termina antes de simbolo blanco)
+q0 q1
+0 1
+. 0 1
+q0

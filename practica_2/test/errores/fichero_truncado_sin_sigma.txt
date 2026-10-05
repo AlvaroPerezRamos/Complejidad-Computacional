@@ -1,0 +1,2 @@
+# Error esperado: MissingSectionError (el fichero termina antes de Sigma)
+q0 q1

@@ -1,0 +1,7 @@
+# Error esperado: MissingSectionError (el fichero termina antes de numero de cintas)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1

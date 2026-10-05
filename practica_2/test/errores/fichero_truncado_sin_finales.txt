@@ -1,0 +1,6 @@
+# Error esperado: MissingSectionError (el fichero termina antes de F)
+q0 q1
+0 1
+. 0 1
+q0
+.

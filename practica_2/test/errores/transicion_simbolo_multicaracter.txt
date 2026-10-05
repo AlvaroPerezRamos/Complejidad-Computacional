@@ -1,0 +1,9 @@
+# Error esperado: InvalidTransitionError (simbolo leido de mas de un caracter)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+1
+q0 00 q1 0 R
