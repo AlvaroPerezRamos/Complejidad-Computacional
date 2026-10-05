@@ -1,0 +1,10 @@
+# Error esperado: InvalidTransitionError (N=2: los campos van agrupados POR CINTA en vez de POR TIPO;
+# el formato correcto es: origen lee1 lee2 destino escribe1 escribe2 mov1 mov2)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+2
+q0 0 0 R . . S q1

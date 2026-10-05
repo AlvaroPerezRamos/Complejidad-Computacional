@@ -1,0 +1,9 @@
+# Error esperado: InvalidTransitionError (N=2, falta un simbolo a escribir)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+2
+q0 0 . q1 . R S

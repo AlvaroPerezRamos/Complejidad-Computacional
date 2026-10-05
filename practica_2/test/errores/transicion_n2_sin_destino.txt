@@ -1,0 +1,9 @@
+# Error esperado: InvalidTransitionError (N=2, falta el estado de destino)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+2
+q0 0 . 0 . R S
