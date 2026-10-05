@@ -13,10 +13,13 @@
  */
 
 #include "../include/chain.h"
-
 #include "../include/errors.h"
 
-Chain::Chain(const std::string& text, const Alphabet& input_alphabet) {
+Chain::Chain(const std::string& text, const Alphabet& input_alphabet,
+             const Symbol& blank_symbol) {
+  if (text == blank_symbol.ToString()) {
+    return;  // Cadena vacía escrita como el símbolo blanco.
+  }
   ValidateAgainstAlphabet(text, input_alphabet);
   text_ = text;
 }
@@ -26,7 +29,8 @@ void Chain::ValidateAgainstAlphabet(const std::string& raw_text,
   for (char character : raw_text) {
     if (!input_alphabet.Contains(Symbol(character))) {
       throw ChainError("La cadena '" + raw_text + "' contiene el símbolo '" +
-          std::string(1, character) + "', que no pertenece al alfabeto de entrada.");
+                       std::string(1, character) +
+                       "', que no pertenece al alfabeto de entrada.");
     }
   }
 }

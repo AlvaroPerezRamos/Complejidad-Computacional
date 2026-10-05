@@ -27,12 +27,15 @@
 
 namespace {
 
-/** @brief Imprime Q, Σ, Γ, q0, b, F, número de cintas y número de transiciones. */
+/** @brief Imprime Q, Σ, Γ, q0, b, F, número de cintas y número de transiciones.
+ */
 void PrintMachineSummary(const TuringMachine& machine) {
   std::cout << "Estados (Q): ";
-  for (const State& state : machine.GetStateDeclarationOrder()) std::cout << state << " ";
+  for (const State& state : machine.GetStateDeclarationOrder())
+    std::cout << state << " ";
   std::cout << "\n";
-  std::cout << "Alfabeto de entrada (Σ): " << machine.GetInputAlphabet() << "\n";
+  std::cout << "Alfabeto de entrada (Σ): " << machine.GetInputAlphabet()
+            << "\n";
   std::cout << "Alfabeto de cinta (Γ): " << machine.GetTapeAlphabet() << "\n";
   std::cout << "Estado inicial (q0): " << machine.GetInitialState() << "\n";
   std::cout << "Símbolo blanco (b): " << machine.GetBlankSymbol() << "\n";
@@ -40,7 +43,8 @@ void PrintMachineSummary(const TuringMachine& machine) {
   for (const State& state : machine.GetFinalStates()) std::cout << state << " ";
   std::cout << "\n";
   std::cout << "Número de cintas: " << machine.GetTapeCount() << "\n";
-  std::cout << "Transiciones: " << machine.GetTransitionFunction().Size() << "\n";
+  std::cout << "Transiciones: " << machine.GetTransitionFunction().Size()
+            << "\n";
 }
 
 /**
@@ -52,8 +56,10 @@ void PrintMachineSummary(const TuringMachine& machine) {
 void RunChainLoop(const TuringMachine& machine, const Simulator& simulator,
                   std::istream& input_stream, bool is_interactive) {
   if (is_interactive) {
-    std::cout << "\nIntroduce cadenas para comprobar (una por línea; o Ctrl+D "
-        "para terminar):\n";
+    std::cout << "\nIntroduce cadenas para comprobar (una por línea; '"
+              << machine.GetBlankSymbol()
+              << "' o una línea vacía para la cadena vacía; "
+              << "'exit' o Ctrl+D para terminar):\n";
   }
 
   std::string line;
@@ -63,9 +69,11 @@ void RunChainLoop(const TuringMachine& machine, const Simulator& simulator,
       std::cout.flush();
     }
     if (!std::getline(input_stream, line)) break;
+    if (is_interactive && line == "exit") break;
 
     try {
-      const Chain chain(line, machine.GetInputAlphabet());
+      const Chain chain(line, machine.GetInputAlphabet(),
+                        machine.GetBlankSymbol());
       const TuringRunResult result = simulator.Run(chain);
       std::cout << (result.is_accepted ? "ACEPTADA" : "RECHAZADA") << "  "
                 << result.tape_contents << "\n";
@@ -82,7 +90,8 @@ int main(int argc, char* argv[]) {
     const CommandLineOptions options = CommandLineOptions::Parse(argc, argv);
 
     if (options.IsHelpRequested()) {
-      std::cout << CommandLineOptions::BuildHelpText(argc > 0 ? argv[0] : "maquina_turing");
+      std::cout << CommandLineOptions::BuildHelpText(
+          argc > 0 ? argv[0] : "maquina_turing");
       return 0;
     }
 
@@ -101,7 +110,8 @@ int main(int argc, char* argv[]) {
     }
 
   } catch (const ConfigurationError& error) {
-    std::cerr << "Error (línea " << error.GetLineNumber() << "): " << error.what() << "\n";
+    std::cerr << "Error (línea " << error.GetLineNumber()
+              << "): " << error.what() << "\n";
     return 1;
   } catch (const Error& error) {
     std::cerr << "Error: " << error.what() << "\n";
