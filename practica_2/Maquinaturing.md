@@ -13,11 +13,11 @@
 
 De las tres variaciones que el enunciado obliga a elegir:
 
-| Variación              | Elección                                                     |
-| ---------------------- | ------------------------------------------------------------ |
-| Escritura y movimiento | **Simultáneos** (una transición hace las dos cosas a la vez) |
-| Movimientos permitidos | **L, R y S** (incluye "sin mover")                           |
-| Dirección de la cinta  | **Infinita en ambas direcciones** (MT tradicional)           |
+| Variación                                   | Elección                          |
+| -------------------------------------------- | ---------------------------------- |
+| Escritura y movimiento                       | **Simultáneos** (una transición hace las dos cosas a la vez) |
+| Movimientos permitidos                       | **L, R y S** (incluye "sin mover") |
+| Dirección de la cinta                        | **Infinita en ambas direcciones** (MT tradicional) |
 
 Una cadena se acepta si, al detenerse (ninguna transición aplicable), el estado alcanzado
 pertenece a `F`. El contenido final de la cinta 1 se muestra siempre, se acepte o no.
@@ -29,9 +29,9 @@ pertenece a `F`. El contenido final de la cinta 1 se muestra siempre, se acepte 
 ### Requisitos
 
 | Herramienta | Versión mínima                      |
-| ----------- | ----------------------------------- |
-| CMake       | 3.10                                |
-| Compilador  | C++17 (g++ 9 / clang 10 o superior) |
+| ----------- | ------------------------------------ |
+| CMake       | 3.10                                 |
+| Compilador  | C++17 (g++ 9 / clang 10 o superior)  |
 
 ### Compilación
 
@@ -48,11 +48,11 @@ El ejecutable se genera en `build/bin/maquina_turing`.
 ./build/bin/maquina_turing -config <f> [-in <f>]
 ```
 
-| Opción         | Obligatoria | Descripción                                                                     |
-| -------------- | ----------- | ------------------------------------------------------------------------------- |
-| `-config <f>`  | Sí          | Fichero de texto con la configuración de la MT.                                 |
-| `-in <f>`      | No          | Fichero con las cadenas a comprobar. Si se omite, se leen por teclado.          |
-| `-h`, `--help` | No          | Muestra la ayuda y termina (se resuelve antes que cualquier otra comprobación). |
+| Opción          | Obligatoria | Descripción                                                             |
+| --------------- | ----------- | ------------------------------------------------------------------------ |
+| `-config <f>`   | Sí          | Fichero de texto con la configuración de la MT.                          |
+| `-in <f>`       | No          | Fichero con las cadenas a comprobar. Si se omite, se leen por teclado.   |
+| `-h`, `--help`  | No          | Muestra la ayuda y termina (se resuelve antes que cualquier otra comprobación). |
 
 A diferencia de P01, no hay `-trace` ni `-out`: el enunciado de esta práctica no los pide. La
 salida, para cada cadena, es siempre la misma: `ACEPTADA`/`RECHAZADA` y el contenido de la cinta 1
@@ -319,24 +319,24 @@ sequenceDiagram
 
 ### 4.4 Responsabilidad de cada clase
 
-| Clase                    | Responsabilidad                                                                                      |
-| ------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `Symbol`                 | Símbolo de un alfabeto. Sin convenio de ε: no existe en una MT.                                      |
-| `State`                  | Estado, identificado por su nombre.                                                                  |
-| `Alphabet`               | Conjunto finito de símbolos; se usa para `Σ` y para `Γ` (un único `Γ` para todas las cintas).        |
-| `Chain`                  | Cadena de entrada validada contra `Σ`.                                                               |
-| `Movement`               | Enumerado `{L, R, S}`.                                                                               |
-| `TapeAction`             | Lo que una transición hace sobre **una** cinta: símbolo leído, símbolo a escribir, movimiento.       |
-| `Tape`                   | Cinta infinita bidireccional; mapa disperso posición→símbolo, el resto se asume blanco.              |
-| `Transition`             | `(origen, destino, [TapeAction])`, una acción por cinta.                                             |
-| `TransitionFunction`     | La función `δ` completa; determinista: una única `Transition` por clave.                             |
-| `TuringMachine`          | La séptupla `(Q, Σ, Γ, s, b, F, δ)` + número de cintas. Inmutable, no valida nada.                   |
-| `TuringConfiguration`    | Estado + cintas en un instante. **Mutable** (sin backtracking no hace falta inmutabilidad).          |
-| `TuringRunResult`        | Veredicto + contenido final de la cinta 1, ya formateado.                                            |
-| `Simulator`              | Bucle de ejecución: aplica la única transición aplicable hasta que no quede ninguna.                 |
-| `TuringMachineParser`    | Lee el fichero y valida todo lo que aborta la carga (mismo patrón que `AutomatonParser` de P01).     |
-| `TuringMachineValidator` | Avisos que necesitan la MT completa: sin transiciones, estado inalcanzable, ningún final alcanzable. |
-| `CommandLineOptions`     | Analiza y valida `-config`/`-in`/`-h`.                                                               |
+| Clase                   | Responsabilidad                                                                       |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| `Symbol`                | Símbolo de un alfabeto. Sin convenio de ε: no existe en una MT.                          |
+| `State`                 | Estado, identificado por su nombre.                                                      |
+| `Alphabet`              | Conjunto finito de símbolos; se usa para `Σ` y para `Γ` (un único `Γ` para todas las cintas). |
+| `Chain`                 | Cadena de entrada validada contra `Σ`.                                                    |
+| `Movement`              | Enumerado `{L, R, S}`.                                                                    |
+| `TapeAction`            | Lo que una transición hace sobre **una** cinta: símbolo leído, símbolo a escribir, movimiento. |
+| `Tape`                  | Cinta infinita bidireccional; mapa disperso posición→símbolo, el resto se asume blanco.   |
+| `Transition`            | `(origen, destino, [TapeAction])`, una acción por cinta.                                  |
+| `TransitionFunction`    | La función `δ` completa; determinista: una única `Transition` por clave.                  |
+| `TuringMachine`         | La séptupla `(Q, Σ, Γ, s, b, F, δ)` + número de cintas. Inmutable, no valida nada.         |
+| `TuringConfiguration`   | Estado + cintas en un instante. **Mutable** (sin backtracking no hace falta inmutabilidad). |
+| `TuringRunResult`       | Veredicto + contenido final de la cinta 1, ya formateado.                                 |
+| `Simulator`             | Bucle de ejecución: aplica la única transición aplicable hasta que no quede ninguna.       |
+| `TuringMachineParser`   | Lee el fichero y valida todo lo que aborta la carga (mismo patrón que `AutomatonParser` de P01). |
+| `TuringMachineValidator`| Avisos que necesitan la MT completa: sin transiciones, estado inalcanzable, ningún final alcanzable. |
+| `CommandLineOptions`    | Analiza y valida `-config`/`-in`/`-h`.                                                     |
 
 ### 4.5 Decisiones de diseño
 
@@ -391,67 +391,86 @@ de transiciones").
 
 ### Línea de comandos (`CommandLineError`)
 
-| Situación                                | Tratamiento                                                      |
-| ---------------------------------------- | ---------------------------------------------------------------- |
-| Falta `-config`                          | Error + ayuda                                                    |
-| Opción repetida                          | Error + ayuda                                                    |
-| Opción sin valor                         | Error + ayuda                                                    |
-| Opción desconocida                       | Error + ayuda                                                    |
-| Fichero de `-config` o `-in` inaccesible | Error                                                            |
-| `-h`, `--help`                           | Muestra la ayuda; no es un error, se resuelve antes que el resto |
+| Situación                           | Tratamiento        |
+| ------------------------------------- | -------------------- |
+| Falta `-config`                     | Error + ayuda       |
+| Opción repetida                     | Error + ayuda       |
+| Opción sin valor                    | Error + ayuda       |
+| Opción desconocida                  | Error + ayuda       |
+| Fichero de `-config` o `-in` inaccesible | Error           |
+| `-h`, `--help`                      | Muestra la ayuda; no es un error, se resuelve antes que el resto |
 
 ### Fichero de configuración
 
-| Situación                                                                 | Excepción                         |
-| ------------------------------------------------------------------------- | --------------------------------- |
-| Fichero vacío o inaccesible                                               | `FileError`                       |
-| El fichero termina antes de una sección obligatoria                       | `MissingSectionError`             |
-| `Q` vacío                                                                 | `MissingSectionError`             |
-| Más de un estado inicial, o línea del blanco con más de un token          | `MissingSectionError`             |
-| Estado repetido en `Q` o `F`                                              | `DuplicatedElementError`          |
-| Símbolo repetido en `Σ` o `Γ`                                             | `DuplicatedElementError`          |
-| Símbolo de más de un carácter (en `Σ`, `Γ`, o el blanco)                  | `InvalidSymbolError`              |
-| El blanco no pertenece a `Γ`                                              | `InvalidSymbolError`              |
-| El blanco pertenece a `Σ`                                                 | `InvalidSymbolError`              |
-| `q0 ∉ Q`, o algún estado de `F ∉ Q`                                       | `InvalidStateError`               |
-| Número de cintas no es un entero positivo                                 | `ConfigurationError`              |
-| Transición con un número de campos distinto del esperado (`2+3·N`)        | `InvalidTransitionError`          |
-| Estado de origen o destino no declarado                                   | `InvalidTransitionError`          |
-| Símbolo leído o escrito que no pertenece a `Γ`                            | `InvalidTransitionError`          |
-| Movimiento ajeno a `{L, R, S}`                                            | `InvalidTransitionError`          |
+| Situación                                               | Excepción                          |
+| --------------------------------------------------------- | ------------------------------------ |
+| Fichero vacío o inaccesible                              | `FileError`                        |
+| El fichero termina antes de una sección obligatoria      | `MissingSectionError`              |
+| `Q` vacío                                                | `MissingSectionError`              |
+| Más de un estado inicial, o línea del blanco con más de un token | `MissingSectionError`         |
+| Estado repetido en `Q` o `F`                             | `DuplicatedElementError`           |
+| Símbolo repetido en `Σ` o `Γ`                            | `DuplicatedElementError`           |
+| Símbolo de más de un carácter (en `Σ`, `Γ`, o el blanco) | `InvalidSymbolError`               |
+| El blanco no pertenece a `Γ`                             | `InvalidSymbolError`               |
+| El blanco pertenece a `Σ`                                | `InvalidSymbolError`               |
+| `q0 ∉ Q`, o algún estado de `F ∉ Q`                      | `InvalidStateError`                |
+| Número de cintas no es un entero positivo                | `ConfigurationError`               |
+| Transición con un número de campos distinto del esperado (`2+3·N`) | `InvalidTransitionError` |
+| Estado de origen o destino no declarado                  | `InvalidTransitionError`           |
+| Símbolo leído o escrito que no pertenece a `Γ`           | `InvalidTransitionError`           |
+| Movimiento ajeno a `{L, R, S}`                           | `InvalidTransitionError`           |
 | Dos transiciones con la misma clave y distinto resto (MT no determinista) | `NonDeterministicTransitionError` |
 
 ### Avisos (no abortan)
 
-| Situación                       | Motivo                            |
-| ------------------------------- | --------------------------------- |
-| Transición duplicada (idéntica) | Se ignora la repetición           |
-| MT sin ninguna transición       | Se detiene inmediatamente en `q0` |
-| Estado inalcanzable desde `q0`  | Estado inútil                     |
-| Ningún estado de `F` alcanzable | Ninguna cadena se aceptará nunca  |
+| Situación                        | Motivo                                   |
+| ----------------------------------- | ------------------------------------------- |
+| Transición duplicada (idéntica)   | Se ignora la repetición                    |
+| MT sin ninguna transición         | Se detiene inmediatamente en `q0`          |
+| Estado inalcanzable desde `q0`    | Estado inútil                              |
+| Ningún estado de `F` alcanzable   | Ninguna cadena se aceptará nunca           |
 
 ### Cadenas de entrada
 
-| Situación           | Tratamiento                                        |
-| ------------------- | -------------------------------------------------- |
-| Símbolo ajeno a `Σ` | `ChainError`; se descarta esa cadena y se continúa |
+| Situación             | Tratamiento                                     |
+| ------------------------ | -------------------------------------------------- |
+| Símbolo ajeno a `Σ`   | `ChainError`; se descarta esa cadena y se continúa |
 
 ---
 
-## 7. Batería de pruebas
+## 7. Batería de pruebas y Máquinas de Turing diseñadas
 
-`test/` contiene, por ahora, los dos ejemplos de formato proporcionados en el enunciado (no son los
-dos problemas a resolver, solo ilustran la sintaxis del fichero):
+### Ejemplos de formato (proporcionados en el enunciado)
 
-| Fichero           | Qué hace                                               | Cintas |
-| ----------------- | ------------------------------------------------------ | ------ |
-| `Ejemplo1_MT.txt` | Reconoce cadenas binarias con un número impar de ceros | 1      |
-| `Ejemplo2_MT.txt` | Duplica un número en unario (`1ⁿ` → `1²ⁿ`)             | 1      |
+No son los problemas a resolver, solo ilustran la sintaxis del fichero:
 
-> **Pendiente:** diseñar y añadir aquí las dos Máquinas de Turing que pide el enunciado
-> (`L = {aⁿbᵐ : m ≥ n, n > 0}` y la de contar símbolos `a`/`b` en unario), cada una con su fichero
-> de configuración y la imagen de su grafo, como exige la entrega. Se empezará probándolas con 1
-> cinta y después se intentará una variante de cada una con más cintas.
+| Fichero                 | Qué hace                                                  | Cintas |
+| ----------------------- | ----------------------------------------------------------- | ------ |
+| `test/Ejemplo1_MT.txt`  | Reconoce cadenas binarias con un número impar de ceros     | 1      |
+| `test/Ejemplo2_MT.txt`  | Duplica un número en unario (`1ⁿ` → `1²ⁿ`)                 | 1      |
+
+### Problema 1: `L = {aⁿbᵐ : m ≥ n, n > 0}` — `test/Problema1_anbm.txt` (2 cintas)
+
+C1 contiene la entrada; C2 acumula una marca (`a`) por cada `a` leída en C1.
+
+| Estado | Función |
+| ------ | ------- |
+| `q0`   | Inicial. Solo tiene transición para `a`: una cadena que empiece por `b`, o la vacía, no tiene transición y se rechaza de raíz (`n = 0`). |
+| `q1`   | Modo `a`: marca cada `a` en C2; pasa a `q2` en cuanto lee la primera `b`. |
+| `q2`   | Modo `b`: cada `b` consume una marca de C2; cuando C2 se agota sigue consumiendo `b` sin comparar (`m ≥ n` ya garantizado). Una `a` aquí no tiene transición: orden incorrecto, se rechaza. |
+| `q3`   | Final. |
+
+![Grafo de la MT del problema 1](docs/grafo_problema1.png)
+
+### Problema 2: contar `a`/`b` en unario — pendiente
+
+Diseño previsto con 3 cintas (C1 entrada/resultado, C2 marcas de `a`, C3 marcas de `b`); fichero y
+grafo aún por añadir (`test/Problema2_conteo.txt`, `docs/grafo_problema2.png`).
+
+-------------------- | ------------------------------------------------------------------ | ------ |
+| `Ejemplo1_MT.txt`  | Reconoce cadenas binarias con un número impar de ceros            | 1      |
+| `Ejemplo2_MT.txt`  | Duplica un número en unario (`1ⁿ` → `1²ⁿ`)                        | 1      |
+| `Ejemplo3_MT.txt`  | Reconoce las cadenas aⁿbᵐ                                         | 1      |
 
 ---
 
@@ -494,9 +513,13 @@ practica_2/
 │   └── turing_machine_validator.cc
 ├── test/
 │   ├── Ejemplo1_MT.txt
-│   └── Ejemplo2_MT.txt
+│   ├── Ejemplo2_MT.txt
+│   └── Problema1_anbm.txt
 └── docs/
-    └── CC_2627_Practica2.pdf
+    ├── CC_2627_Practica2.pdf
+    ├── grafo_problema1.dot
+    ├── grafo_problema1.png
+    └── grafo_problema1.svg
 ```
 
 ---
