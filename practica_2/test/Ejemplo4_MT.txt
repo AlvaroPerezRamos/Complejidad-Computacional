@@ -1,3 +1,35 @@
+# Problema 2: MT que sustituye una cadena de 'a' y 'b' por el numero de 'b',
+# seguido (separado por un blanco) del numero de 'a'. Un numero n se codifica
+# en unario como 1^n; si falta un simbolo se escribe "0" en su lugar. La
+# cabeza de C1 queda al principio del resultado.
+#     abbabaabb -> 11111.1111        aa -> 0.11        bb -> 11.0
+#
+# 3 cintas:   C1 = entrada y resultado
+#             C2 = una marca '1' por cada 'a' de la entrada
+#             C3 = una marca '1' por cada 'b' de la entrada
+# Alfabetos:  Sigma = {a, b}     Gamma = {a, b, 0, 1, .}     blanco = '.'
+#
+# Transicion:  origen  lee(C1 C2 C3)  destino  escribe(C1 C2 C3)  mueve(C1 C2 C3)
+#
+# Tres ideas de diseno que reducen la maquina (de 12 a 7 estados):
+#   1) Se borra la entrada de C1 mientras se escanea: no hace falta volver al
+#      inicio de C1, el resultado se escribe donde quede el cabezal.
+#   2) Un numero en unario no tiene orden: las marcas de C2 y C3 se vuelcan
+#      leyendolas desde donde ya esta el cabezal (el final), hacia la izquierda,
+#      sin rebobinarlas antes.
+#   3) El resultado se escribe al reves (primero el bloque de 'a', hacia la
+#      izquierda, despues el de 'b'): al terminar, el cabezal ya esta al
+#      principio del resultado y no hay que rebobinar.
+#
+# Estados:
+#   q0  escaneo de C1: marca cada 'a' en C2 y cada 'b' en C3, borrando C1
+#   q1  inicio del bloque de 'a' (C2 con marcas: escribe '1'; vacia: escribe '0')
+#   q2  continuacion del bloque de 'a'
+#   q3  caso "no hay 'a'": salta la celda separadora (blanco)
+#   q4  inicio del bloque de 'b' (C3 con marcas: escribe '1'; vacia: escribe '0')
+#   q5  continuacion del bloque de 'b'
+#   q6  final: cabeza de C1 al principio del resultado
+
 q0 q1 q2 q3 q4 q5 q6
 a b
 . a b 0 1
@@ -5,15 +37,21 @@ q0
 .
 q6
 3
-q0 a . . q0 . 1 . R R S
-q0 b . . q0 . . 1 R S R
-q0 . . . q1 . . . S L S
-q1 . 1 . q2 1 1 . L L S
-q1 . . . q3 0 . . L S S
-q2 . 1 . q2 1 1 . L L S
-q2 . . . q4 . . . L S L
-q3 . . . q4 . . . L S L
-q4 . . 1 q5 1 . 1 L S L
-q4 . . . q6 0 . . S S S
-q5 . . 1 q5 1 . 1 L S L
-q5 . . . q6 . . . R S S
+
+# --- q0: escaneo. Cada simbolo de C1 se borra y se cuenta en C2 (a) o C3 (b)
+q0 a . . q0 . 1 . R R S    # 'a': borra, marca en C2
+q0 b . . q0 . . 1 R S R    # 'b': borra, marca en C3
+q0 . . . q1 . . . S L S    # fin de la entrada: C2 un paso atras (ultima marca de 'a')
+
+# --- q1/q2/q3: bloque de 'a' (a la derecha del resultado), escrito hacia la izquierda
+q1 . 1 . q2 1 1 . L L S    # hay 'a': escribe '1' en C1, consume una marca de C2
+q1 . . . q3 0 . . L S S    # no hay ninguna 'a': escribe '0'
+q2 . 1 . q2 1 1 . L L S    # sigue consumiendo marcas de C2
+q2 . . . q4 . . . L S L    # marcas agotadas: deja el separador, C3 un paso atras
+q3 . . . q4 . . . L S L    # tras el '0': deja el separador, C3 un paso atras
+
+# --- q4/q5: bloque de 'b' (a la izquierda del resultado), escrito hacia la izquierda
+q4 . . 1 q5 1 . 1 L S L    # hay 'b': escribe '1' en C1, consume una marca de C3
+q4 . . . q6 0 . . S S S    # no hay ninguna 'b': escribe '0'; la cabeza ya esta al inicio
+q5 . . 1 q5 1 . 1 L S L    # sigue consumiendo marcas de C3
+q5 . . . q6 . . . R S S    # marcas agotadas: un paso a la derecha, al inicio del resultado

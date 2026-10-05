@@ -463,25 +463,87 @@ C1 contiene la entrada; C2 acumula una marca (`a`) por cada `a` leída en C1.
 | `q2`   | Modo `b`: cada `b` consume una marca de C2; cuando C2 se agota sigue consumiendo `b` sin comparar (`m ≥ n` ya garantizado). Una `a` aquí no tiene transición: orden incorrecto, se rechaza. |
 | `q3`   | Final.                                                                                                                                                                                      |
 
-Grafo: `docs/grafo_problema1.png` (también `.svg`, y el fuente `docs/grafo_problema1.dot`, que se
-regenera con `dot -Tpng docs/grafo_problema1.dot -o docs/grafo_problema1.png`). Cada arista se
-etiqueta `(lee C1, lee C2) / (escribe C1, escribe C2) ; (mov C1, mov C2)`; `.` es el blanco.
+Grafo (imagen entregable: `docs/grafo_problema1.png`; también `.svg` y el fuente Graphviz
+`.dot`). Cada arista se etiqueta `(lee C1,C2) / (escribe C1,C2) / (mueve C1,C2)`; `.` es el blanco.
 
 ![Grafo de la MT del problema 1](docs/grafo_problema1.png)
 
-### Problema 2: contar `a`/`b` en unario — pendiente
+El mismo grafo como código Mermaid (`docs/grafo_problema1.mmd`; GitHub lo dibuja y se versiona como
+texto; el estado final se marca con la flecha de salida):
 
-Diseño previsto con 3 cintas (C1 entrada/resultado, C2 marcas de `a`, C3 marcas de `b`); fichero y
-grafo aún por añadir (`test/Problema2_conteo.txt`, `docs/grafo_problema2.png`).
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> q0
+    q0 --> q1 : (a,.) / (a,a) / (R,R)
+    q1 --> q1 : (a,.) / (a,a) / (R,R)
+    q1 --> q2 : (b,.) / (b,.) / (S,L)
+    q2 --> q2 : (b,a) / (b,a) / (R,L)
+    q2 --> q2 : (b,.) / (b,.) / (R,S)
+    q2 --> q3 : (.,.) / (.,.) / (S,S)
+    q3 --> [*]
+```
 
--------------------- | ------------------------------------------------------------------ | ------ |
-| `Ejemplo1_MT.txt`  | Reconoce cadenas binarias con un número impar de ceros            | 1      |
-| `Ejemplo2_MT.txt`  | Duplica un número en unario (`1ⁿ` → `1²ⁿ`)                        | 1      |
+### Problema 2: contar `a`/`b` en unario — `test/Problema2_conteo.txt` (3 cintas)
 
-> **Pendiente:** diseñar y añadir aquí las dos Máquinas de Turing que pide el enunciado
-> (`L = {aⁿbᵐ : m ≥ n, n > 0}` y la de contar símbolos `a`/`b` en unario), cada una con su fichero
-> de configuración y la imagen de su grafo, como exige la entrega. Se empezará probándolas con 1
-> cinta y después se intentará una variante de cada una con más cintas.
+Sustituye la cadena por el nº de `b`, un blanco, y el nº de `a`, en unario (`abbabaabb` →
+`11111·1111`, `aa` → `0·11`, `bb` → `11·0`), con la cabeza al principio del resultado. C1 es entrada y
+resultado; C2 acumula un `1` por cada `a` y C3 un `1` por cada `b`.
+
+| Estado | Función                                                                                                                             |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `q0`   | Escaneo: borra cada símbolo de C1 y lo cuenta en C2 (`a`) o C3 (`b`). Al llegar al blanco, C2 da un paso atrás (a su última marca). |
+| `q1`   | Inicio del bloque de `a`: si C2 tiene marcas escribe `1` en C1 y consume una; si no, escribe `0`.                                   |
+| `q2`   | Continuación del bloque de `a`; al agotarse C2 deja el separador y C3 da un paso atrás.                                             |
+| `q3`   | Caso "sin `a`": salta la celda separadora tras el `0`.                                                                              |
+| `q4`   | Inicio del bloque de `b`: igual que `q1`, con C3. Si no hay `b`, escribe `0` y termina: la cabeza ya está al inicio.                |
+| `q5`   | Continuación del bloque de `b`; al agotarse C3 da un paso a la derecha, al inicio del resultado.                                    |
+| `q6`   | Final.                                                                                                                              |
+
+Tres ideas de diseño reducen la máquina de 12 a 7 estados:
+
+1. **Se borra C1 durante el escaneo**, así que no hace falta volver al inicio de C1: el resultado
+   se escribe donde quede el cabezal.
+2. **Un número en unario no tiene orden**: C2 y C3 se vuelcan desde su final hacia la izquierda, sin
+   rebobinarlas antes.
+3. **El resultado se escribe al revés** (bloque de `a` primero, hacia la izquierda; después el de
+   `b`): al terminar, el cabezal ya está al principio del resultado y no hay rebobinado final.
+
+El resultado puede quedar desplazado respecto a donde estaba la entrada; la salida impresa es la
+misma, porque el simulador muestra solo el rango no blanco de la cinta.
+
+Grafo (imagen entregable: `docs/grafo_problema2.png`; también `.svg` y `.dot`):
+
+![Grafo de la MT del problema 2](docs/grafo_problema2.png)
+
+Y como código Mermaid (`docs/grafo_problema2.mmd`):
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> q0
+    q0 : q0 escaneo
+    q1 : q1 inicio de a
+    q2 : q2 continuacion de a
+    q3 : q3 sin a
+    q4 : q4 inicio de b
+    q5 : q5 continuacion de b
+    q6 : q6 final
+    q0 --> q0 : (a,.,.) / (.,1,.) / (R,R,S)
+    q0 --> q0 : (b,.,.) / (.,.,1) / (R,S,R)
+    q0 --> q1 : (.,.,.) / (.,.,.) / (S,L,S)
+    q1 --> q2 : (.,1,.) / (1,1,.) / (L,L,S)
+    q1 --> q3 : (.,.,.) / (0,.,.) / (L,S,S)
+    q2 --> q2 : (.,1,.) / (1,1,.) / (L,L,S)
+    q2 --> q4 : (.,.,.) / (.,.,.) / (L,S,L)
+    q3 --> q4 : (.,.,.) / (.,.,.) / (L,S,L)
+    q4 --> q5 : (.,.,1) / (1,.,1) / (L,S,L)
+    q4 --> q6 : (.,.,.) / (0,.,.) / (S,S,S)
+    q5 --> q5 : (.,.,1) / (1,.,1) / (L,S,L)
+    q5 --> q6 : (.,.,.) / (.,.,.) / (R,S,S)
+    q6 --> [*]
+```
+
 
 ---
 
@@ -525,12 +587,12 @@ practica_2/
 ├── test/
 │   ├── Ejemplo1_MT.txt
 │   ├── Ejemplo2_MT.txt
-│   └── Problema1_anbm.txt
+│   ├── Problema1_anbm.txt
+│   └── Problema2_conteo.txt
 └── docs/
     ├── CC_2627_Practica2.pdf
-    ├── grafo_problema1.dot
-    ├── grafo_problema1.png
-    └── grafo_problema1.svg
+    ├── grafo_problema1.{dot,png,svg,mmd}
+    └── grafo_problema2.{dot,png,svg,mmd}
 ```
 
 ---

@@ -1,0 +1,18 @@
+digraph MT_anbm {
+  rankdir=LR;
+  labelloc="t";
+  label="MT de 2 cintas para L = { a^n b^m | m >= n, n > 0 }\nArista: (lee C1,C2) / (escribe C1,C2) / (mueve C1,C2)     '.' = blanco";
+  fontname="Helvetica"; fontsize=14;
+  node [fontname="Helvetica", fontsize=14, shape=circle, width=0.7];
+  edge [fontname="Helvetica", fontsize=12];
+
+  start [shape=point, width=0.15];
+  q3 [shape=doublecircle];
+
+  start -> q0;
+  q0 -> q1 [label="(a,.) / (a,a) / (R,R)"];
+  q1 -> q1 [label="(a,.) / (a,a) / (R,R)"];
+  q1 -> q2 [label="(b,.) / (b,.) / (S,L)"];
+  q2 -> q2 [label="(b,a) / (b,a) / (R,L)\n(b,.) / (b,.) / (R,S)"];
+  q2 -> q3 [label="(.,.) / (.,.) / (S,S)"];
+}

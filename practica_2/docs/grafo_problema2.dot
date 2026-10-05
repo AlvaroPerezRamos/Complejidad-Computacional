@@ -1,0 +1,30 @@
+digraph MT_conteo {
+  rankdir=LR;
+  labelloc="t";
+  label="MT de 3 cintas: sustituye la cadena por nº de 'b' . nº de 'a' (unario)\nArista: (lee C1,C2,C3) / (escribe C1,C2,C3) / (mueve C1,C2,C3)     '.' = blanco";
+  fontname="Helvetica"; fontsize=14;
+  node [fontname="Helvetica", fontsize=13, shape=circle, width=0.9];
+  edge [fontname="Helvetica", fontsize=11];
+
+  start [shape=point, width=0.15];
+  q0 [label="q0\nescaneo"];
+  q1 [label="q1\n'a' inicio"];
+  q2 [label="q2\n'a' cont."];
+  q3 [label="q3\nsin 'a'"];
+  q4 [label="q4\n'b' inicio"];
+  q5 [label="q5\n'b' cont."];
+  q6 [label="q6\nfinal", shape=doublecircle];
+
+  start -> q0;
+  q0 -> q0 [label="(a,.,.) / (.,1,.) / (R,R,S)\n(b,.,.) / (.,.,1) / (R,S,R)"];
+  q0 -> q1 [label="(.,.,.) / (.,.,.) / (S,L,S)"];
+  q1 -> q2 [label="(.,1,.) / (1,1,.) / (L,L,S)"];
+  q1 -> q3 [label="(.,.,.) / (0,.,.) / (L,S,S)"];
+  q2 -> q2 [label="(.,1,.) / (1,1,.) / (L,L,S)"];
+  q2 -> q4 [label="(.,.,.) / (.,.,.) / (L,S,L)"];
+  q3 -> q4 [label="(.,.,.) / (.,.,.) / (L,S,L)"];
+  q4 -> q5 [label="(.,.,1) / (1,.,1) / (L,S,L)"];
+  q4 -> q6 [label="(.,.,.) / (0,.,.) / (S,S,S)"];
+  q5 -> q5 [label="(.,.,1) / (1,.,1) / (L,S,L)"];
+  q5 -> q6 [label="(.,.,.) / (.,.,.) / (R,S,S)"];
+}
