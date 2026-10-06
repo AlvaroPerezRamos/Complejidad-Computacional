@@ -125,7 +125,7 @@ check_case "nº de cintas negativo" "(línea 8): El número de cintas '-1' no es
 check_case "nº de cintas decimal" "(línea 8): El número de cintas '1.5' no es un entero positivo válido" 1 -- "$BINARY" -config $E/cintas_decimal.txt
 check_case "nº de cintas desbordado" "(línea 8): El número de cintas '99999999999999999999' es demasiado grande" 1 -- "$BINARY" -config $E/cintas_desbordado.txt
 check_case "nº de cintas con varios valores" "(línea 8): El número de cintas debe ser un único valor" 1 -- "$BINARY" -config $E/cintas_varios_valores.txt
-check_case "transición sin movimiento (la pista lo deduce)" "(línea 9): La transición 'q0 0 q1 0' no es válida: se esperaban 5 campos (origen, 1 símbolo(s) leído(s), destino, 1 símbolo(s) a escribir, 1 movimiento(s)); tiene 4. Parece que falta el movimiento." 1 -- "$BINARY" -config $E/transicion_sin_movimiento.txt
+check_case "transición sin movimiento (la pista lo deduce)" "(línea 9): La transición 'q0 0 q1 0' no es válida: se esperaban 5 campos (origen, 1 símbolo(s) leído(s), destino, 1 símbolo(s) a escribir, 1 movimiento(s)); se encontraron 4: 2 estados ('q0', 'q1'); 2 símbolos ('0', '0'); 0 movimientos. Parece que falta el movimiento." 1 -- "$BINARY" -config $E/transicion_sin_movimiento.txt
 check_case "transición sin estado de origen" "(línea 9): La transición '0 q1 0 R' no es válida: se esperaban 5 campos" 1 -- "$BINARY" -config $E/transicion_sin_origen.txt
 check_case "...la pista dice que falta el origen" "Parece que falta el estado de origen." 1 -- "$BINARY" -config $E/transicion_sin_origen.txt
 check_case "transición sin símbolo leído: pista" "Parece que falta el símbolo leído." 1 -- "$BINARY" -config $E/transicion_sin_simbolo_leido.txt
@@ -138,6 +138,12 @@ check_case "N=2 sin símbolo leído: pista (de alguna cinta)" "Parece que falta 
 check_case "N=2 sin símbolo a escribir: pista (de alguna cinta)" "Parece que falta el símbolo a escribir de alguna de las cintas." 1 -- "$BINARY" -config $E/transicion_n2_sin_simbolo_escrito.txt
 check_case "N=2 sin movimiento: pista (de alguna cinta)" "Parece que falta el movimiento de alguna de las cintas." 1 -- "$BINARY" -config $E/transicion_n2_sin_movimiento.txt
 check_case "campos agrupados por cinta en vez de por tipo" "(línea 10): El estado de destino 'R' de la transición 'q0 0 0 R . . S q1' no está declarado en Q" 1 -- "$BINARY" -config $E/transicion_orden_por_cinta.txt
+check_case "N=2 con transición de 1 cinta (faltan 2 campos): pista" "(línea 10): La transición 'q0 . q1 . R S' no es válida: se esperaban 8 campos (origen, 2 símbolo(s) leído(s), destino, 2 símbolo(s) a escribir, 2 movimiento(s)); se encontraron 6: 2 estados ('q0', 'q1'); 2 símbolos ('.', '.'); 2 movimientos ('R', 'S'). Parece que faltan 2 campos: un símbolo leído y un símbolo a escribir (de alguna de las cintas)." 1 -- "$BINARY" -config $E/transicion_n2_estilo_una_cinta.txt
+check_case "faltan símbolo leído y escrito: pista" "Parece que faltan 2 campos: el símbolo leído y el símbolo a escribir." 1 -- "$BINARY" -config $E/transicion_sin_leido_ni_escrito.txt
+check_case "faltan destino y movimiento: pista" "Parece que faltan 2 campos: el estado de destino y el movimiento." 1 -- "$BINARY" -config $E/transicion_sin_destino_ni_movimiento.txt
+check_case "sobran 2 campos: pista" "Parece que sobran los campos '0', 'R'." 1 -- "$BINARY" -config $E/transicion_campos_de_mas_dos.txt
+check_case "se describe lo encontrado: estados, símbolos y movimientos" "se encontraron 4: 2 estados ('q0', 'q1'); 2 símbolos ('0', '0'); 0 movimientos." 1 -- "$BINARY" -config $E/transicion_sin_movimiento.txt
+check_case "se describe lo encontrado: un campo no reconocido" "se encontraron 4: 1 estado ('q0'); 2 símbolos ('0', '0'); 0 movimientos; 1 no reconocido ('q9')." 1 -- "$BINARY" -config $E/transicion_campo_no_reconocido.txt
 check_case "transición de 1 cinta en una MT de 2 (N=2)" "(línea 9): La transición 'q0 0 q1 0 R' no es válida: se esperaban 8 campos" 1 -- "$BINARY" -config $E/transicion_campos_n2.txt
 check_case "origen de transición no declarado" "(línea 9): El estado de origen 'q2'" 1 -- "$BINARY" -config $E/transicion_origen_no_declarado.txt
 check_case "destino de transición no declarado" "(línea 9): El estado de destino 'q2'" 1 -- "$BINARY" -config $E/transicion_destino_no_declarado.txt

@@ -1,0 +1,10 @@
+# Error esperado: InvalidTransitionError (N=2 con una transicion escrita como si fuera de 1 cinta:
+# # un solo simbolo leido y un solo simbolo escrito; faltan 2 campos)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+2
+q0 . q1 . R S

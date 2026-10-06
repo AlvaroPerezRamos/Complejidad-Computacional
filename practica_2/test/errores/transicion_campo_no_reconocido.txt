@@ -1,0 +1,10 @@
+# Error esperado: InvalidTransitionError (falta el movimiento y ademas hay un campo no reconocido, 'q9':
+# # la descripcion de lo encontrado lo separa de los estados, simbolos y movimientos)
+q0 q1
+0 1
+. 0 1
+q0
+.
+q1
+1
+q0 0 q9 0

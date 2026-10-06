@@ -405,24 +405,24 @@ de transiciones").
 
 ### Fichero de configuración
 
-| Situación                                                                                                                                                                          | Excepción                         |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| Fichero vacío o inaccesible                                                                                                                                                        | `FileError`                       |
-| El fichero termina antes de una sección obligatoria                                                                                                                                | `MissingSectionError`             |
-| `Q` vacío                                                                                                                                                                          | `MissingSectionError`             |
-| Más de un estado inicial, o línea del blanco o del nº de cintas con más de un valor                                                                                                | `MissingSectionError`             |
-| Estado repetido en `Q` o `F`                                                                                                                                                       | `DuplicatedElementError`          |
-| Símbolo repetido en `Σ` o `Γ`                                                                                                                                                      | `DuplicatedElementError`          |
-| Símbolo de más de un carácter (en `Σ`, `Γ`, o el blanco)                                                                                                                           | `InvalidSymbolError`              |
-| El blanco no pertenece a `Γ`                                                                                                                                                       | `InvalidSymbolError`              |
-| El blanco pertenece a `Σ`                                                                                                                                                          | `InvalidSymbolError`              |
-| `q0 ∉ Q`, o algún estado de `F ∉ Q`                                                                                                                                                | `InvalidStateError`               |
-| Número de cintas no es un entero positivo                                                                                                                                          | `ConfigurationError`              |
-| Transición con un número de campos distinto del esperado (`2+3·N`); si falta o sobra uno, el mensaje deduce cuál (origen, símbolo leído, destino, símbolo a escribir o movimiento) | `InvalidTransitionError`          |
-| Estado de origen o destino no declarado                                                                                                                                            | `InvalidTransitionError`          |
-| Símbolo leído o escrito que no pertenece a `Γ`                                                                                                                                     | `InvalidTransitionError`          |
-| Movimiento ajeno a `{L, R, S}`                                                                                                                                                     | `InvalidTransitionError`          |
-| Dos transiciones con la misma clave y distinto resto (MT no determinista)                                                                                                          | `NonDeterministicTransitionError` |
+| Situación                                                                                                                                                                                    | Excepción                         |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| Fichero vacío o inaccesible                                                                                                                                                                  | `FileError`                       |
+| El fichero termina antes de una sección obligatoria                                                                                                                                          | `MissingSectionError`             |
+| `Q` vacío                                                                                                                                                                                    | `MissingSectionError`             |
+| Más de un estado inicial, o línea del blanco o del nº de cintas con más de un valor                                                                                                          | `MissingSectionError`             |
+| Estado repetido en `Q` o `F`                                                                                                                                                                 | `DuplicatedElementError`          |
+| Símbolo repetido en `Σ` o `Γ`                                                                                                                                                                | `DuplicatedElementError`          |
+| Símbolo de más de un carácter (en `Σ`, `Γ`, o el blanco)                                                                                                                                     | `InvalidSymbolError`              |
+| El blanco no pertenece a `Γ`                                                                                                                                                                 | `InvalidSymbolError`              |
+| El blanco pertenece a `Σ`                                                                                                                                                                    | `InvalidSymbolError`              |
+| `q0 ∉ Q`, o algún estado de `F ∉ Q`                                                                                                                                                          | `InvalidStateError`               |
+| Número de cintas no es un entero positivo                                                                                                                                                    | `ConfigurationError`              |
+| Transición con un número de campos distinto del esperado (`2+3·N`); el mensaje describe lo encontrado (cuántos estados, símbolos y movimientos) y, si falta o sobra algún campo, deduce cuál | `InvalidTransitionError`          |
+| Estado de origen o destino no declarado                                                                                                                                                      | `InvalidTransitionError`          |
+| Símbolo leído o escrito que no pertenece a `Γ`                                                                                                                                               | `InvalidTransitionError`          |
+| Movimiento ajeno a `{L, R, S}`                                                                                                                                                               | `InvalidTransitionError`          |
+| Dos transiciones con la misma clave y distinto resto (MT no determinista)                                                                                                                    | `NonDeterministicTransitionError` |
 
 ### Avisos (no abortan)
 
@@ -550,13 +550,13 @@ stateDiagram-v2
 Un fichero por cada fila de las tablas de §6 (con variantes donde un mismo error se puede cometer de
 varias formas), y un script que los pasa todos:
 
-| Carpeta                               | Contenido                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `test/errores/`                       | 47 ficheros de configuración inválidos: ficheros vacío y truncado en cada sección posible (Σ, Γ, q0, blanco, F, nº de cintas), duplicados, símbolos inválidos, reglas del blanco, estados inicial y finales, 6 formas de equivocarse en el nº de cintas, 19 formas de equivocarse en una transición (falta o sobra cada uno de sus campos con 1 y con 2 cintas, valores inválidos, campos agrupados por cinta en vez de por tipo) y el no determinismo (con 1 y con 2 cintas). |
-| `test/avisos/`                        | 4 ficheros que disparan, cada uno, solo sus avisos: transición duplicada, sin transiciones, estado inalcanzable, ningún final alcanzable.                                                                                                                                                                                                                                                                                                                                      |
-| `test/cadenas_erroneas/`              | Entrada con un símbolo ajeno a `Σ` entre cadenas válidas (se descarta esa cadena y se continúa con la siguiente).                                                                                                                                                                                                                                                                                                                                                              |
-| `test/cadena_vacia/`                  | El convenio de la cadena vacía: el blanco solo, una línea vacía, y una MT con otro blanco (`_`) donde `.` deja de serlo.                                                                                                                                                                                                                                                                                                                                                       |
-| `test/run_error_and_warning_tests.sh` | Pasa los 77 casos (10 de línea de comandos, 49 de errores de configuración, 8 de avisos, 4 de MT válidas sin avisos, 2 de cadenas, 4 de cadena vacía) y comprueba el resultado de cada uno.                                                                                                                                                                                                                                                                                    |
+| Carpeta                               | Contenido                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `test/errores/`                       | 52 ficheros de configuración inválidos: ficheros vacío y truncado en cada sección posible (Σ, Γ, q0, blanco, F, nº de cintas), duplicados, símbolos inválidos, reglas del blanco, estados inicial y finales, 6 formas de equivocarse en el nº de cintas, 24 formas de equivocarse en una transición (falta o sobra cada uno de sus campos con 1 y con 2 cintas, varios a la vez, valores inválidos, campos agrupados por cinta en vez de por tipo) y el no determinismo (con 1 y con 2 cintas). |
+| `test/avisos/`                        | 4 ficheros que disparan, cada uno, solo sus avisos: transición duplicada, sin transiciones, estado inalcanzable, ningún final alcanzable.                                                                                                                                                                                                                                                                                                                                                       |
+| `test/cadenas_erroneas/`              | Entrada con un símbolo ajeno a `Σ` entre cadenas válidas (se descarta esa cadena y se continúa con la siguiente).                                                                                                                                                                                                                                                                                                                                                                               |
+| `test/cadena_vacia/`                  | El convenio de la cadena vacía: el blanco solo, una línea vacía, y una MT con otro blanco (`_`) donde `.` deja de serlo.                                                                                                                                                                                                                                                                                                                                                                        |
+| `test/run_error_and_warning_tests.sh` | Pasa los 83 casos (10 de línea de comandos, 55 de errores de configuración, 8 de avisos, 4 de MT válidas sin avisos, 2 de cadenas, 4 de cadena vacía) y comprueba el resultado de cada uno.                                                                                                                                                                                                                                                                                                     |
 
 ```bash
 ./test/run_error_and_warning_tests.sh                    # usa build/bin/maquina_turing por defecto
@@ -569,15 +569,20 @@ suyos, ni uno menos ni uno de más) y las cuatro MT válidas del repositorio deb
 avisos, lo que detecta falsos positivos del validador. Termina con código 0 si todo pasa y 1 si algo
 falla.
 
-**Pistas en las transiciones mal formadas.** Si a una transición le falta o le sobra exactamente un
-campo, el parser busca en qué posición de la plantilla `origen, lee…, destino, escribe…, mueve…`
-encajan todos los demás (un estado de `Q`, un símbolo de `Γ`, o `L`/`R`/`S`) y lo dice en el mensaje
-(`Parece que falta el estado de destino.`). Con varias cintas, si el campo es por cinta, indica
-«de alguna de las cintas», porque no se puede saber de cuál; si hay varias posibilidades, las lista
-(`Podría sobrar uno de estos campos: …`) en vez de adivinar. Es solo una pista del mensaje: nunca
-cambia qué transiciones se aceptan. Comprobado con las 72 mutaciones posibles de una transición
-válida (quitar, duplicar o invalidar cada campo, con 1, 2 y 3 cintas): ninguna se acepta, y ninguna
-pista nombra un campo equivocado.
+**Mensaje de las transiciones con un número de campos incorrecto.** Además de lo esperado (`origen,
+N símbolos leídos, destino, N símbolos a escribir, N movimientos`), el mensaje **describe lo que
+encontró**, agrupado por lo que es cada campo, sin deducir nada: `se encontraron 6: 2 estados ('q0',
+'q1'); 2 símbolos ('.', '.'); 2 movimientos ('R', 'S')`. Los campos que no son un estado de `Q`, un
+símbolo de `Γ` ni un movimiento se listan aparte como «no reconocidos». Así se ve de un vistazo qué
+tipo de campo falta o sobra. Si la diferencia es de hasta 3 campos, se añade además una pista que
+intenta deducir cuáles: busca en qué posiciones de la plantilla encajan todos los demás y lo dice
+(`Parece que faltan 2 campos: un símbolo leído y un símbolo a escribir (de alguna de las cintas).`).
+Con varias cintas indica «de alguna de las cintas», porque no se puede saber de cuál. Si hay hasta 3
+posibilidades las lista (`Podría faltar … o …`) en vez de adivinar; con más, no da pista, porque una
+lista larga no ayuda. Es solo información del mensaje: nunca cambia qué transiciones se aceptan.
+Comprobado con todas las combinaciones de 1, 2 y 3 campos que faltan o sobran de una transición
+válida (con 1, 2 y 3 cintas): todas se rechazan, las 882 descripciones de lo encontrado coinciden
+con el recuento real y ninguna de las 444 pistas emitidas nombra un campo equivocado.
 
 > La única fila de §6 sin fichero propio es "`Q` vacío": es inalcanzable por el propio diseño del
 > formato (cualquier línea con contenido produce al menos un token, y las líneas realmente vacías se
@@ -628,11 +633,11 @@ practica_2/
 │   ├── Ejemplo2_MT.txt
 │   ├── Problema1_anbm.txt
 │   ├── Problema2_conteo.txt
-│   ├── errores/                     # 47 configuraciones inválidas
+│   ├── errores/                     # 52 configuraciones inválidas
 │   ├── avisos/                      # 4 configuraciones que avisan
 │   ├── cadenas_erroneas/            # símbolo ajeno a Σ en la entrada
 │   ├── cadena_vacia/                # convenio de la cadena vacía
-│   └── run_error_and_warning_tests.sh  # pasa los 77 casos
+│   └── run_error_and_warning_tests.sh  # pasa los 83 casos
 └── docs/
     ├── CC_2627_Practica2.pdf
     ├── grafo_problema1.{dot,png,svg,mmd}
