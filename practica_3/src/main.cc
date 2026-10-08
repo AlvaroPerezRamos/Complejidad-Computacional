@@ -23,11 +23,9 @@
 #include <string>
 #include <utility>
 
+#include "../include/basic_functions.h"
 #include "../include/call_counter.h"
 #include "../include/errors.h"
-#include "../include/projection_function.h"
-#include "../include/successor_function.h"
-#include "../include/zero_function.h"
 
 namespace {
 
