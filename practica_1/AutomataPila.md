@@ -4,6 +4,8 @@
 **Autor:** Álvaro Pérez Ramos — `alu0101574042@ull.edu.es`
 **Escuela Superior de Ingeniería y Tecnología · Universidad de La Laguna**
 
+**Documentación en GitHub:** [Práctica 1 — Autómata con pila](https://github.com/AlvaroPerezRamos/Complejidad-Computacional/blob/main/practica_1/AutomataPila.md)
+
 ---
 
 ## 1. Tipo de autómata implementado
@@ -35,9 +37,9 @@ todo lo que se apiló). Ver `test/APf/APf-2.txt` para el ejemplo correcto.
 ### Requisitos
 
 | Herramienta | Versión mínima                      |
-| ----------- | ----------------------------------- |
-| CMake       | 3.10                                |
-| Compilador  | C++17 (g++ 9 / clang 10 o superior) |
+| ----------- | ------------------------------------ |
+| CMake       | 3.10                                 |
+| Compilador  | C++17 (g++ 9 / clang 10 o superior)  |
 
 ### Compilación
 
@@ -57,12 +59,12 @@ El ejecutable se genera en `build/bin/automata_pila`.
 ./build/bin/automata_pila -config <f> -trace <y|n> [-in <f>] [-out <f>]
 ```
 
-| Opción          | Obligatoria | Descripción                                                                     |
-| --------------- | ----------- | ------------------------------------------------------------------------------- |
-| `-config <f>`   | Sí          | Fichero de texto con la definición del autómata.                                |
-| `-trace <y\|n>` | Sí          | Activa (`y`) o desactiva (`n`) el modo traza.                                   |
-| `-in <f>`       | No          | Fichero con las cadenas a comprobar. Si se omite, se leen por teclado.          |
-| `-out <f>`      | No          | Fichero donde se almacena la traza. Si se omite, se muestra por pantalla.       |
+| Opción          | Obligatoria | Descripción                                                               |
+| --------------- | ----------- | ------------------------------------------------------------------------- |
+| `-config <f>`   | Sí          | Fichero de texto con la definición del autómata.                          |
+| `-trace <y\|n>` | Sí          | Activa (`y`) o desactiva (`n`) el modo traza.                             |
+| `-in <f>`       | No          | Fichero con las cadenas a comprobar. Si se omite, se leen por teclado.    |
+| `-out <f>`      | No          | Fichero donde se almacena la traza. Si se omite, se muestra por pantalla. |
 | `-h`, `--help`  | No          | Muestra la ayuda y termina (se resuelve antes que cualquier otra comprobación). |
 
 Ejemplos:
@@ -348,22 +350,22 @@ sequenceDiagram
 
 ### 4.4 Responsabilidad de cada clase
 
-| Clase                      | Responsabilidad                                                                                                                                                           |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Symbol`                   | Símbolo de un alfabeto; encapsula el convenio de representación de ε (`.`).                                                                                               |
-| `State`                    | Estado del autómata, identificado por su nombre.                                                                                                                          |
-| `Alphabet`                 | Conjunto finito de símbolos; se usa tanto para `Σ` como para `Γ`.                                                                                                         |
-| `Chain`                    | Cadena de entrada validada contra `Σ` en el momento de construirse.                                                                                                       |
-| `Stack`                    | Pila del autómata; la posición 0 es la cima.                                                                                                                              |
-| `Transition`               | Una quíntupla de `δ`.                                                                                                                                                     |
-| `TransitionFunction`       | La función `δ` completa: indexada por clave para `Simulator`, y en orden de fichero para numerar la traza.                                                                |
-| `PushdownAutomaton`        | La séptupla `(Q, Σ, Γ, δ, q0, Z0, F)`; estructura de datos inmutable, no valida nada.                                                                                     |
-| `InstantaneousDescription` | La terna `(q, w, α)`: situación del autómata en un instante. Inmutable.                                                                                                   |
-| `Simulator`                | Algoritmo de reconocimiento con retroceso (§5); construye y usa su propio `Tracer`.                                                                                       |
-| `Tracer`                   | Formato y destino de la traza: IDs de descripción, numeración de transiciones, agrupación de retrocesos.                                                                  |
+| Clase                      | Responsabilidad                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| `Symbol`                   | Símbolo de un alfabeto; encapsula el convenio de representación de ε (`.`).          |
+| `State`                    | Estado del autómata, identificado por su nombre.                                     |
+| `Alphabet`                 | Conjunto finito de símbolos; se usa tanto para `Σ` como para `Γ`.                     |
+| `Chain`                    | Cadena de entrada validada contra `Σ` en el momento de construirse.                   |
+| `Stack`                    | Pila del autómata; la posición 0 es la cima.                                          |
+| `Transition`               | Una quíntupla de `δ`.                                                                 |
+| `TransitionFunction`       | La función `δ` completa: indexada por clave para `Simulator`, y en orden de fichero para numerar la traza. |
+| `PushdownAutomaton`        | La séptupla `(Q, Σ, Γ, δ, q0, Z0, F)`; estructura de datos inmutable, no valida nada. |
+| `InstantaneousDescription` | La terna `(q, w, α)`: situación del autómata en un instante. Inmutable.               |
+| `Simulator`                | Algoritmo de reconocimiento con retroceso (§5); construye y usa su propio `Tracer`.   |
+| `Tracer`                   | Formato y destino de la traza: IDs de descripción, numeración de transiciones, agrupación de retrocesos. |
 | `AutomatonParser`          | Lee el fichero **y** valida todo lo que la sección 6 trata como error (incluidas las referencias cruzadas entre `Q`/`Σ`/`Γ`). Fija el número de línea real de cada error. |
-| `AutomatonValidator`       | Los avisos que necesitan el autómata ya construido: alcanzabilidad, `Σ ∩ Γ`, etc. Nunca aborta.                                                                           |
-| `CommandLineOptions`       | Análisis y validación de los argumentos del programa.                                                                                                                     |
+| `AutomatonValidator`       | Los avisos que necesitan el autómata ya construido: alcanzabilidad, `Σ ∩ Γ`, etc. Nunca aborta. |
+| `CommandLineOptions`       | Análisis y validación de los argumentos del programa.                                |
 
 Decisiones de diseño que merecen justificarse:
 
@@ -459,42 +461,42 @@ fichero, comentarios y líneas en blanco incluidos.
 
 ### Línea de comandos
 
-| Situación                                | Tratamiento                                                      |
-| ---------------------------------------- | ---------------------------------------------------------------- |
-| Falta `-config` o `-trace`               | Error + ayuda                                                    |
-| Opción repetida                          | Error + ayuda                                                    |
-| Opción sin valor                         | Error + ayuda                                                    |
-| Valor de `-trace` distinto de `y`/`n`    | Error + ayuda                                                    |
-| Opción desconocida                       | Error + ayuda                                                    |
-| Fichero de `-config` o `-in` inaccesible | Error                                                            |
-| Fichero de `-out` no creable             | Error                                                            |
-| `-out` junto a `-trace n`                | Error (el fichero quedaría vacío)                                |
-| `-out` coincide con `-config` o `-in`    | Error (se destruiría)                                            |
-| `-h`, `--help`                           | Muestra la ayuda; no es un error, se resuelve antes que el resto |
+| Situación                                 | Tratamiento                       |
+| ----------------------------------------- | ---------------------------------- |
+| Falta `-config` o `-trace`                | Error + ayuda                      |
+| Opción repetida                           | Error + ayuda                      |
+| Opción sin valor                          | Error + ayuda                      |
+| Valor de `-trace` distinto de `y`/`n`     | Error + ayuda                      |
+| Opción desconocida                        | Error + ayuda                      |
+| Fichero de `-config` o `-in` inaccesible  | Error                               |
+| Fichero de `-out` no creable              | Error                               |
+| `-out` junto a `-trace n`                 | Error (el fichero quedaría vacío)  |
+| `-out` coincide con `-config` o `-in`     | Error (se destruiría)              |
+| `-h`, `--help`                            | Muestra la ayuda; no es un error, se resuelve antes que el resto |
 
 Todas las excepciones de esta tabla son `CommandLineError`.
 
 ### Fichero de configuración
 
-| Situación                                                 | Excepción                                        |
-| --------------------------------------------------------- | ------------------------------------------------ |
-| Fichero vacío o inaccesible                               | `FileError`                                      |
-| El fichero termina antes de una sección obligatoria       | `MissingSectionError`                            |
+| Situación                                             | Excepción                                        |
+| ------------------------------------------------------ | ------------------------------------------------- |
+| Fichero vacío o inaccesible                            | `FileError`                                       |
+| El fichero termina antes de una sección obligatoria    | `MissingSectionError`                             |
 | Fichero sin línea `F` (formato APv, detección heurística) | `MissingSectionError` con diagnóstico específico |
-| `Q` vacío                                                 | `MissingSectionError`                            |
-| Estado repetido en `Q` o en `F`                           | `DuplicatedElementError`                         |
-| Símbolo repetido en `Σ` o en `Γ`                          | `DuplicatedElementError`                         |
-| Símbolo de más de un carácter                             | `InvalidSymbolError`                             |
-| El carácter `.` declarado en `Σ` o `Γ`                    | `InvalidSymbolError`                             |
-| Más de un estado inicial o más de un `Z0`                 | `MissingSectionError`                            |
-| `q0 ∉ Q`, `F ⊄ Q`                                         | `InvalidStateError`                              |
-| `Z0 ∉ Γ`                                                  | `InvalidSymbolError`                             |
-| Transición con un número de campos distinto de 5          | `InvalidTransitionError`                         |
-| Estado de origen o destino no declarado                   | `InvalidTransitionError`                         |
-| Símbolo de entrada que no está en `Σ ∪ {ε}`               | `InvalidTransitionError`                         |
-| Cima consultada que no está en `Γ` (o es `ε`)             | `InvalidTransitionError`                         |
-| Secuencia a apilar con símbolos ajenos a `Γ`              | `InvalidTransitionError`                         |
-| Secuencia a apilar que mezcla `.` con símbolos de `Γ`     | `InvalidTransitionError`                         |
+| `Q` vacío                                              | `MissingSectionError`                             |
+| Estado repetido en `Q` o en `F`                        | `DuplicatedElementError`                          |
+| Símbolo repetido en `Σ` o en `Γ`                       | `DuplicatedElementError`                          |
+| Símbolo de más de un carácter                          | `InvalidSymbolError`                              |
+| El carácter `.` declarado en `Σ` o `Γ`                 | `InvalidSymbolError`                              |
+| Más de un estado inicial o más de un `Z0`              | `MissingSectionError`                             |
+| `q0 ∉ Q`, `F ⊄ Q`                                      | `InvalidStateError`                               |
+| `Z0 ∉ Γ`                                               | `InvalidSymbolError`                              |
+| Transición con un número de campos distinto de 5       | `InvalidTransitionError`                          |
+| Estado de origen o destino no declarado                | `InvalidTransitionError`                          |
+| Símbolo de entrada que no está en `Σ ∪ {ε}`            | `InvalidTransitionError`                          |
+| Cima consultada que no está en `Γ` (o es `ε`)          | `InvalidTransitionError`                          |
+| Secuencia a apilar con símbolos ajenos a `Γ`           | `InvalidTransitionError`                          |
+| Secuencia a apilar que mezcla `.` con símbolos de `Γ`  | `InvalidTransitionError`                          |
 
 > La detección de formato APv es una heurística (§1, §7): si la línea de `F` tiene exactamente 5
 > tokens y no todos son ya estados declarados en `Q`, se interpreta como la primera transición de un
@@ -502,23 +504,23 @@ Todas las excepciones de esta tabla son `CommandLineError`.
 
 ### Avisos
 
-| Situación                                | Motivo                                  | Quién lo detecta     |
-| ---------------------------------------- | --------------------------------------- | -------------------- |
-| Transición duplicada                     | Se ignora la repetición                 | `AutomatonParser`    |
-| Autómata sin ninguna transición          | Sólo podría aceptar `ε`                 | `AutomatonValidator` |
-| Estado inalcanzable desde `q0`           | Estado inútil                           | `AutomatonValidator` |
-| Ningún estado de `F` alcanzable          | El lenguaje reconocido es vacío         | `AutomatonValidator` |
-| `Σ ∩ Γ ≠ ∅`                              | Legal, pero casi siempre es un descuido | `AutomatonValidator` |
-| No hay transición aplicable a `(q0, Z0)` | El autómata se detiene al arrancar      | `AutomatonValidator` |
+| Situación                                | Motivo                                  | Quién lo detecta      |
+| ----------------------------------------- | ----------------------------------------- | ---------------------- |
+| Transición duplicada                     | Se ignora la repetición                  | `AutomatonParser`      |
+| Autómata sin ninguna transición          | Sólo podría aceptar `ε`                  | `AutomatonValidator`   |
+| Estado inalcanzable desde `q0`           | Estado inútil                            | `AutomatonValidator`   |
+| Ningún estado de `F` alcanzable          | El lenguaje reconocido es vacío          | `AutomatonValidator`   |
+| `Σ ∩ Γ ≠ ∅`                              | Legal, pero casi siempre es un descuido  | `AutomatonValidator`   |
+| No hay transición aplicable a `(q0, Z0)` | El autómata se detiene al arrancar       | `AutomatonValidator`   |
 
 La transición duplicada es la única que se detecta línea a línea, mientras se lee el fichero (no hace
 falta el autómata completo); el resto necesita el grafo de transiciones ya construido.
 
 ### Cadenas de entrada
 
-| Situación                      | Tratamiento                                                          |
-| ------------------------------ | -------------------------------------------------------------------- |
-| Símbolo ajeno a `Σ`            | `ChainError`; se descarta esa cadena y se continúa                   |
+| Situación                      | Tratamiento                                       |
+| -------------------------------- | ---------------------------------------------------- |
+| Símbolo ajeno a `Σ`            | `ChainError`; se descarta esa cadena y se continúa   |
 | Límite de exploración superado | `SimulationLimitExceededError`; se descarta esa cadena y se continúa |
 
 ---
@@ -530,22 +532,22 @@ el tipo de error que ejercitan (a diferencia de lo planteado inicialmente en est
 
 ### `test/APf/` — autómatas con finalización por estado final (el tipo que implementa esta práctica)
 
-| Fichero     | Lenguaje reconocido                                                                 | Determinista |
-| ----------- | ----------------------------------------------------------------------------------- | ------------ |
-| `APf-1.txt` | `{aⁿbⁿ : n > 0}`                                                                    | Sí           |
-| `APf-2.txt` | `{w·wᴿ : w ∈ {0,1}*}` (palíndromos de longitud par)                                 | No           |
-| `APf-3.txt` | Automatiza con estado de aceptación separado del de "adivinar" (ver el aviso de §1) | No           |
+| Fichero      | Lenguaje reconocido                                  | Determinista |
+| ------------ | ------------------------------------------------------ | ------------ |
+| `APf-1.txt`  | `{aⁿbⁿ : n > 0}`                                        | Sí           |
+| `APf-2.txt`  | `{w·wᴿ : w ∈ {0,1}*}` (palíndromos de longitud par)     | No           |
+| `APf-3.txt`  | Automatiza con estado de aceptación separado del de "adivinar" (ver el aviso de §1) | No |
 
 ### `test/APv/` — los mismos autómatas, pero en formato de vaciado de pila (sin línea de `F`)
 
 Sirven para comprobar la detección de formato APv de §6: al no llevar línea de `F`, `AutomatonParser`
 debe rechazarlos con el diagnóstico específico, no con un error confuso.
 
-| Fichero     | Correspondiente en `test/APf/` |
-| ----------- | ------------------------------ |
-| `APv-1.txt` | `APf-1.txt` (aⁿbⁿ)             |
-| `APv-2.txt` | `APf-2.txt` (palíndromos)      |
-| `APv-3.txt` | `APf-3.txt`                    |
+| Fichero      | Correspondiente en `test/APf/` |
+| ------------ | --------------------------------- |
+| `APv-1.txt`  | `APf-1.txt` (aⁿbⁿ)                 |
+| `APv-2.txt`  | `APf-2.txt` (palíndromos)          |
+| `APv-3.txt`  | `APf-3.txt`                        |
 
 Comprobación rápida:
 
