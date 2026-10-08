@@ -9,14 +9,17 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 08/10/2026
  * @file main.cc
- * @brief main TEMPORAL acumulativo (pasos 3 y 4). Comprueba las tres
+ * @brief main TEMPORAL acumulativo (pasos 3, 4 y 5). Comprueba las tres
  * operaciones que construyen funciones nuevas:
  *   - Combination: la tupla (g1(x), ..., gm(x)).
  *   - Composition: f ∘ (g1, ..., gm) = aplicar f a esa tupla.
  *   - PrimitiveRecursion: se construye a mano la suma,
  *         suma(x, 0)    = x                 = P_1^1(x)
  *         suma(x, S(y)) = S(suma(x, y))     = (S ∘ P_3^3)(x, y, suma(x, y))
- * Se sustituye en el paso 5, donde la suma pasa a la librería de funciones.
+ * y las funciones de FunctionLibrary (uno, suma, producto, potencia), cuyos
+ * valores y recuentos de llamadas se han contrastado con un oráculo
+ * independiente (recursión literal con contador). Se sustituye en el paso 6
+ * por el main definitivo con línea de comandos.
  */
 
 #include <functional>
@@ -30,6 +33,7 @@
 #include "../include/combination.h"
 #include "../include/composition.h"
 #include "../include/errors.h"
+#include "../include/function_library.h"
 #include "../include/primitive_recursion.h"
 
 namespace {
@@ -248,6 +252,87 @@ int main() {
       "g nula", [&] { PrimitiveRecursion(nullptr, successor_of_accumulated); });
   CheckInvalidDefinition("h nula",
                          [&] { PrimitiveRecursion(first_of_one, nullptr); });
+
+  // ===========================================================================
+  // LIBRERÍA DE FUNCIONES
+  // ===========================================================================
+
+  // ---------------------------------------------------------------------------
+  // Prueba 11: uno y suma construidas por la librería.
+  // ---------------------------------------------------------------------------
+  std::cout << "11) FunctionLibrary: uno y suma (suma: 2 + 4y llamadas)\n";
+  const FunctionPointer library_one = FunctionLibrary::One();
+  const FunctionPointer library_addition = FunctionLibrary::Addition();
+  call_counter.Reset();
+  CheckEqual("uno(9)", library_one->Evaluate({9}, call_counter), 1);
+  CheckEqual("llamadas de uno(9)", call_counter.GetCalls(), 3);
+  call_counter.Reset();
+  CheckEqual("suma(3, 4)", library_addition->Evaluate({3, 4}, call_counter), 7);
+  CheckEqual("llamadas de suma(3, 4) = 2 + 4·4", call_counter.GetCalls(), 18);
+  call_counter.Reset();
+  CheckEqual("suma(7, 0)", library_addition->Evaluate({7, 0}, call_counter), 7);
+  CheckEqual("llamadas de suma(7, 0) = 2", call_counter.GetCalls(), 2);
+
+  // ---------------------------------------------------------------------------
+  // Prueba 12: producto. Llamadas: 2 + 6y + 2·x·y·(y − 1).
+  // ---------------------------------------------------------------------------
+  std::cout << "12) FunctionLibrary: producto (2 + 6y + 2xy(y−1) llamadas)\n";
+  const FunctionPointer library_multiplication =
+      FunctionLibrary::Multiplication();
+  call_counter.Reset();
+  CheckEqual("producto(3, 4)",
+             library_multiplication->Evaluate({3, 4}, call_counter), 12);
+  CheckEqual("llamadas de producto(3, 4) = 2 + 24 + 72",
+             call_counter.GetCalls(), 98);
+  call_counter.Reset();
+  CheckEqual("producto(5, 0)",
+             library_multiplication->Evaluate({5, 0}, call_counter), 0);
+  CheckEqual("llamadas de producto(5, 0) = 2", call_counter.GetCalls(), 2);
+  call_counter.Reset();
+  CheckEqual("producto(0, 5)",
+             library_multiplication->Evaluate({0, 5}, call_counter), 0);
+  CheckEqual("llamadas de producto(0, 5) = 2 + 30", call_counter.GetCalls(),
+             32);
+
+  // ---------------------------------------------------------------------------
+  // Prueba 13: potencia. Es el objetivo de la práctica.
+  // ---------------------------------------------------------------------------
+  std::cout << "13) FunctionLibrary: potencia (con la convención 0^0 = 1)\n";
+  const FunctionPointer library_power = FunctionLibrary::Power();
+  std::cout << "  nombre: " << library_power->GetName() << "\n";
+  call_counter.Reset();
+  CheckEqual("potencia(2, 3)", library_power->Evaluate({2, 3}, call_counter),
+             8);
+  CheckEqual("llamadas de potencia(2, 3)", call_counter.GetCalls(), 120);
+  call_counter.Reset();
+  CheckEqual("potencia(3, 2)", library_power->Evaluate({3, 2}, call_counter),
+             9);
+  CheckEqual("llamadas de potencia(3, 2)", call_counter.GetCalls(), 76);
+  call_counter.Reset();
+  CheckEqual("potencia(5, 0) = 1",
+             library_power->Evaluate({5, 0}, call_counter), 1);
+  CheckEqual("llamadas de potencia(5, 0) = 1 + uno (3)",
+             call_counter.GetCalls(), 4);
+  call_counter.Reset();
+  CheckEqual("potencia(0, 0) = 1 (convención)",
+             library_power->Evaluate({0, 0}, call_counter), 1);
+  call_counter.Reset();
+  CheckEqual("potencia(0, 3) = 0",
+             library_power->Evaluate({0, 3}, call_counter), 0);
+  CheckEqual("llamadas de potencia(0, 3)", call_counter.GetCalls(), 28);
+
+  // ---------------------------------------------------------------------------
+  // Prueba 14: una función de la librería exige su aridad al evaluarla.
+  // ---------------------------------------------------------------------------
+  std::cout
+      << "14) Aridad al evaluar: potencia(2) debe lanzar ArityMismatchError\n";
+  try {
+    library_power->Evaluate({2}, call_counter);
+    std::cout << "  [FALLO] potencia(2) no lanzó excepción\n";
+    ++failed_checks;
+  } catch (const ArityMismatchError& error) {
+    std::cout << "  [OK]    " << error.what() << "\n";
+  }
 
   std::cout << (failed_checks == 0 ? "\nTodo correcto.\n"
                                    : "\nHAY COMPROBACIONES FALLIDAS.\n");
