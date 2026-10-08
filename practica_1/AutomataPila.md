@@ -633,10 +633,6 @@ practica_1/
 └── build/                           # Generado por CMake (no se versiona)
 ```
 
-A diferencia de un planteamiento inicial de este documento, no existe una biblioteca estática
-separada (`pda_core`): todos los `.cc` de `src/` se compilan directamente en el único ejecutable
-`automata_pila`, generado en `build/bin/`.
-
 ---
 
 ## 9. Referencias
