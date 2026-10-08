@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(FRP_potencia)
+project(potencia)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,5 +20,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # ejecutar "cmake -S . -B build" para que lo recoja.
 file(GLOB SOURCES "src/*.cc")
 
-add_executable(FRP_potencia ${SOURCES})
-target_include_directories(FRP_potencia PRIVATE include)
+add_executable(potencia ${SOURCES})
+target_include_directories(potencia PRIVATE include)
+
+# Pruebas unitarias: las mismas fuentes que el programa (menos main.cc) más
+# test/unit_tests.cc, que tiene su propio main. Cubren lo que la línea de
+# comandos no puede alcanzar (definiciones inválidas, desbordamiento, aridades).
+set(LIBRARY_SOURCES ${SOURCES})
+list(REMOVE_ITEM LIBRARY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc")
+add_executable(pruebas_unitarias test/unit_tests.cc ${LIBRARY_SOURCES})
+target_include_directories(pruebas_unitarias PRIVATE include)
