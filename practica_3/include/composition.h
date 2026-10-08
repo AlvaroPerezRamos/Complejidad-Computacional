@@ -13,9 +13,8 @@
  * h = f ∘ (g1, ..., gm), con f : ℕᵐ → ℕ y gi : ℕⁿ → ℕ; resulta h : ℕⁿ → ℕ,
  * h(x) = f(g1(x), ..., gm(x)).
  *
- * Incluye la "combinación" de los apuntes: la tupla (g1(x), ..., gm(x)) ∈ ℕᵐ
- * se construye evaluando las gi sobre los mismos argumentos y se le entrega a
- * f.
+ * Es "combinar y después aplicar f": la combinación (g1, ..., gm) (clase
+ * Combination) produce la tupla (g1(x), ..., gm(x)) ∈ ℕᵐ y se la entrega a f.
  *
  * Es una función más (hereda de PrimitiveRecursiveFunction) que CONTIENE
  * otras funciones: así se pueden componer composiciones y formar árboles de
@@ -25,8 +24,7 @@
 #ifndef COMPOSITION_H_
 #define COMPOSITION_H_
 
-#include <vector>
-
+#include "combination.h"
 #include "primitive_recursive_function.h"
 
 /** @brief Composición h = f ∘ (g1, ..., gm). */
@@ -34,21 +32,20 @@ class Composition : public PrimitiveRecursiveFunction {
  public:
   /**
    * @param outer_function Función f, de aridad m.
-   * @param inner_functions Funciones g1..gm: deben ser exactamente m, no
-   * nulas, y todas con la misma aridad n (que será la de la composición).
-   * @throw InvalidFunctionDefinitionError Si algún requisito anterior falla.
+   * @param combination Combinación (g1, ..., gm) de m funciones de aridad n
+   * (que será la de la composición).
+   * @throw InvalidFunctionDefinitionError Si f es nula o su aridad no es m.
    */
-  Composition(FunctionPointer outer_function,
-              std::vector<FunctionPointer> inner_functions);
+  Composition(FunctionPointer outer_function, Combination combination);
 
  protected:
-  /** @brief Evalúa las gi sobre arguments y entrega la tupla resultante a f. */
+  /** @brief Evalúa la combinación sobre arguments y entrega la tupla a f. */
   Natural Compute(const Arguments& arguments,
                   CallCounter& call_counter) const override;
 
  private:
-  FunctionPointer outer_function_;                // f
-  std::vector<FunctionPointer> inner_functions_;  // g1, ..., gm
+  FunctionPointer outer_function_;  // f
+  Combination combination_;         // (g1, ..., gm)
 };
 
 #endif  // COMPOSITION_H_

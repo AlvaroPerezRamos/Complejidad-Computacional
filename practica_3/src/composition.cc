@@ -22,92 +22,52 @@
 namespace {
 
 /**
- * @brief Comprueba que los componentes de una composición son coherentes.
+ * @brief Comprueba que f y la combinación encajan.
  *
- * Se llama ANTES de usar los punteros (para construir el nombre o deducir la
- * aridad), porque el orden en que se evalúan los argumentos del constructor
- * de la clase base no está especificado: sin esto, un puntero nulo se
- * dereferenciaría antes de poder rechazarlo.
+ * Se llama ANTES de usar f (para construir el nombre), porque el orden en que
+ * se evalúan los argumentos del constructor de la clase base no está
+ * especificado: sin esto, un puntero nulo se dereferenciaría antes de poder
+ * rechazarlo. La combinación ya llega validada por su propio constructor.
  */
 void ValidateComposition(const FunctionPointer& outer_function,
-                         const std::vector<FunctionPointer>& inner_functions) {
+                         const Combination& combination) {
   if (outer_function == nullptr) {
     throw InvalidFunctionDefinitionError(
         "Composición inválida: la función exterior es nula.");
   }
-  if (inner_functions.empty()) {
-    throw InvalidFunctionDefinitionError(
-        "Composición inválida: se necesita al menos una función interior.");
-  }
-  for (const FunctionPointer& inner_function : inner_functions) {
-    if (inner_function == nullptr) {
-      throw InvalidFunctionDefinitionError(
-          "Composición inválida: una función interior es nula.");
-    }
-  }
-  // f : ℕᵐ → ℕ necesita exactamente m valores, uno por cada gi.
-  if (outer_function->GetArity() != inner_functions.size()) {
+  // f : ℕᵐ → ℕ necesita exactamente m valores, uno por cada gi de la
+  // combinación.
+  if (outer_function->GetArity() != combination.GetSize()) {
     throw InvalidFunctionDefinitionError(
         "Composición inválida: " + outer_function->GetName() +
         " tiene aridad " + std::to_string(outer_function->GetArity()) +
-        " pero se le dan " + std::to_string(inner_functions.size()) +
-        " función(es) interior(es).");
-  }
-  // Todas las gi se evalúan sobre los MISMOS argumentos: deben tener la misma
-  // aridad n.
-  const std::size_t common_arity = inner_functions.front()->GetArity();
-  for (const FunctionPointer& inner_function : inner_functions) {
-    if (inner_function->GetArity() != common_arity) {
-      throw InvalidFunctionDefinitionError(
-          "Composición inválida: las funciones interiores deben tener la misma "
-          "aridad (" +
-          inner_functions.front()->GetName() + " tiene " +
-          std::to_string(common_arity) + ", " + inner_function->GetName() +
-          " tiene " + std::to_string(inner_function->GetArity()) + ").");
-    }
+        " pero la combinación " + combination.GetName() + " devuelve " +
+        std::to_string(combination.GetSize()) + " valor(es).");
   }
 }
 
 /** @brief Nombre legible de la composición: "f∘(g1,...,gm)". */
-std::string BuildCompositionName(
-    const FunctionPointer& outer_function,
-    const std::vector<FunctionPointer>& inner_functions) {
-  ValidateComposition(outer_function, inner_functions);
-  std::string name = outer_function->GetName() + "∘(";
-  for (std::size_t i = 0; i < inner_functions.size(); ++i) {
-    if (i > 0) name += ",";
-    name += inner_functions[i]->GetName();
-  }
-  return name + ")";
-}
-
-/** @brief Aridad de la composición: la común de las funciones interiores. */
-std::size_t DeduceCompositionArity(
-    const FunctionPointer& outer_function,
-    const std::vector<FunctionPointer>& inner_functions) {
-  ValidateComposition(outer_function, inner_functions);
-  return inner_functions.front()->GetArity();
+std::string BuildCompositionName(const FunctionPointer& outer_function,
+                                 const Combination& combination) {
+  ValidateComposition(outer_function, combination);
+  return outer_function->GetName() + "∘" + combination.GetName();
 }
 
 }  // namespace
 
 Composition::Composition(FunctionPointer outer_function,
-                         std::vector<FunctionPointer> inner_functions)
+                         Combination combination)
     : PrimitiveRecursiveFunction(
-          BuildCompositionName(outer_function, inner_functions),
-          DeduceCompositionArity(outer_function, inner_functions)),
+          BuildCompositionName(outer_function, combination),
+          combination.GetArity()),
       outer_function_(std::move(outer_function)),
-      inner_functions_(std::move(inner_functions)) {}
+      combination_(std::move(combination)) {}
 
 Natural Composition::Compute(const Arguments& arguments,
                              CallCounter& call_counter) const {
-  // Tupla (g1(x), ..., gm(x)): cada gi se evalúa sobre los argumentos
-  // ORIGINALES.
-  Arguments inner_results;
-  inner_results.reserve(inner_functions_.size());
-  for (const FunctionPointer& inner_function : inner_functions_) {
-    inner_results.push_back(inner_function->Evaluate(arguments, call_counter));
-  }
-  // f recibe la tupla de resultados, no los argumentos originales.
-  return outer_function_->Evaluate(inner_results, call_counter);
+  // Primero la combinación: la tupla (g1(x), ..., gm(x)) ...
+  const Arguments combined_results =
+      combination_.Evaluate(arguments, call_counter);
+  // ... y f recibe esa tupla, no los argumentos originales.
+  return outer_function_->Evaluate(combined_results, call_counter);
 }
