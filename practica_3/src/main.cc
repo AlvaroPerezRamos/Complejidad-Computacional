@@ -9,77 +9,27 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 08/10/2026
  * @file main.cc
- * @brief main TEMPORAL del paso 1 (cimientos). Comprueba que
- * PrimitiveRecursiveFunction cumple lo que promete: validar la aridad y
- * contar las llamadas. Se sustituye en el paso 2.
+ * @brief main TEMPORAL del paso 2 (funciones básicas). Comprueba Z, S y las
+ * proyecciones Pᵢⁿ: su valor, su recuento de llamadas y sus errores. Se
+ * sustituye en el paso 3.
  *
- * PROBLEMA: PrimitiveRecursiveFunction es ABSTRACTA (Compute() no tiene
- * cuerpo), así que no se puede crear ningún objeto de esa clase, y todavía no
- * existe ninguna función concreta (Z, S y P llegan en el paso 2).
- * SOLUCIÓN: definir aquí, solo para probar, dos funciones "de juguete" que
- * heredan de ella.
+ * A diferencia del paso 1, ya no hacen falta funciones de juguete: se usan
+ * las funciones básicas reales.
  */
 
+#include <cstddef>
 #include <iostream>
-#include <memory>
+#include <limits>
 #include <string>
 #include <utility>
 
 #include "../include/call_counter.h"
 #include "../include/errors.h"
-#include "../include/primitive_recursive_function.h"
+#include "../include/projection_function.h"
+#include "../include/successor_function.h"
+#include "../include/zero_function.h"
 
 namespace {
-
-/**
- * @brief Función de juguete nº 1: ignora sus argumentos y devuelve siempre el
- * mismo valor. Sirve para probar la parte más simple de Evaluate().
- */
-class ConstantFunction : public PrimitiveRecursiveFunction {
- public:
-  ConstantFunction(Natural constant_value, std::size_t arity)
-      : PrimitiveRecursiveFunction(
-            "Constante(" + std::to_string(constant_value) + ")", arity),
-        constant_value_(constant_value) {}
-
- protected:
-  Natural Compute(const Arguments& /*arguments*/,
-                  CallCounter& /*call_counter*/) const override {
-    return constant_value_;
-  }
-
- private:
-  Natural constant_value_;
-};
-
-/**
- * @brief Función de juguete nº 2 (aridad 1): para calcularse evalúa DOS veces
- * otra función. Sirve para ver que las llamadas anidadas también se cuentan
- * sin que esta clase tenga que hacer nada para contarlas.
- *
- * Guarda la función interior como FunctionPointer (un shared_ptr a const):
- * varias funciones pueden compartir una misma sub-función sin copiarla y sin
- * preocuparse de quién debe liberarla. Se usará en todo el proyecto.
- */
-class EvaluatesInnerTwiceFunction : public PrimitiveRecursiveFunction {
- public:
-  explicit EvaluatesInnerTwiceFunction(FunctionPointer inner_function)
-      : PrimitiveRecursiveFunction(
-            "DosVeces(" + inner_function->GetName() + ")", 1),
-        inner_function_(std::move(inner_function)) {}
-
- protected:
-  Natural Compute(const Arguments& arguments,
-                  CallCounter& call_counter) const override {
-    inner_function_->Evaluate(arguments,
-                              call_counter);  // 1.ª evaluación (se descarta)
-    return inner_function_->Evaluate(
-        arguments, call_counter);  // 2.ª evaluación (es el resultado)
-  }
-
- private:
-  FunctionPointer inner_function_;
-};
 
 /** @brief Número de comprobaciones que han fallado; main() devuelve 1 si hay
  * alguna. */
@@ -100,71 +50,86 @@ void CheckEqual(const std::string& description,
 }  // namespace
 
 int main() {
-  // Un único contador para toda la prueba; se pone a cero entre pruebas con
-  // Reset().
   CallCounter call_counter;
 
   // ---------------------------------------------------------------------------
-  // Prueba 1: una evaluación simple devuelve su valor y cuenta UNA llamada.
+  // Prueba 1: Z(x) = 0 para cualquier x.
+  // ---------------------------------------------------------------------------
+  std::cout << "1) Z(x) = 0, para cualquier x\n";
+  const ZeroFunction zero_function;
+  CheckEqual("Z(7)", zero_function.Evaluate({7}, call_counter), 0);
+  CheckEqual("Z(0)", zero_function.Evaluate({0}, call_counter), 0);
+
+  // ---------------------------------------------------------------------------
+  // Prueba 2: S(x) = x + 1.
+  // ---------------------------------------------------------------------------
+  std::cout << "2) S(x) = x + 1\n";
+  const SuccessorFunction successor_function;
+  CheckEqual("S(0)", successor_function.Evaluate({0}, call_counter), 1);
+  CheckEqual("S(4)", successor_function.Evaluate({4}, call_counter), 5);
+
+  // ---------------------------------------------------------------------------
+  // Prueba 3: Pᵢⁿ devuelve el argumento i-ésimo (i cuenta desde 1).
+  // ---------------------------------------------------------------------------
+  std::cout << "3) Pᵢⁿ devuelve el argumento i-ésimo (i cuenta desde 1)\n";
+  const ProjectionFunction first_of_three(1, 3);
+  const ProjectionFunction second_of_three(2, 3);
+  const ProjectionFunction third_of_three(3, 3);
+  CheckEqual("P_1^3(10, 20, 30)",
+             first_of_three.Evaluate({10, 20, 30}, call_counter), 10);
+  CheckEqual("P_2^3(10, 20, 30)",
+             second_of_three.Evaluate({10, 20, 30}, call_counter), 20);
+  CheckEqual("P_3^3(10, 20, 30)",
+             third_of_three.Evaluate({10, 20, 30}, call_counter), 30);
+  std::cout << "  nombre: " << second_of_three.GetName() << ", aridad "
+            << second_of_three.GetArity() << "\n";
+
+  // ---------------------------------------------------------------------------
+  // Prueba 4: cada evaluación cuenta exactamente UNA llamada. Hasta aquí se han
+  // hecho 2 (Z) + 2 (S) + 3 (P) = 7 evaluaciones con el mismo contador.
   // ---------------------------------------------------------------------------
   std::cout
-      << "1) Una evaluación simple devuelve su valor y cuenta UNA llamada\n";
-  // Función de aridad 2 que siempre devuelve 7: la evaluamos con 2 argumentos.
-  const auto constant_seven = std::make_shared<const ConstantFunction>(7, 2);
-  CheckEqual("Constante(7)(1, 2)",
-             constant_seven->Evaluate({1, 2}, call_counter), 7);
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 1);
+      << "4) Cada evaluación cuenta exactamente una llamada (2 + 2 + 3 = 7)\n";
+  CheckEqual("llamadas contadas", call_counter.GetCalls(), 7);
 
   // ---------------------------------------------------------------------------
-  // Prueba 2: el contador ACUMULA entre evaluaciones hasta que se hace Reset().
+  // Prueba 5: una proyección mal construida se rechaza al construirla (no al
+  // evaluarla): debe cumplirse 1 <= i <= n.
   // ---------------------------------------------------------------------------
-  std::cout
-      << "2) El contador acumula entre evaluaciones; Reset() lo pone a cero\n";
-  constant_seven->Evaluate(
-      {3, 4}, call_counter);  // Segunda evaluación con el MISMO contador.
-  CheckEqual("llamadas tras una segunda evaluación", call_counter.GetCalls(),
-             2);
-  call_counter.Reset();
-  CheckEqual("llamadas tras Reset()", call_counter.GetCalls(), 0);
-
-  // ---------------------------------------------------------------------------
-  // Prueba 3: las llamadas ANIDADAS se cuentan solas. Es la razón de que sea
-  // Evaluate() (y no cada subclase) quien anota la llamada.
-  // ---------------------------------------------------------------------------
-  std::cout << "3) Las llamadas anidadas se cuentan: 1 (exterior) + 2 "
-               "(interiores) = 3\n";
-  const FunctionPointer constant_five =
-      std::make_shared<const ConstantFunction>(5, 1);
-  const EvaluatesInnerTwiceFunction evaluates_twice(constant_five);
-  CheckEqual("DosVeces(Constante(5))(0)",
-             evaluates_twice.Evaluate({0}, call_counter), 5);
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 3);
-
-  // ---------------------------------------------------------------------------
-  // Prueba 4: aridad incorrecta. Se lanza ArityMismatchError y NO se cuenta la
-  // llamada, porque la comprobación de aridad va ANTES de RegisterCall().
-  // ---------------------------------------------------------------------------
-  std::cout << "4) Aridad incorrecta: lanza ArityMismatchError y NO cuenta la "
-               "llamada\n";
-  call_counter.Reset();
-  bool arity_error_thrown = false;
-  try {
-    constant_seven->Evaluate(
-        {1}, call_counter);  // La función espera 2 argumentos y recibe 1.
-  } catch (const ArityMismatchError& error) {
-    arity_error_thrown = true;
-    std::cout << "  mensaje: " << error.what() << "\n";
+  std::cout << "5) Proyección mal construida: debe cumplirse 1 <= i <= n\n";
+  // P_0^3 (i demasiado pequeño) y P_4^3 (i mayor que n).
+  const std::pair<std::size_t, std::size_t> invalid_projections[] = {{0, 3},
+                                                                     {4, 3}};
+  for (const std::pair<std::size_t, std::size_t>& invalid_projection :
+       invalid_projections) {
+    try {
+      const ProjectionFunction projection(invalid_projection.first,
+                                          invalid_projection.second);
+      std::cout << "  [FALLO] P_" << invalid_projection.first << "^"
+                << invalid_projection.second << " no lanzó excepción\n";
+      ++failed_checks;
+    } catch (const InvalidFunctionDefinitionError& error) {
+      std::cout << "  [OK]    " << error.what() << "\n";
+    }
   }
-  CheckEqual("se lanzó ArityMismatchError (1 = sí)", arity_error_thrown ? 1 : 0,
-             1);
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 0);
 
   // ---------------------------------------------------------------------------
-  // Prueba 5: captadores.
+  // Prueba 6: desbordamiento. S es el único punto donde un valor puede crecer,
+  // así que es el único sitio donde se comprueba.
   // ---------------------------------------------------------------------------
-  std::cout << "5) Captadores\n";
-  CheckEqual("GetArity()", constant_seven->GetArity(), 2);
-  std::cout << "  GetName(): " << constant_seven->GetName() << "\n";
+  std::cout
+      << "6) Desbordamiento: S(máximo natural) lanza NaturalOverflowError\n";
+  const Natural largest_natural = std::numeric_limits<Natural>::max();
+  CheckEqual("S(máximo - 1)",
+             successor_function.Evaluate({largest_natural - 1}, call_counter),
+             largest_natural);
+  try {
+    successor_function.Evaluate({largest_natural}, call_counter);
+    std::cout << "  [FALLO] S(máximo) no lanzó excepción\n";
+    ++failed_checks;
+  } catch (const NaturalOverflowError& error) {
+    std::cout << "  [OK]    " << error.what() << "\n";
+  }
 
   std::cout << (failed_checks == 0 ? "\nTodo correcto.\n"
                                    : "\nHAY COMPROBACIONES FALLIDAS.\n");

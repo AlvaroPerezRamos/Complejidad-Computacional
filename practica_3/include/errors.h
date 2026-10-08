@@ -11,7 +11,7 @@
  * @file errors.h
  * @brief Jerarquía de excepciones del proyecto. Se amplía según lo van
  * necesitando las clases (mismo patrón que en P01 y P02): de momento solo
- * lo que necesita PrimitiveRecursiveFunction.
+ * lo que necesitan PrimitiveRecursiveFunction y las funciones básicas.
  */
 
 #ifndef ERRORS_H_
@@ -41,6 +41,23 @@ class Error : public std::exception {
 class ArityMismatchError : public Error {
  public:
   explicit ArityMismatchError(const std::string& message) : Error(message) {}
+};
+
+/**
+ * @brief Una función se ha construido con componentes incoherentes: una
+ * proyección Pᵢⁿ con i fuera de [1, n] o, más adelante, una composición o una
+ * recursión cuyas aridades no encajan.
+ */
+class InvalidFunctionDefinitionError : public Error {
+ public:
+  explicit InvalidFunctionDefinitionError(const std::string& message)
+      : Error(message) {}
+};
+
+/** @brief Un valor sale del rango representable por Natural. */
+class NaturalOverflowError : public Error {
+ public:
+  explicit NaturalOverflowError(const std::string& message) : Error(message) {}
 };
 
 #endif  // ERRORS_H_

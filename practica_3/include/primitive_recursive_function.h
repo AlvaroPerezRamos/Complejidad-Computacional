@@ -28,6 +28,7 @@
 #include <string>
 
 #include "call_counter.h"
+#include "errors.h"
 #include "types.h"
 
 /**

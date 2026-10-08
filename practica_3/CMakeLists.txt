@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(potencia)
+project(FRP_potencia)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,5 +20,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # ejecutar "cmake -S . -B build" para que lo recoja.
 file(GLOB SOURCES "src/*.cc")
 
-add_executable(potencia ${SOURCES})
-target_include_directories(potencia PRIVATE include)
+add_executable(FRP_potencia ${SOURCES})
+target_include_directories(FRP_potencia PRIVATE include)
