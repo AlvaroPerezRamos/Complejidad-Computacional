@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -Wextra -O3 -DNDEBUG   CMakeFiles/potencia.dir/src/main.cc.o CMakeFiles/potencia.dir/src/primitive_recursive_function.cc.o  -o bin/potencia 
