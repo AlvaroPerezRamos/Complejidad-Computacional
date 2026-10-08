@@ -9,12 +9,13 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 08/10/2026
  * @file main.cc
- * @brief main TEMPORAL del paso 3 (composición). Comprueba Composition con
- * las funciones básicas: valor, número de llamadas y construcciones
- * inválidas. Se sustituye en el paso 4.
+ * @brief main TEMPORAL del paso 4 (recursión primitiva). Comprueba
+ * PrimitiveRecursion construyendo a mano la suma, sin librería de funciones:
  *
- * Todavía no existe ninguna función de aridad 2 aparte de las proyecciones,
- * así que los ejemplos de varias funciones interiores usan proyecciones.
+ *     suma(x, 0)    = x                 = P_1^1(x)
+ *     suma(x, S(y)) = S(suma(x, y))     = (S ∘ P_3^3)(x, y, suma(x, y))
+ *
+ * Se sustituye en el paso 5, donde la suma pasa a la librería de funciones.
  */
 
 #include <functional>
@@ -27,6 +28,7 @@
 #include "../include/call_counter.h"
 #include "../include/composition.h"
 #include "../include/errors.h"
+#include "../include/primitive_recursion.h"
 
 namespace {
 
@@ -47,15 +49,15 @@ void CheckEqual(const std::string& description,
 }
 
 /**
- * @brief Comprueba que construir una composición inválida lanza
+ * @brief Comprueba que construir una recursión inválida lanza
  * InvalidFunctionDefinitionError.
- * @param description Qué tiene de inválida la composición.
- * @param build_composition Código que intenta construirla.
+ * @param description Qué tiene de inválida la recursión.
+ * @param build_recursion Código que intenta construirla.
  */
-void CheckInvalidComposition(const std::string& description,
-                             const std::function<void()>& build_composition) {
+void CheckInvalidRecursion(const std::string& description,
+                           const std::function<void()>& build_recursion) {
   try {
-    build_composition();
+    build_recursion();
     std::cout << "  [FALLO] " << description << " no lanzó excepción\n";
     ++failed_checks;
   } catch (const InvalidFunctionDefinitionError& error) {
@@ -69,76 +71,72 @@ int main() {
   const FunctionPointer zero_function = std::make_shared<const ZeroFunction>();
   const FunctionPointer successor_function =
       std::make_shared<const SuccessorFunction>();
+  const FunctionPointer first_of_one =
+      std::make_shared<const ProjectionFunction>(1, 1);
+  const FunctionPointer second_of_three =
+      std::make_shared<const ProjectionFunction>(2, 3);
+  const FunctionPointer third_of_three =
+      std::make_shared<const ProjectionFunction>(3, 3);
   CallCounter call_counter;
 
   // ---------------------------------------------------------------------------
-  // Prueba 1: uno = S ∘ Z, es decir uno(x) = S(Z(x)) = 1.
+  // Prueba 1: la suma, construida a mano con g = P_1^1 y h = S ∘ P_3^3.
   // ---------------------------------------------------------------------------
-  std::cout << "1) uno = S ∘ Z, es decir uno(x) = S(Z(x)) = 1\n";
-  const FunctionPointer one_function = std::make_shared<const Composition>(
-      successor_function, std::vector<FunctionPointer>{zero_function});
-  CheckEqual("uno(9)", one_function->Evaluate({9}, call_counter), 1);
-  // Llamadas: la composición (1) + Z (1) + S (1).
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 3);
-  std::cout << "  nombre: " << one_function->GetName() << "\n";
+  std::cout << "1) suma = Rec[P_1^1, S ∘ P_3^3]\n";
+  const FunctionPointer successor_of_accumulated =
+      std::make_shared<const Composition>(
+          successor_function, std::vector<FunctionPointer>{third_of_three});
+  const FunctionPointer addition_function =
+      std::make_shared<const PrimitiveRecursion>(first_of_one,
+                                                 successor_of_accumulated);
+  std::cout << "  nombre: " << addition_function->GetName() << ", aridad "
+            << addition_function->GetArity() << "\n";
+  CheckEqual("aridad de la suma (la de g más uno)",
+             addition_function->GetArity(), 2);
+  CheckEqual("suma(3, 4)", addition_function->Evaluate({3, 4}, call_counter),
+             7);
+  // Recuento: 2 + 4y = 18 con y = 4.
+  // Evaluate (1) + g (1) + y niveles anotados (4) + h = composición y su
+  // proyección y su sucesor = 3 llamadas por nivel (12) = 18.
+  CheckEqual("llamadas de suma(3, 4)", call_counter.GetCalls(), 18);
 
   // ---------------------------------------------------------------------------
-  // Prueba 2: una composición puede contener otra composición.
+  // Prueba 2: caso límite y = 0. Solo se evalúa g: no hay ningún paso.
   // ---------------------------------------------------------------------------
-  std::cout
-      << "2) Composición de composiciones: dos = S ∘ uno = S(S(Z(x))) = 2\n";
-  const FunctionPointer two_function = std::make_shared<const Composition>(
-      successor_function, std::vector<FunctionPointer>{one_function});
+  std::cout << "2) Caso límite: f(x, 0) = g(x), sin ningún paso recursivo\n";
   call_counter.Reset();
-  CheckEqual("dos(9)", two_function->Evaluate({9}, call_counter), 2);
-  // Llamadas: composición exterior (1) + uno (3) + S (1).
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 5);
+  CheckEqual("suma(9, 0)", addition_function->Evaluate({9, 0}, call_counter),
+             9);
+  CheckEqual("llamadas: la recursión (1) + g (1)", call_counter.GetCalls(), 2);
 
   // ---------------------------------------------------------------------------
-  // Prueba 3: varias funciones interiores. f recibe la TUPLA (g1(x), g2(x)),
-  // no los argumentos originales.
+  // Prueba 3: h recibe (x, nivel, f(x, nivel)) EN ESE ORDEN. Con h = P_2^3
+  // (devuelve el nivel) queda f(x, y) = y − 1 para y > 0: si el bucle pasara
+  // mal el nivel, este valor cambiaría. Y f(x, 0) = g(x) = x.
   // ---------------------------------------------------------------------------
-  std::cout
-      << "3) Varias funciones interiores: P_1^2 ∘ (P_2^2, P_1^2) (x, y)\n";
-  std::cout << "   La exterior recibe la tupla (y, x) y devuelve su primer "
-               "valor: y\n";
-  const FunctionPointer first_of_two =
-      std::make_shared<const ProjectionFunction>(1, 2);
-  const FunctionPointer second_of_two =
-      std::make_shared<const ProjectionFunction>(2, 2);
-  const Composition swapped_first(
-      first_of_two, std::vector<FunctionPointer>{second_of_two, first_of_two});
+  std::cout << "3) h recibe (x, nivel, f(x, nivel)): con h = P_2^3, f(x, y) = "
+               "y − 1 si y > 0\n";
+  const FunctionPointer level_function =
+      std::make_shared<const PrimitiveRecursion>(first_of_one, second_of_three);
   call_counter.Reset();
-  CheckEqual("P_1^2 ∘ (P_2^2, P_1^2) (5, 8)",
-             swapped_first.Evaluate({5, 8}, call_counter), 8);
-  // Llamadas: composición (1) + dos interiores (2) + exterior (1).
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 4);
-  CheckEqual("aridad de la composición (la de las interiores)",
-             swapped_first.GetArity(), 2);
+  CheckEqual("Rec[P_1^1, P_2^3](7, 5)",
+             level_function->Evaluate({7, 5}, call_counter), 4);
+  // Recuento: 1 + g (1) + 5 niveles anotados + 5 h = 12.
+  CheckEqual("llamadas contadas", call_counter.GetCalls(), 12);
+  CheckEqual("Rec[P_1^1, P_2^3](7, 0)",
+             level_function->Evaluate({7, 0}, call_counter), 7);
 
   // ---------------------------------------------------------------------------
-  // Prueba 4: las composiciones incoherentes se rechazan AL CONSTRUIRLAS, no al
-  // evaluarlas (mismo criterio que la proyección mal construida del paso 2).
+  // Prueba 4: las recursiones incoherentes se rechazan AL CONSTRUIRLAS.
   // ---------------------------------------------------------------------------
-  std::cout << "4) Composiciones inválidas: se rechazan al construirlas\n";
-  CheckInvalidComposition(
-      "S ∘ (Z, Z): S tiene aridad 1 y se le dan 2 funciones", [&] {
-        Composition(successor_function,
-                    std::vector<FunctionPointer>{zero_function, zero_function});
-      });
-  CheckInvalidComposition(
-      "P_1^2 ∘ (P_1^3, P_1^2): interiores de aridades distintas", [&] {
-        const FunctionPointer first_of_three =
-            std::make_shared<const ProjectionFunction>(1, 3);
-        Composition(first_of_two,
-                    std::vector<FunctionPointer>{first_of_three, first_of_two});
-      });
-  CheckInvalidComposition("sin funciones interiores", [&] {
-    Composition(successor_function, std::vector<FunctionPointer>{});
+  std::cout << "4) Recursiones inválidas: se rechazan al construirlas\n";
+  CheckInvalidRecursion("Rec[Z, S]: h debería tener aridad 3 y tiene 1", [&] {
+    PrimitiveRecursion(zero_function, successor_function);
   });
-  CheckInvalidComposition("función exterior nula", [&] {
-    Composition(nullptr, std::vector<FunctionPointer>{zero_function});
-  });
+  CheckInvalidRecursion(
+      "g nula", [&] { PrimitiveRecursion(nullptr, successor_of_accumulated); });
+  CheckInvalidRecursion("h nula",
+                        [&] { PrimitiveRecursion(first_of_one, nullptr); });
 
   std::cout << (failed_checks == 0 ? "\nTodo correcto.\n"
                                    : "\nHAY COMPROBACIONES FALLIDAS.\n");
