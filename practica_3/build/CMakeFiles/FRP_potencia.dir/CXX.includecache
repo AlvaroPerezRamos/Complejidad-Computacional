@@ -6,34 +6,28 @@
 
 #IncludeRegexTransform: 
 
-../include/call_counter.h
-
-../include/errors.h
-stdexcept
--
-string
--
-
-../include/primitive_recursive_function.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/basic_functions.h
 cstddef
 -
-memory
+limits
 -
 string
 -
-call_counter.h
-../include/call_counter.h
-types.h
-../include/types.h
-
-../include/types.h
-vector
--
+errors.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/errors.h
+primitive_recursive_function.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/primitive_recursive_function.h
 
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/call_counter.h
 
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/composition.h
+vector
+-
+primitive_recursive_function.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/primitive_recursive_function.h
+
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/errors.h
-stdexcept
+exception
 -
 string
 -
@@ -47,6 +41,8 @@ string
 -
 call_counter.h
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/call_counter.h
+errors.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/errors.h
 types.h
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/types.h
 
@@ -55,26 +51,22 @@ vector
 -
 
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/main.cc
+functional
+-
 iostream
 -
 memory
 -
 string
 -
-utility
+vector
 -
-call_counter.h
-/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/call_counter.h
-errors.h
-/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/errors.h
-primitive_recursive_function.h
-/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/primitive_recursive_function.h
-
-/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/primitive_recursive_function.cc
-utility
--
-../include/primitive_recursive_function.h
-/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/primitive_recursive_function.h
+../include/basic_functions.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/basic_functions.h
+../include/call_counter.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/call_counter.h
+../include/composition.h
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/composition.h
 ../include/errors.h
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/include/errors.h
 

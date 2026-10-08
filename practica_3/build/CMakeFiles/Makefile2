@@ -53,7 +53,7 @@ CMAKE_BINARY_DIR = /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/potencia.dir/all
+all: CMakeFiles/FRP_potencia.dir/all
 
 .PHONY : all
 
@@ -63,36 +63,36 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/potencia.dir/clean
+clean: CMakeFiles/FRP_potencia.dir/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/potencia.dir
+# Target rules for target CMakeFiles/FRP_potencia.dir
 
 # All Build rule for target.
-CMakeFiles/potencia.dir/all:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/depend
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=1,2,3 "Built target potencia"
-.PHONY : CMakeFiles/potencia.dir/all
+CMakeFiles/FRP_potencia.dir/all:
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/depend
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=1,2,3,4 "Built target FRP_potencia"
+.PHONY : CMakeFiles/FRP_potencia.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/potencia.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles 3
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/potencia.dir/all
+CMakeFiles/FRP_potencia.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles 4
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/FRP_potencia.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles 0
-.PHONY : CMakeFiles/potencia.dir/rule
+.PHONY : CMakeFiles/FRP_potencia.dir/rule
 
 # Convenience name for target.
-potencia: CMakeFiles/potencia.dir/rule
+FRP_potencia: CMakeFiles/FRP_potencia.dir/rule
 
-.PHONY : potencia
+.PHONY : FRP_potencia
 
 # clean rule for target.
-CMakeFiles/potencia.dir/clean:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/clean
-.PHONY : CMakeFiles/potencia.dir/clean
+CMakeFiles/FRP_potencia.dir/clean:
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/clean
+.PHONY : CMakeFiles/FRP_potencia.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

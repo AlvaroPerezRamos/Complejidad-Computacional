@@ -9,22 +9,23 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 08/10/2026
  * @file main.cc
- * @brief main TEMPORAL del paso 2 (funciones básicas). Comprueba Z, S y las
- * proyecciones Pᵢⁿ: su valor, su recuento de llamadas y sus errores. Se
- * sustituye en el paso 3.
+ * @brief main TEMPORAL del paso 3 (composición). Comprueba Composition con
+ * las funciones básicas: valor, número de llamadas y construcciones
+ * inválidas. Se sustituye en el paso 4.
  *
- * A diferencia del paso 1, ya no hacen falta funciones de juguete: se usan
- * las funciones básicas reales.
+ * Todavía no existe ninguna función de aridad 2 aparte de las proyecciones,
+ * así que los ejemplos de varias funciones interiores usan proyecciones.
  */
 
-#include <cstddef>
+#include <functional>
 #include <iostream>
-#include <limits>
+#include <memory>
 #include <string>
-#include <utility>
+#include <vector>
 
 #include "../include/basic_functions.h"
 #include "../include/call_counter.h"
+#include "../include/composition.h"
 #include "../include/errors.h"
 
 namespace {
@@ -45,89 +46,99 @@ void CheckEqual(const std::string& description,
   if (!passed) ++failed_checks;
 }
 
+/**
+ * @brief Comprueba que construir una composición inválida lanza
+ * InvalidFunctionDefinitionError.
+ * @param description Qué tiene de inválida la composición.
+ * @param build_composition Código que intenta construirla.
+ */
+void CheckInvalidComposition(const std::string& description,
+                             const std::function<void()>& build_composition) {
+  try {
+    build_composition();
+    std::cout << "  [FALLO] " << description << " no lanzó excepción\n";
+    ++failed_checks;
+  } catch (const InvalidFunctionDefinitionError& error) {
+    std::cout << "  [OK]    " << description << " -> " << error.what() << "\n";
+  }
+}
+
 }  // namespace
 
 int main() {
+  const FunctionPointer zero_function = std::make_shared<const ZeroFunction>();
+  const FunctionPointer successor_function =
+      std::make_shared<const SuccessorFunction>();
   CallCounter call_counter;
 
   // ---------------------------------------------------------------------------
-  // Prueba 1: Z(x) = 0 para cualquier x.
+  // Prueba 1: uno = S ∘ Z, es decir uno(x) = S(Z(x)) = 1.
   // ---------------------------------------------------------------------------
-  std::cout << "1) Z(x) = 0, para cualquier x\n";
-  const ZeroFunction zero_function;
-  CheckEqual("Z(7)", zero_function.Evaluate({7}, call_counter), 0);
-  CheckEqual("Z(0)", zero_function.Evaluate({0}, call_counter), 0);
+  std::cout << "1) uno = S ∘ Z, es decir uno(x) = S(Z(x)) = 1\n";
+  const FunctionPointer one_function = std::make_shared<const Composition>(
+      successor_function, std::vector<FunctionPointer>{zero_function});
+  CheckEqual("uno(9)", one_function->Evaluate({9}, call_counter), 1);
+  // Llamadas: la composición (1) + Z (1) + S (1).
+  CheckEqual("llamadas contadas", call_counter.GetCalls(), 3);
+  std::cout << "  nombre: " << one_function->GetName() << "\n";
 
   // ---------------------------------------------------------------------------
-  // Prueba 2: S(x) = x + 1.
-  // ---------------------------------------------------------------------------
-  std::cout << "2) S(x) = x + 1\n";
-  const SuccessorFunction successor_function;
-  CheckEqual("S(0)", successor_function.Evaluate({0}, call_counter), 1);
-  CheckEqual("S(4)", successor_function.Evaluate({4}, call_counter), 5);
-
-  // ---------------------------------------------------------------------------
-  // Prueba 3: Pᵢⁿ devuelve el argumento i-ésimo (i cuenta desde 1).
-  // ---------------------------------------------------------------------------
-  std::cout << "3) Pᵢⁿ devuelve el argumento i-ésimo (i cuenta desde 1)\n";
-  const ProjectionFunction first_of_three(1, 3);
-  const ProjectionFunction second_of_three(2, 3);
-  const ProjectionFunction third_of_three(3, 3);
-  CheckEqual("P_1^3(10, 20, 30)",
-             first_of_three.Evaluate({10, 20, 30}, call_counter), 10);
-  CheckEqual("P_2^3(10, 20, 30)",
-             second_of_three.Evaluate({10, 20, 30}, call_counter), 20);
-  CheckEqual("P_3^3(10, 20, 30)",
-             third_of_three.Evaluate({10, 20, 30}, call_counter), 30);
-  std::cout << "  nombre: " << second_of_three.GetName() << ", aridad "
-            << second_of_three.GetArity() << "\n";
-
-  // ---------------------------------------------------------------------------
-  // Prueba 4: cada evaluación cuenta exactamente UNA llamada. Hasta aquí se han
-  // hecho 2 (Z) + 2 (S) + 3 (P) = 7 evaluaciones con el mismo contador.
+  // Prueba 2: una composición puede contener otra composición.
   // ---------------------------------------------------------------------------
   std::cout
-      << "4) Cada evaluación cuenta exactamente una llamada (2 + 2 + 3 = 7)\n";
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 7);
+      << "2) Composición de composiciones: dos = S ∘ uno = S(S(Z(x))) = 2\n";
+  const FunctionPointer two_function = std::make_shared<const Composition>(
+      successor_function, std::vector<FunctionPointer>{one_function});
+  call_counter.Reset();
+  CheckEqual("dos(9)", two_function->Evaluate({9}, call_counter), 2);
+  // Llamadas: composición exterior (1) + uno (3) + S (1).
+  CheckEqual("llamadas contadas", call_counter.GetCalls(), 5);
 
   // ---------------------------------------------------------------------------
-  // Prueba 5: una proyección mal construida se rechaza al construirla (no al
-  // evaluarla): debe cumplirse 1 <= i <= n.
-  // ---------------------------------------------------------------------------
-  std::cout << "5) Proyección mal construida: debe cumplirse 1 <= i <= n\n";
-  // P_0^3 (i demasiado pequeño) y P_4^3 (i mayor que n).
-  const std::pair<std::size_t, std::size_t> invalid_projections[] = {{0, 3},
-                                                                     {4, 3}};
-  for (const std::pair<std::size_t, std::size_t>& invalid_projection :
-       invalid_projections) {
-    try {
-      const ProjectionFunction projection(invalid_projection.first,
-                                          invalid_projection.second);
-      std::cout << "  [FALLO] P_" << invalid_projection.first << "^"
-                << invalid_projection.second << " no lanzó excepción\n";
-      ++failed_checks;
-    } catch (const InvalidFunctionDefinitionError& error) {
-      std::cout << "  [OK]    " << error.what() << "\n";
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Prueba 6: desbordamiento. S es el único punto donde un valor puede crecer,
-  // así que es el único sitio donde se comprueba.
+  // Prueba 3: varias funciones interiores. f recibe la TUPLA (g1(x), g2(x)),
+  // no los argumentos originales.
   // ---------------------------------------------------------------------------
   std::cout
-      << "6) Desbordamiento: S(máximo natural) lanza NaturalOverflowError\n";
-  const Natural largest_natural = std::numeric_limits<Natural>::max();
-  CheckEqual("S(máximo - 1)",
-             successor_function.Evaluate({largest_natural - 1}, call_counter),
-             largest_natural);
-  try {
-    successor_function.Evaluate({largest_natural}, call_counter);
-    std::cout << "  [FALLO] S(máximo) no lanzó excepción\n";
-    ++failed_checks;
-  } catch (const NaturalOverflowError& error) {
-    std::cout << "  [OK]    " << error.what() << "\n";
-  }
+      << "3) Varias funciones interiores: P_1^2 ∘ (P_2^2, P_1^2) (x, y)\n";
+  std::cout << "   La exterior recibe la tupla (y, x) y devuelve su primer "
+               "valor: y\n";
+  const FunctionPointer first_of_two =
+      std::make_shared<const ProjectionFunction>(1, 2);
+  const FunctionPointer second_of_two =
+      std::make_shared<const ProjectionFunction>(2, 2);
+  const Composition swapped_first(
+      first_of_two, std::vector<FunctionPointer>{second_of_two, first_of_two});
+  call_counter.Reset();
+  CheckEqual("P_1^2 ∘ (P_2^2, P_1^2) (5, 8)",
+             swapped_first.Evaluate({5, 8}, call_counter), 8);
+  // Llamadas: composición (1) + dos interiores (2) + exterior (1).
+  CheckEqual("llamadas contadas", call_counter.GetCalls(), 4);
+  CheckEqual("aridad de la composición (la de las interiores)",
+             swapped_first.GetArity(), 2);
+
+  // ---------------------------------------------------------------------------
+  // Prueba 4: las composiciones incoherentes se rechazan AL CONSTRUIRLAS, no al
+  // evaluarlas (mismo criterio que la proyección mal construida del paso 2).
+  // ---------------------------------------------------------------------------
+  std::cout << "4) Composiciones inválidas: se rechazan al construirlas\n";
+  CheckInvalidComposition(
+      "S ∘ (Z, Z): S tiene aridad 1 y se le dan 2 funciones", [&] {
+        Composition(successor_function,
+                    std::vector<FunctionPointer>{zero_function, zero_function});
+      });
+  CheckInvalidComposition(
+      "P_1^2 ∘ (P_1^3, P_1^2): interiores de aridades distintas", [&] {
+        const FunctionPointer first_of_three =
+            std::make_shared<const ProjectionFunction>(1, 3);
+        Composition(first_of_two,
+                    std::vector<FunctionPointer>{first_of_three, first_of_two});
+      });
+  CheckInvalidComposition("sin funciones interiores", [&] {
+    Composition(successor_function, std::vector<FunctionPointer>{});
+  });
+  CheckInvalidComposition("función exterior nula", [&] {
+    Composition(nullptr, std::vector<FunctionPointer>{zero_function});
+  });
 
   std::cout << (failed_checks == 0 ? "\nTodo correcto.\n"
                                    : "\nHAY COMPROBACIONES FALLIDAS.\n");

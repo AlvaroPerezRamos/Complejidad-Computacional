@@ -1,1 +1,1 @@
-/usr/bin/c++   -Wall -Wextra   CMakeFiles/FRP_potencia.dir/src/main.cc.o CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o  -o bin/FRP_potencia 
+/usr/bin/c++   -Wall -Wextra -O3 -DNDEBUG   CMakeFiles/FRP_potencia.dir/src/composition.cc.o CMakeFiles/FRP_potencia.dir/src/main.cc.o CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o  -o bin/FRP_potencia 

@@ -4,6 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/composition.cc" "/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles/FRP_potencia.dir/src/composition.cc.o"
   "/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/main.cc" "/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles/FRP_potencia.dir/src/main.cc.o"
   "/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/primitive_recursive_function.cc" "/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o"
   )

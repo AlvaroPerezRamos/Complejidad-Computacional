@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/FRP_potencia.dir/src/composition.cc.o"
   "CMakeFiles/FRP_potencia.dir/src/main.cc.o"
   "CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o"
   "bin/FRP_potencia"

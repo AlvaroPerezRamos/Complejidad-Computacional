@@ -57,9 +57,22 @@ include CMakeFiles/FRP_potencia.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/FRP_potencia.dir/flags.make
 
+CMakeFiles/FRP_potencia.dir/src/composition.cc.o: CMakeFiles/FRP_potencia.dir/flags.make
+CMakeFiles/FRP_potencia.dir/src/composition.cc.o: ../src/composition.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/FRP_potencia.dir/src/composition.cc.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/FRP_potencia.dir/src/composition.cc.o -c /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/composition.cc
+
+CMakeFiles/FRP_potencia.dir/src/composition.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/FRP_potencia.dir/src/composition.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/composition.cc > CMakeFiles/FRP_potencia.dir/src/composition.cc.i
+
+CMakeFiles/FRP_potencia.dir/src/composition.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/FRP_potencia.dir/src/composition.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/composition.cc -o CMakeFiles/FRP_potencia.dir/src/composition.cc.s
+
 CMakeFiles/FRP_potencia.dir/src/main.cc.o: CMakeFiles/FRP_potencia.dir/flags.make
 CMakeFiles/FRP_potencia.dir/src/main.cc.o: ../src/main.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/FRP_potencia.dir/src/main.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/FRP_potencia.dir/src/main.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/FRP_potencia.dir/src/main.cc.o -c /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/main.cc
 
 CMakeFiles/FRP_potencia.dir/src/main.cc.i: cmake_force
@@ -72,7 +85,7 @@ CMakeFiles/FRP_potencia.dir/src/main.cc.s: cmake_force
 
 CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o: CMakeFiles/FRP_potencia.dir/flags.make
 CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o: ../src/primitive_recursive_function.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o -c /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/src/primitive_recursive_function.cc
 
 CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.i: cmake_force
@@ -85,17 +98,19 @@ CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.s: cmake_force
 
 # Object files for target FRP_potencia
 FRP_potencia_OBJECTS = \
+"CMakeFiles/FRP_potencia.dir/src/composition.cc.o" \
 "CMakeFiles/FRP_potencia.dir/src/main.cc.o" \
 "CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o"
 
 # External object files for target FRP_potencia
 FRP_potencia_EXTERNAL_OBJECTS =
 
+bin/FRP_potencia: CMakeFiles/FRP_potencia.dir/src/composition.cc.o
 bin/FRP_potencia: CMakeFiles/FRP_potencia.dir/src/main.cc.o
 bin/FRP_potencia: CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o
 bin/FRP_potencia: CMakeFiles/FRP_potencia.dir/build.make
 bin/FRP_potencia: CMakeFiles/FRP_potencia.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable bin/FRP_potencia"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable bin/FRP_potencia"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/FRP_potencia.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -111,17 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named potencia
+# Target rules for targets named FRP_potencia
 
 # Build rule for target.
-potencia: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 potencia
-.PHONY : potencia
+FRP_potencia: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 FRP_potencia
+.PHONY : FRP_potencia
 
 # fast build rule for target.
-potencia/fast:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/build
-.PHONY : potencia/fast
+FRP_potencia/fast:
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/build
+.PHONY : FRP_potencia/fast
+
+src/composition.o: src/composition.cc.o
+
+.PHONY : src/composition.o
+
+# target to build an object file
+src/composition.cc.o:
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/composition.cc.o
+.PHONY : src/composition.cc.o
+
+src/composition.i: src/composition.cc.i
+
+.PHONY : src/composition.i
+
+# target to preprocess a source file
+src/composition.cc.i:
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/composition.cc.i
+.PHONY : src/composition.cc.i
+
+src/composition.s: src/composition.cc.s
+
+.PHONY : src/composition.s
+
+# target to generate assembly for a file
+src/composition.cc.s:
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/composition.cc.s
+.PHONY : src/composition.cc.s
 
 src/main.o: src/main.cc.o
 
@@ -129,7 +156,7 @@ src/main.o: src/main.cc.o
 
 # target to build an object file
 src/main.cc.o:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/src/main.cc.o
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/main.cc.o
 .PHONY : src/main.cc.o
 
 src/main.i: src/main.cc.i
@@ -138,7 +165,7 @@ src/main.i: src/main.cc.i
 
 # target to preprocess a source file
 src/main.cc.i:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/src/main.cc.i
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/main.cc.i
 .PHONY : src/main.cc.i
 
 src/main.s: src/main.cc.s
@@ -147,7 +174,7 @@ src/main.s: src/main.cc.s
 
 # target to generate assembly for a file
 src/main.cc.s:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/src/main.cc.s
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/main.cc.s
 .PHONY : src/main.cc.s
 
 src/primitive_recursive_function.o: src/primitive_recursive_function.cc.o
@@ -156,7 +183,7 @@ src/primitive_recursive_function.o: src/primitive_recursive_function.cc.o
 
 # target to build an object file
 src/primitive_recursive_function.cc.o:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/src/primitive_recursive_function.cc.o
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.o
 .PHONY : src/primitive_recursive_function.cc.o
 
 src/primitive_recursive_function.i: src/primitive_recursive_function.cc.i
@@ -165,7 +192,7 @@ src/primitive_recursive_function.i: src/primitive_recursive_function.cc.i
 
 # target to preprocess a source file
 src/primitive_recursive_function.cc.i:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/src/primitive_recursive_function.cc.i
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.i
 .PHONY : src/primitive_recursive_function.cc.i
 
 src/primitive_recursive_function.s: src/primitive_recursive_function.cc.s
@@ -174,7 +201,7 @@ src/primitive_recursive_function.s: src/primitive_recursive_function.cc.s
 
 # target to generate assembly for a file
 src/primitive_recursive_function.cc.s:
-	$(MAKE) -f CMakeFiles/potencia.dir/build.make CMakeFiles/potencia.dir/src/primitive_recursive_function.cc.s
+	$(MAKE) -f CMakeFiles/FRP_potencia.dir/build.make CMakeFiles/FRP_potencia.dir/src/primitive_recursive_function.cc.s
 .PHONY : src/primitive_recursive_function.cc.s
 
 # Help Target
@@ -185,7 +212,10 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... potencia"
+	@echo "... FRP_potencia"
+	@echo "... src/composition.o"
+	@echo "... src/composition.i"
+	@echo "... src/composition.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

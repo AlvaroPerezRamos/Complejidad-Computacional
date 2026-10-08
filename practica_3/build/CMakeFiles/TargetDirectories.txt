@@ -1,3 +1,3 @@
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles/rebuild_cache.dir
 /home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles/edit_cache.dir
-/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles/potencia.dir
+/home/alvaro/Escritorio/Complejidad-Computacional/practica_3/build/CMakeFiles/FRP_potencia.dir
