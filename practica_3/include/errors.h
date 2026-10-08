@@ -10,8 +10,8 @@
  * @date 08/10/2026
  * @file errors.h
  * @brief Jerarquía de excepciones del proyecto. Se amplía según lo van
- * necesitando las clases (mismo patrón que en P01 y P02): de momento solo
- * lo que necesitan PrimitiveRecursiveFunction y las funciones básicas.
+ * necesitando las clases (mismo patrón que en P01 y P02): errores de las
+ * funciones y errores de la línea de comandos.
  */
 
 #ifndef ERRORS_H_
@@ -58,6 +58,19 @@ class InvalidFunctionDefinitionError : public Error {
 class NaturalOverflowError : public Error {
  public:
   explicit NaturalOverflowError(const std::string& message) : Error(message) {}
+};
+
+// =============================================================================
+// Errores de la línea de comandos
+// =============================================================================
+
+/**
+ * @brief Uso incorrecto de la línea de comandos: opción desconocida,
+ * repetida, sin valor, obligatoria ausente o valor que no es un natural.
+ */
+class CommandLineError : public Error {
+ public:
+  explicit CommandLineError(const std::string& message) : Error(message) {}
 };
 
 #endif  // ERRORS_H_
