@@ -55,21 +55,25 @@ FunctionPointer FunctionLibrary::Addition() {
 FunctionPointer FunctionLibrary::Multiplication() {
   // g(x) = Z(x)
   const FunctionPointer base_case = Zero();
-  // h(x, y, r) = suma(P₁³(x, y, r), P₃³(x, y, r)) = x + r
-  const Combination parameter_and_accumulated_combination(
-      std::vector<FunctionPointer>{Projection(1, 3), Projection(3, 3)});
+  // h(x, y, r) = suma(P₃³(x, y, r), P₁³(x, y, r)) = r + x
+  // La suma recurre sobre su segundo argumento: se pone x (el pequeño) en esa
+  // posición y no el acumulado r (que crece con cada nivel).
+  const Combination accumulated_and_parameter_combination(
+      std::vector<FunctionPointer>{Projection(3, 3), Projection(1, 3)});
   const FunctionPointer recursive_step = std::make_shared<const Composition>(
-      Addition(), parameter_and_accumulated_combination);
+      Addition(), accumulated_and_parameter_combination);
   return std::make_shared<const PrimitiveRecursion>(base_case, recursive_step);
 }
 
 FunctionPointer FunctionLibrary::Power() {
   // g(x) = uno(x)
   const FunctionPointer base_case = One();
-  // h(x, y, r) = producto(P₁³(x, y, r), P₃³(x, y, r)) = x · r
-  const Combination parameter_and_accumulated_combination(
-      std::vector<FunctionPointer>{Projection(1, 3), Projection(3, 3)});
+  // h(x, y, r) = producto(P₃³(x, y, r), P₁³(x, y, r)) = r · x
+  // El producto recurre sobre su segundo argumento: se pone x (la base) en esa
+  // posición y no el acumulado r = xʸ.
+  const Combination accumulated_and_parameter_combination(
+      std::vector<FunctionPointer>{Projection(3, 3), Projection(1, 3)});
   const FunctionPointer recursive_step = std::make_shared<const Composition>(
-      Multiplication(), parameter_and_accumulated_combination);
+      Multiplication(), accumulated_and_parameter_combination);
   return std::make_shared<const PrimitiveRecursion>(base_case, recursive_step);
 }

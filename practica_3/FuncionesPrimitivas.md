@@ -4,7 +4,7 @@
 **Autor:** Álvaro Pérez Ramos — `alu0101574042@ull.edu.es`
 **Escuela Superior de Ingeniería y Tecnología · Universidad de La Laguna**
 
-**Documentación en GitHub:** [Práctica 3 — Potencia como función primitiva recursiva](https://github.com/AlvaroPerezRamos/Complejidad-Computacional/blob/main/practica_3/FuncionesPrimitivas.md)
+**Documentación en GitHub:** [Práctica 3 — Potencia como función primitiva recursiva](https://github.com/AlvaroPerezRamos/Complejidad-Computacional/blob/main/practica_3/PotenciaRecursiva.md)
 
 ---
 
@@ -61,7 +61,7 @@ dígitos** que quepa en 64 bits (`0 … 18446744073709551615`); se aceptan ceros
 
 ```
 potencia(2, 3) = 8
-Número de llamadas a funciones: 120
+Número de llamadas a funciones: 114
 ```
 
 ### Códigos de salida
@@ -107,11 +107,18 @@ suma(x, 0)          = P₁¹(x)
 suma(x, S(y))       = S ∘ (P₃³) (x, y, suma(x, y))
 
 producto(x, 0)      = Z(x)
-producto(x, S(y))   = suma ∘ (P₁³, P₃³) (x, y, producto(x, y))
+producto(x, S(y))   = suma ∘ (P₃³, P₁³) (x, y, producto(x, y))
 
 potencia(x, 0)      = uno(x)
-potencia(x, S(y))   = producto ∘ (P₁³, P₃³) (x, y, potencia(x, y))
+potencia(x, S(y))   = producto ∘ (P₃³, P₁³) (x, y, potencia(x, y))
 ```
+
+**Orden de los argumentos.** `suma` y `producto` recurren sobre su **segundo** argumento, así que
+el orden en que se les pasan los operandos decide cuánto cuestan. Por eso `h` de `producto`
+calcula `suma(r, x)` (recursión sobre `x`, el operando pequeño) y no `suma(x, r)` (recursión sobre
+el acumulado `r`, que crece en cada nivel). Lo mismo para `potencia`: calcula `producto(r, x)`.
+Permutar argumentos es componer con proyecciones, y la composición de funciones primitivas
+recursivas es primitiva recursiva, de modo que `suma ∘ (P₃³, P₁³)` y `producto ∘ (P₃³, P₁³)` lo son.
 
 **Convención:** `0⁰ = 1`, que es lo que da `potencia(x, 0) = uno(x)` para todo `x` sin ninguna regla
 especial para el cero.
@@ -119,8 +126,8 @@ especial para el cero.
 Una potencia es, por tanto, un árbol de funciones:
 
 ```
-potencia = Rec[ uno , producto ∘ (P₁³, P₃³) ]
-producto = Rec[ Z   , suma     ∘ (P₁³, P₃³) ]
+potencia = Rec[ uno , producto ∘ (P₃³, P₁³) ]
+producto = Rec[ Z   , suma     ∘ (P₃³, P₁³) ]
 suma     = Rec[ P₁¹ , S        ∘ (P₃³)      ]
 uno      = S ∘ (Z)
 ```
@@ -291,6 +298,11 @@ en `Compute`. Ninguna subclase puede olvidarse de validar la aridad ni de contar
   Es un bucle, no recursión del lenguaje, de modo que un exponente grande no desborda la pila. El
   recuento de llamadas es el de la definición recursiva literal (ver la sección 5).
 
+- **Orden de los operandos.** Las definiciones de `producto` y `potencia` colocan en la última
+  posición (la de la recursión) el operando pequeño: la base `x`, no el acumulado. Así el número de
+  llamadas crece de forma **lineal** en el valor del resultado, que es lo mínimo posible si todo se
+  construye con sucesores (ver las secciones 5 y 7).
+
 - **La combinación es una clase aparte.** Se vio en clase como una operación propia. No puede
   heredar de `PrimitiveRecursiveFunction` porque `Evaluate` devuelve un `Natural` y la combinación
   devuelve una tupla. Tampoco cuenta llamada propia (ver sección 5).
@@ -329,13 +341,13 @@ una función es la suma de las llamadas de todas las funciones que contiene.
 
 Con esta convención, comprobado contra un evaluador independiente:
 
-| Función          | Llamadas                     | Ejemplo                |
-| ---------------- | ---------------------------- | ---------------------- |
-| `uno`            | 3                            |                        |
-| `suma(x, y)`     | `2 + 4y`                     | `suma(3, 4)` = 18      |
-| `producto(x, y)` | `2 + 6y + 2·x·y·(y − 1)`     | `producto(3, 4)` = 98  |
-| `potencia(x, 0)` | 4                            | `potencia(5, 0)` = 4   |
-| `potencia(x, y)` | (sin fórmula cerrada simple) | `potencia(2, 3)` = 120 |
+| Función          | Llamadas                                     | Ejemplo                |
+| ---------------- | -------------------------------------------- | ---------------------- |
+| `uno`            | 3                                            |                        |
+| `suma(x, y)`     | `2 + 4y`                                     | `suma(3, 4)` = 18      |
+| `producto(x, y)` | `2 + 6y + 4·x·y`                             | `producto(3, 4)` = 74  |
+| `potencia(x, 0)` | 4                                            | `potencia(5, 0)` = 4   |
+| `potencia(x, y)` | `y + 4 + y·(5 + 6x) + 4x·(1 + x + … + xʸ⁻¹)` | `potencia(2, 3)` = 114 |
 
 ---
 
@@ -382,17 +394,20 @@ pruebas unitarias.
 
 ## 7. Límites prácticos
 
-`suma` y `producto` están definidas con la recursión de los apuntes, que cuenta de uno en uno. Por
-eso el número de llamadas de `potencia` crece **de forma cuadrática en el valor de `xʸ`**:
+Todo el cálculo avanza de uno en uno (`S`), así que el número de llamadas crece **de forma lineal en
+el valor de `xʸ`**: el último término de la fórmula de la sección 5 es `4x·(xʸ − 1)/(x − 1)`, que es
+del orden de `4·xʸ`.
 
 | Entrada      | Resultado | Llamadas    | Tiempo aprox. (Release) |
 | ------------ | --------- | ----------- | ----------------------- |
-| `-x 2 -y 10` | 1024      | 1 400 210   | 0,02 s                  |
-| `-x 2 -y 12` | 4096      | 22 377 886  | 0,18 s                  |
-| `-x 2 -y 14` | 16384     | 357 946 794 | 2,6 s                   |
+| `-x 2 -y 10` | 1024      | 8 368       | < 0,01 s                |
+| `-x 2 -y 20` | 1048576   | 8 388 964   | 0,06 s                  |
+| `-x 10 -y 7` | 10000000  | 44 444 906  | 0,35 s                  |
+| `-x 2 -y 24` | 16777216  | 134 218 156 | 0,9 s                   |
+| `-x 2 -y 26` | 67108864  | 536 871 376 | 3,9 s                   |
 
-Un exponente como `-x 2 -y 20` ya no termina en un tiempo razonable. Es una propiedad de las
-funciones primitivas recursivas definidas así, no un fallo del programa.
+Cada paso de `xʸ` cuesta del orden de 8 llamadas por unidad del resultado, de modo que un resultado
+de 10⁹ ya tarda del orden de un minuto.
 
 ---
 
@@ -403,14 +418,14 @@ funciones primitivas recursivas definidas así, no un fallo del programa.
 ./test/run_tests.sh ruta/al/ejecutable
 ```
 
-El script ejecuta 36 comprobaciones:
+El script ejecuta 37 comprobaciones:
 
-- **Resultado y número de llamadas** de 11 entradas (incluidos `0⁰`, `x⁰`, `0ʸ`, `7²`, `10⁴`, `3⁸`).
-- **Límites del tipo `Natural`:** el mayor natural como base, con `y = 0` y `y = 1`.
+- **Resultado y número de llamadas** de 12 entradas (incluidos `0⁰`, `x⁰`, `0ʸ`, `7²`, `10⁴`, `3⁸` y `2²⁰`).
+- **Límites del tipo `Natural`:** el mayor natural como base con `y = 0`, y `1000¹` (coste lineal).
 - **Orden de las opciones** y **ceros a la izquierda**.
 - **17 errores de línea de comandos**, todos con código de salida 1 y la ayuda.
 - **Ayuda** (`-h`, `--help`, y que `-h` tenga prioridad sobre un error posterior).
-- **Pruebas unitarias** (`build/bin/pruebas_unitarias`): 21 pruebas, 66 comprobaciones, que cubren lo que
+- **Pruebas unitarias** (`build/bin/pruebas_unitarias`): 21 pruebas, 68 comprobaciones, que cubren lo que
   la línea de comandos no puede alcanzar: funciones básicas, plantilla de evaluación (la aridad se
   comprueba antes de contar), definiciones inválidas, `S(máximo)`, y los valores y recuentos de
   `FunctionLibrary`.

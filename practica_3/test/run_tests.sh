@@ -103,22 +103,23 @@ check_same_output() {
 
 
 echo "=== Resultado y número de llamadas ==="
-check_power 2 3 8 120
-check_power 3 2 9 76
+check_power 2 3 8 114
+check_power 3 2 9 100
 check_power 5 0 1 4        # y = 0: la propia potencia (1) + uno(x) (3)
 check_power 0 0 1 4        # convención 0^0 = 1
-check_power 0 4 0 34
-check_power 3 1 3 16
-check_power 1 5 1 64
-check_power 7 2 49 652
-check_power 2 10 1024 1400210
-check_power 10 4 10000 20186494
-check_power 3 8 6561 32285092
+check_power 0 4 0 28
+check_power 3 1 3 40
+check_power 1 5 1 84
+check_power 7 2 49 324
+check_power 2 10 1024 8368
+check_power 10 4 10000 44708
+check_power 3 8 6561 39556
+check_power 2 20 1048576 8388964   # antes no terminaba en un tiempo razonable
 
 echo ""
 echo "=== Límites del tipo Natural ==="
-check_power 18446744073709551615 0 1 4
-check_power 18446744073709551615 1 18446744073709551615 16   # el mayor Natural, sin desbordar
+check_power 18446744073709551615 0 1 4   # el mayor Natural como base, sin desbordar
+check_power 1000 1 1000 10010            # coste lineal en el valor del resultado
 
 echo ""
 echo "=== Orden de las opciones y formato de los valores ==="

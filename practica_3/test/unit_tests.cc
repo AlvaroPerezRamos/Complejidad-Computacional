@@ -354,16 +354,16 @@ int main() {
   CheckEqual("llamadas de suma(7, 0) = 2", call_counter.GetCalls(), 2);
 
   // ---------------------------------------------------------------------------
-  // Prueba 19: producto. Llamadas: 2 + 6y + 2·x·y·(y − 1).
+  // Prueba 19: producto. Llamadas: 2 + 6y + 4·x·y.
   // ---------------------------------------------------------------------------
-  std::cout << "19) FunctionLibrary: producto (2 + 6y + 2xy(y−1) llamadas)\n";
+  std::cout << "19) FunctionLibrary: producto (2 + 6y + 4xy llamadas)\n";
   const FunctionPointer library_multiplication =
       FunctionLibrary::Multiplication();
   call_counter.Reset();
   CheckEqual("producto(3, 4)",
              library_multiplication->Evaluate({3, 4}, call_counter), 12);
-  CheckEqual("llamadas de producto(3, 4) = 2 + 24 + 72",
-             call_counter.GetCalls(), 98);
+  CheckEqual("llamadas de producto(3, 4) = 2 + 24 + 48",
+             call_counter.GetCalls(), 74);
   call_counter.Reset();
   CheckEqual("producto(5, 0)",
              library_multiplication->Evaluate({5, 0}, call_counter), 0);
@@ -383,11 +383,11 @@ int main() {
   call_counter.Reset();
   CheckEqual("potencia(2, 3)", library_power->Evaluate({2, 3}, call_counter),
              8);
-  CheckEqual("llamadas de potencia(2, 3)", call_counter.GetCalls(), 120);
+  CheckEqual("llamadas de potencia(2, 3)", call_counter.GetCalls(), 114);
   call_counter.Reset();
   CheckEqual("potencia(3, 2)", library_power->Evaluate({3, 2}, call_counter),
              9);
-  CheckEqual("llamadas de potencia(3, 2)", call_counter.GetCalls(), 76);
+  CheckEqual("llamadas de potencia(3, 2)", call_counter.GetCalls(), 100);
   call_counter.Reset();
   CheckEqual("potencia(5, 0) = 1",
              library_power->Evaluate({5, 0}, call_counter), 1);
@@ -399,7 +399,11 @@ int main() {
   call_counter.Reset();
   CheckEqual("potencia(0, 3) = 0",
              library_power->Evaluate({0, 3}, call_counter), 0);
-  CheckEqual("llamadas de potencia(0, 3)", call_counter.GetCalls(), 28);
+  CheckEqual("llamadas de potencia(0, 3)", call_counter.GetCalls(), 22);
+  call_counter.Reset();
+  CheckEqual("potencia(2, 20)", library_power->Evaluate({2, 20}, call_counter),
+             1048576);
+  CheckEqual("llamadas de potencia(2, 20)", call_counter.GetCalls(), 8388964);
 
   // ---------------------------------------------------------------------------
   // Prueba 21: una función de la librería exige su aridad al evaluarla.

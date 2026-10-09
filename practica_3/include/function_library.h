@@ -16,7 +16,10 @@
  *
  * Solo se construyen las funciones que potencia necesita (el enunciado pide
  * "todas aquellas que sean necesarias"): uno, suma, producto y potencia.
- * pred y resta NO hacen falta para calcular xʸ y por eso no están.
+ *
+ * suma y producto recurren sobre su segundo argumento, así que se pasa en esa
+ * posición el operando pequeño: producto calcula suma(r, x) y potencia calcula
+ * producto(r, x), con r el valor acumulado.
  *
  * Notación de los comentarios: f ∘ (g1, ..., gm) es la composición de f con
  * la combinación (g1, ..., gm), es decir, f aplicada a la tupla (g1(x), ...,
@@ -62,7 +65,7 @@ class FunctionLibrary {
    * @brief producto : ℕ² → ℕ, producto(x, y) = x · y.
    *
    *     producto(x, 0)    = Z(x)
-   *     producto(x, S(y)) = suma ∘ (P₁³, P₃³) (x, y, producto(x, y))
+   *     producto(x, S(y)) = suma ∘ (P₃³, P₁³) (x, y, producto(x, y))
    */
   static FunctionPointer Multiplication();
 
@@ -70,7 +73,7 @@ class FunctionLibrary {
    * @brief potencia : ℕ² → ℕ, potencia(x, y) = xʸ  (con 0⁰ = 1).
    *
    *     potencia(x, 0)    = uno(x)
-   *     potencia(x, S(y)) = producto ∘ (P₁³, P₃³) (x, y, potencia(x, y))
+   *     potencia(x, S(y)) = producto ∘ (P₃³, P₁³) (x, y, potencia(x, y))
    */
   static FunctionPointer Power();
 };
