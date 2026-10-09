@@ -4,7 +4,7 @@
 **Autor:** Álvaro Pérez Ramos — `alu0101574042@ull.edu.es`
 **Escuela Superior de Ingeniería y Tecnología · Universidad de La Laguna**
 
-**Documentación en GitHub:** [Práctica 3 — Potencia como función primitiva recursiva](https://github.com/AlvaroPerezRamos/Complejidad-Computacional/blob/main/practica_3/PotenciaRecursiva.md)
+**Documentación en GitHub:** [Práctica 3 — Potencia como función primitiva recursiva](https://github.com/AlvaroPerezRamos/Complejidad-Computacional/blob/main/practica_3/FuncionesPrimitivas.md)
 
 ---
 
