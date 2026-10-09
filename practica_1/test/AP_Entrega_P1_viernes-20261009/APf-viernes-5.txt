@@ -1,0 +1,14 @@
+# Automata por estodos finales 
+# epsilon esta representado por un .
+p q r
+A B C
+X y
+p
+X
+r
+p A X p yX
+p A y p yy
+p B y q y
+q C y q .
+q . X r X
+q C X q X
