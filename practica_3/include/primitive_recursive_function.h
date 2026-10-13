@@ -9,15 +9,21 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 08/10/2026
  * @file primitive_recursive_function.h
- * @brief Definición de la clase abstracta PrimitiveRecursiveFunction.
- *
- * Es la raíz de la jerarquía. Todas las funciones (básicas, compuestas y
- * definidas por recursión) son una función ℕⁿ → ℕ con una aridad n fija.
+ * @brief Definición de la clase abstracta PrimitiveRecursiveFunction, raíz
+ * de la jerarquía: toda función (básica, compuesta o definida por recursión)
+ * es una función ℕⁿ → ℕ con una aridad n fija.
  *
  * Patrón "método plantilla": Evaluate() es público y NO virtual; comprueba la
- * aridad, anota la llamada en el CallCounter y delega el cálculo en el método
- * virtual protegido Compute(). Así es imposible que una subclase se olvide de
- * contar su llamada o de validar los argumentos.
+ * aridad, anota la llamada en el CallCounter (si la función cuenta como
+ * llamada) y delega el cálculo en el método virtual protegido Compute(). Así
+ * es imposible que una subclase se olvide de contar su llamada o de validar
+ * los argumentos.
+ *
+ * Qué cuenta como llamada: las funciones básicas (Z, S, Pᵢⁿ) y las funciones
+ * con nombre (uno, suma, producto, potencia: clase NamedFunction), cada vez
+ * que se entra en ellas. Las operaciones (combinación, composición y recursión
+ * primitiva) no cuentan por sí mismas: de la recursión solo cuentan sus
+ * llamadas recursivas.
  */
 
 #ifndef PRIMITIVE_RECURSIVE_FUNCTION_H_
@@ -28,27 +34,26 @@
 #include <string>
 
 #include "call_counter.h"
-#include "errors.h"
 #include "types.h"
 
-/**
- * @class PrimitiveRecursiveFunction
- * @brief Función ℕⁿ → ℕ primitiva recursiva, evaluable y con aridad conocida.
+/** @brief Función ℕⁿ → ℕ primitiva recursiva, evaluable y con aridad conocida.
  */
 class PrimitiveRecursiveFunction {
  public:
-  /** @brief Destructor virtual: se destruyen a través de punteros a la base. */
+  /** @brief Destructor virtual: los objetos se destruyen a través de punteros a
+   * la base. */
   virtual ~PrimitiveRecursiveFunction() = default;
 
   /**
    * @brief Evalúa la función en una tupla de argumentos.
    * @param arguments Tupla (x1, ..., xn); debe tener exactamente GetArity()
    * elementos.
-   * @param call_counter Contador donde se anota esta llamada y todas las que
-   * ésta provoque.
+   * @param call_counter Contador donde se anota esta llamada (si cuenta como
+   * llamada) y todas las que ésta provoque.
    * @return El valor de la función.
    * @throw ArityMismatchError Si arguments.size() != GetArity().
-   * @throw NaturalOverflowError Si algún valor intermedio no cabe en Natural.
+   * @throw NaturalOverflowError Si algún valor intermedio no cabe en Natural
+   * (lo lanza SuccessorFunction).
    */
   Natural Evaluate(const Arguments& arguments, CallCounter& call_counter) const;
 
@@ -63,8 +68,12 @@ class PrimitiveRecursiveFunction {
    * @brief Construye la parte común de cualquier función.
    * @param name Nombre legible de la función.
    * @param arity Número de argumentos que espera.
+   * @param counts_call Si cada Evaluate() anota una llamada en el contador.
+   * Es true para las funciones básicas y las funciones con nombre, y false
+   * para las operaciones (composición y recursión primitiva).
    */
-  PrimitiveRecursiveFunction(std::string name, std::size_t arity);
+  PrimitiveRecursiveFunction(std::string name, std::size_t arity,
+                             bool counts_call = true);
 
   /**
    * @brief Calcula el valor de la función. Lo implementa cada subclase.
@@ -75,11 +84,12 @@ class PrimitiveRecursiveFunction {
                           CallCounter& call_counter) const = 0;
 
  private:
-  std::string name_;  /**< Nombre legible. */
-  std::size_t arity_; /**< Aridad n. */
+  std::string name_;
+  std::size_t arity_;
+  bool counts_call_;
 };
 
-/** Las funciones son inmutables una vez construidas, y se comparten por
+/** @brief Las funciones son inmutables una vez construidas y se comparten por
  * composición. */
 using FunctionPointer = std::shared_ptr<const PrimitiveRecursiveFunction>;
 

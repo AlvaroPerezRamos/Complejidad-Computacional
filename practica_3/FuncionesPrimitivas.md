@@ -37,7 +37,8 @@ cmake --build build
 ```
 
 Sin tipo de compilación explícito se usa `Release` (la evaluación hace millones de llamadas). Se
-generan dos ejecutables en `build/bin/`: `potencia` (el programa) y `pruebas_unitarias`.
+generan tres ejecutables en `build/bin/`: `potencia` (el programa), `pruebas_unitarias` y
+`demostracion`.
 
 ### Ejecución
 
@@ -61,7 +62,23 @@ dígitos** que quepa en 64 bits (`0 … 18446744073709551615`); se aceptan ceros
 
 ```
 potencia(2, 3) = 8
-Número de llamadas a funciones: 114
+Número de llamadas a funciones: 91
+```
+
+### Demostración de las funciones
+
+```bash
+./build/bin/demostracion
+```
+
+Llama a cada función con sus argumentos escritos en la propia llamada (`test/demostracion.cc`) y
+muestra el resultado y las llamadas de esa evaluación:
+
+```
+uno(5) = 1   [llamadas: 3]
+suma(3, 4) = 7   [llamadas: 14]
+producto(2, 3) = 6   [llamadas: 35]
+potencia(2, 3) = 8   [llamadas: 91]
 ```
 
 ### Códigos de salida
@@ -171,6 +188,10 @@ classDiagram
         -FunctionPointer recursive_step_
         #Compute(arguments, call_counter) Natural
     }
+    class NamedFunction {
+        -FunctionPointer definition_
+        #Compute(arguments, call_counter) Natural
+    }
     class Combination {
         -vector~FunctionPointer~ inner_functions_
         +Evaluate(arguments, call_counter) Arguments
@@ -210,20 +231,22 @@ classDiagram
     PrimitiveRecursiveFunction <|-- ProjectionFunction
     PrimitiveRecursiveFunction <|-- Composition
     PrimitiveRecursiveFunction <|-- PrimitiveRecursion
+    PrimitiveRecursiveFunction <|-- NamedFunction
 
     Composition *-- Combination : combina las gi
     Composition o-- PrimitiveRecursiveFunction : f
     Combination o-- PrimitiveRecursiveFunction : g1..gm
     PrimitiveRecursion o-- PrimitiveRecursiveFunction : g y h
+    NamedFunction o-- PrimitiveRecursiveFunction : definición
 
     PrimitiveRecursiveFunction ..> CallCounter : anota llamadas
     Combination ..> CallCounter : lo propaga
     FunctionLibrary ..> PrimitiveRecursiveFunction : construye
 ```
 
-`Composition` y `PrimitiveRecursion` son a la vez una función y un agregado de otras funciones
-(patrón *Composite*): por eso una potencia es un árbol de objetos cuyas hojas son `Z`, `S` y las
-proyecciones. `Combination` **no** hereda de `PrimitiveRecursiveFunction`: devuelve una tupla
+`Composition`, `PrimitiveRecursion` y `NamedFunction` son a la vez una función y un agregado de
+otras funciones (patrón *Composite*): por eso una potencia es un árbol de objetos cuyas hojas son
+`Z`, `S` y las proyecciones. `Combination` **no** hereda de `PrimitiveRecursiveFunction`: devuelve una tupla
 (`Arguments`), no un único `Natural`. `CommandLineOptions` sigue el mismo patrón que en P01 y P02.
 
 ### 4.2 Jerarquía de excepciones
@@ -262,7 +285,7 @@ main
  ├─ CallCounter call_counter
  ├─ potencia->Evaluate({base, exponente}, call_counter)
  │     ├─ comprueba la aridad                     (ArityMismatchError si no cuadra)
- │     ├─ call_counter.RegisterCall()             (una llamada por evaluación)
+ │     ├─ call_counter.RegisterCall()             (solo si la función cuenta como llamada)
  │     └─ Compute(...)                            (lo implementa cada subclase)
  └─ imprime resultado y call_counter.GetCalls()
 ```
@@ -272,18 +295,19 @@ en `Compute`. Ninguna subclase puede olvidarse de validar la aridad ni de contar
 
 ### 4.4 Responsabilidad de cada clase
 
-| Clase                        | Responsabilidad                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| `PrimitiveRecursiveFunction` | Interfaz común: nombre, aridad y la plantilla `Evaluate` (aridad + contador). |
-| `ZeroFunction`               | `Z(x) = 0`.                                                                   |
-| `SuccessorFunction`          | `S(x) = x + 1`; único punto con control de desbordamiento.                    |
-| `ProjectionFunction`         | `Pᵢⁿ`; valida `1 ≤ i ≤ n` al construirla.                                     |
-| `Combination`                | La tupla `(g₁(x), …, gₘ(x))`; valida que las `gᵢ` existan y compartan aridad. |
-| `Composition`                | `f ∘ combinación`; valida que la aridad de `f` sea el tamaño de la tupla.     |
-| `PrimitiveRecursion`         | Recursión primitiva; valida que `h` tenga aridad `aridad(g) + 2`.             |
-| `FunctionLibrary`            | Fábrica estática de `uno`, `suma`, `producto` y `potencia`.                   |
-| `CallCounter`                | Cuenta las llamadas; se pasa explícitamente (no es global).                   |
-| `CommandLineOptions`         | Valida `-x`, `-y` y `-h/--help`.                                              |
+| Clase                        | Responsabilidad                                                                    |
+| ---------------------------- | ---------------------------------------------------------------------------------- |
+| `PrimitiveRecursiveFunction` | Interfaz común: nombre, aridad y la plantilla `Evaluate` (aridad + contador).      |
+| `ZeroFunction`               | `Z(x) = 0`.                                                                        |
+| `SuccessorFunction`          | `S(x) = x + 1`; único punto con control de desbordamiento.                         |
+| `ProjectionFunction`         | `Pᵢⁿ`; valida `1 ≤ i ≤ n` al construirla.                                          |
+| `Combination`                | La tupla `(g₁(x), …, gₘ(x))`; valida que las `gᵢ` existan y compartan aridad.      |
+| `Composition`                | `f ∘ combinación`; valida que la aridad de `f` sea el tamaño de la tupla.          |
+| `PrimitiveRecursion`         | Recursión primitiva; valida que `h` tenga aridad `aridad(g) + 2`.                  |
+| `NamedFunction`              | Da nombre a una función definida (`uno`, `suma`, …) y anota una llamada al entrar. |
+| `FunctionLibrary`            | Fábrica estática de `uno`, `suma`, `producto` y `potencia` (cada una, con nombre). |
+| `CallCounter`                | Cuenta las llamadas; se pasa explícitamente (no es global).                        |
+| `CommandLineOptions`         | Valida `-x`, `-y` y `-h/--help`.                                                   |
 
 ### 4.5 Decisiones de diseño
 
@@ -298,6 +322,13 @@ en `Compute`. Ninguna subclase puede olvidarse de validar la aridad ni de contar
   Es un bucle, no recursión del lenguaje, de modo que un exponente grande no desborda la pila. El
   recuento de llamadas es el de la definición recursiva literal (ver la sección 5).
 
+- **Qué cuenta como llamada.** Cuentan las funciones básicas, cada entrada en una función con
+  nombre (`uno`, `suma`, `producto`, `potencia`) y cada llamada recursiva. La composición, la
+  combinación y la recursión primitiva son operaciones y no cuentan por sí mismas. Por eso hay una
+  clase `NamedFunction`: envuelve la definición de una función (una composición o una recursión),
+  le da nombre y anota una llamada al entrar. Las composiciones que aparecen dentro de las
+  definiciones (el paso `h`) no tienen nombre y no cuentan.
+
 - **Orden de los operandos.** Las definiciones de `producto` y `potencia` colocan en la última
   posición (la de la recursión) el operando pequeño: la base `x`, no el acumulado. Así el número de
   llamadas crece de forma **lineal** en el valor del resultado, que es lo mínimo posible si todo se
@@ -305,7 +336,7 @@ en `Compute`. Ninguna subclase puede olvidarse de validar la aridad ni de contar
 
 - **La combinación es una clase aparte.** Se vio en clase como una operación propia. No puede
   heredar de `PrimitiveRecursiveFunction` porque `Evaluate` devuelve un `Natural` y la combinación
-  devuelve una tupla. Tampoco cuenta llamada propia (ver sección 5).
+  devuelve una tupla. Es una operación y no cuenta llamada propia (ver sección 5).
 
 - **Validación al construir, no al evaluar.** Un `P_4^3`, una composición con aridades que no
   encajan o una recursión con `h` de aridad incorrecta se rechazan en el constructor
@@ -330,24 +361,27 @@ en `Compute`. Ninguna subclase puede olvidarse de validar la aridad ni de contar
 
 ## 5. Recuento de llamadas
 
-Cada evaluación de una función primitiva recursiva cuenta **una** llamada: `Z`, `S`, cada
-proyección, cada composición y cada invocación de una función definida por recursión. El total de
-una función es la suma de las llamadas de todas las funciones que contiene.
+Se anota una llamada en estos casos:
 
-- **Recursión.** El recuento coincide con el de la definición recursiva literal: para `f(x, y)` se
-  invoca `f` en los niveles `y, …, 1, 0` (`y + 1` invocaciones), `g` una vez y `h` `y` veces.
-- **Combinación.** No cuenta llamada propia, solo las de las `gᵢ` que evalúa: no es una función
-  `ℕⁿ → ℕ` sino una tupla de ellas.
+- Cada evaluación de una **función básica** (`Z`, `S`, `Pᵢⁿ`).
+- Cada **entrada en una función con nombre**: `uno`, `suma`, `producto`, `potencia`.
+- Cada **llamada recursiva**: una por nivel de la recursión primitiva.
+
+La **composición**, la **combinación** y la **recursión primitiva** son operaciones y no cuentan por
+sí mismas. Por ejemplo, el paso `h = S ∘ (P₃³)` de `suma` cuesta 2 llamadas (`P₃³` y `S`), no 3.
+
+Para `f(x, y)` definida por recursión: la entrada en `f` (1, si `f` tiene nombre), `g` una vez, `y`
+llamadas recursivas y `h` `y` veces.
 
 Con esta convención, comprobado contra un evaluador independiente:
 
-| Función          | Llamadas                                     | Ejemplo                |
-| ---------------- | -------------------------------------------- | ---------------------- |
-| `uno`            | 3                                            |                        |
-| `suma(x, y)`     | `2 + 4y`                                     | `suma(3, 4)` = 18      |
-| `producto(x, y)` | `2 + 6y + 4·x·y`                             | `producto(3, 4)` = 74  |
-| `potencia(x, 0)` | 4                                            | `potencia(5, 0)` = 4   |
-| `potencia(x, y)` | `y + 4 + y·(5 + 6x) + 4x·(1 + x + … + xʸ⁻¹)` | `potencia(2, 3)` = 114 |
+| Función          | Llamadas                                 | Ejemplo               |
+| ---------------- | ---------------------------------------- | --------------------- |
+| `uno`            | 3                                        |                       |
+| `suma(x, y)`     | `2 + 3y`                                 | `suma(3, 4)` = 14     |
+| `producto(x, y)` | `2 + 5y + 3·x·y`                         | `producto(3, 4)` = 58 |
+| `potencia(x, 0)` | 4                                        | `potencia(5, 0)` = 4  |
+| `potencia(x, y)` | `4 + y·(5 + 5x) + 3x·(1 + x + … + xʸ⁻¹)` | `potencia(2, 3)` = 91 |
 
 ---
 
@@ -380,6 +414,7 @@ pruebas unitarias.
 | `Combination`        | Lista vacía; función nula; funciones con aridades distintas.                |
 | `Composition`        | `f` nula; aridad de `f` distinta del número de funciones de la combinación. |
 | `PrimitiveRecursion` | `g` o `h` nulas; aridad de `h` distinta de `aridad(g) + 2`.                 |
+| `NamedFunction`      | Definición nula.                                                            |
 
 ### Evaluación
 
@@ -395,19 +430,20 @@ pruebas unitarias.
 ## 7. Límites prácticos
 
 Todo el cálculo avanza de uno en uno (`S`), así que el número de llamadas crece **de forma lineal en
-el valor de `xʸ`**: el último término de la fórmula de la sección 5 es `4x·(xʸ − 1)/(x − 1)`, que es
-del orden de `4·xʸ`.
+el valor de `xʸ`**: el último término de la fórmula de la sección 5 es `3x·(xʸ − 1)/(x − 1)`, que es
+del orden de `3·xʸ` para `x = 2` y menos para bases mayores.
 
-| Entrada      | Resultado | Llamadas    | Tiempo aprox. (Release) |
-| ------------ | --------- | ----------- | ----------------------- |
-| `-x 2 -y 10` | 1024      | 8 368       | < 0,01 s                |
-| `-x 2 -y 20` | 1048576   | 8 388 964   | 0,06 s                  |
-| `-x 10 -y 7` | 10000000  | 44 444 906  | 0,35 s                  |
-| `-x 2 -y 24` | 16777216  | 134 218 156 | 0,9 s                   |
-| `-x 2 -y 26` | 67108864  | 536 871 376 | 3,9 s                   |
+| Entrada      | Resultado | Llamadas      | Tiempo aprox. (Release) |
+| ------------ | --------- | ------------- | ----------------------- |
+| `-x 2 -y 10` | 1024      | 6 292         | < 0,01 s                |
+| `-x 2 -y 20` | 1048576   | 6 291 754     | 0,07 s                  |
+| `-x 10 -y 7` | 10000000  | 33 333 719    | 0,3 s                   |
+| `-x 2 -y 24` | 16777216  | 100 663 654   | 1,1 s                   |
+| `-x 2 -y 26` | 67108864  | 402 653 572   | 4,3 s                   |
+| `-x 2 -y 28` | 268435456 | 1 610 613 154 | 16 s                    |
 
-Cada paso de `xʸ` cuesta del orden de 8 llamadas por unidad del resultado, de modo que un resultado
-de 10⁹ ya tarda del orden de un minuto.
+Con `x = 2` salen unas 6 llamadas por unidad del resultado, de modo que un resultado de 10⁹ tarda
+del orden de un minuto.
 
 ---
 
@@ -425,14 +461,14 @@ El script ejecuta 37 comprobaciones:
 - **Orden de las opciones** y **ceros a la izquierda**.
 - **17 errores de línea de comandos**, todos con código de salida 1 y la ayuda.
 - **Ayuda** (`-h`, `--help`, y que `-h` tenga prioridad sobre un error posterior).
-- **Pruebas unitarias** (`build/bin/pruebas_unitarias`): 21 pruebas, 68 comprobaciones, que cubren lo que
+- **Pruebas unitarias** (`build/bin/pruebas_unitarias`): 22 pruebas, 72 comprobaciones, que cubren lo que
   la línea de comandos no puede alcanzar: funciones básicas, plantilla de evaluación (la aridad se
-  comprueba antes de contar), definiciones inválidas, `S(máximo)`, y los valores y recuentos de
-  `FunctionLibrary`.
+  comprueba antes de contar), `NamedFunction` (suma una llamada y nada más), definiciones
+  inválidas, `S(máximo)`, y los valores y recuentos de `FunctionLibrary`.
 
 Los valores esperados **no salen del propio programa**: se calcularon con un evaluador independiente
 en Python que aplica las definiciones de forma literal (recursión real, leyendo `f(x, S(y))` hacia
-atrás) y cuenta cada invocación.
+atrás) y cuenta las llamadas con la convención de la sección 5.
 
 ---
 
@@ -450,6 +486,7 @@ practica_3/
 │   ├── composition.h
 │   ├── errors.h
 │   ├── function_library.h
+│   ├── named_function.h
 │   ├── primitive_recursion.h
 │   ├── primitive_recursive_function.h
 │   └── types.h
@@ -459,9 +496,11 @@ practica_3/
 │   ├── composition.cc
 │   ├── function_library.cc
 │   ├── main.cc
+│   ├── named_function.cc
 │   ├── primitive_recursion.cc
 │   └── primitive_recursive_function.cc
 └── test/
+    ├── demostracion.cc
     ├── run_tests.sh
     └── unit_tests.cc
 ```

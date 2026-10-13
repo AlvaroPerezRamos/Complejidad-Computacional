@@ -7,7 +7,7 @@
  * Práctica 3: Funciones primitivas recursivas de números naturales
  *
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
- * @date 09/10/2026
+ * @date 08/10/2026
  * @file unit_tests.cc
  * @brief Pruebas unitarias de la Práctica 3. Cubren lo que la línea de
  * comandos no puede alcanzar: funciones básicas, plantilla de evaluación,
@@ -30,6 +30,7 @@
 #include "../include/composition.h"
 #include "../include/errors.h"
 #include "../include/function_library.h"
+#include "../include/named_function.h"
 #include "../include/primitive_recursion.h"
 
 namespace {
@@ -220,8 +221,8 @@ int main() {
       Combination(std::vector<FunctionPointer>{zero_function}));
   call_counter.Reset();
   CheckEqual("uno(9)", one_function->Evaluate({9}, call_counter), 1);
-  // Llamadas: la composición (1) + Z (1) + S (1).
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 3);
+  // Llamadas: Z (1) + S (1). La composición no cuenta por sí misma.
+  CheckEqual("llamadas contadas (Z + S)", call_counter.GetCalls(), 2);
   std::cout << "  nombre: " << one_function->GetName() << "\n";
 
   // ---------------------------------------------------------------------------
@@ -234,8 +235,9 @@ int main() {
       Combination(std::vector<FunctionPointer>{one_function}));
   call_counter.Reset();
   CheckEqual("dos(9)", two_function->Evaluate({9}, call_counter), 2);
-  // Llamadas: composición exterior (1) + uno (3) + S (1).
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 5);
+  // Llamadas: Z (1) + S de uno (1) + S exterior (1). Ninguna composición
+  // cuenta.
+  CheckEqual("llamadas contadas (Z + S + S)", call_counter.GetCalls(), 3);
 
   // ---------------------------------------------------------------------------
   // Prueba 12: varias funciones en la combinación. f recibe la TUPLA
@@ -248,8 +250,10 @@ int main() {
   call_counter.Reset();
   CheckEqual("P_1^2 ∘ (P_2^2, P_1^2) (5, 8)",
              swapped_first.Evaluate({5, 8}, call_counter), 8);
-  // Llamadas: composición (1) + dos de la combinación (2) + exterior (1).
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 4);
+  // Llamadas: las dos de la combinación (2) + la exterior (1). Ni la
+  // composición ni la combinación cuentan por sí mismas.
+  CheckEqual("llamadas contadas (P_2^2 + P_1^2 + P_1^2)",
+             call_counter.GetCalls(), 3);
   CheckEqual("aridad de la composición (la de la combinación)",
              swapped_first.GetArity(), 2);
 
@@ -290,10 +294,9 @@ int main() {
   call_counter.Reset();
   CheckEqual("suma(3, 4)", addition_function->Evaluate({3, 4}, call_counter),
              7);
-  // Recuento: 2 + 4y = 18 con y = 4.
-  // Evaluate (1) + g (1) + y niveles anotados (4) + h = composición y su
-  // proyección y su sucesor = 3 llamadas por nivel (12) = 18.
-  CheckEqual("llamadas de suma(3, 4)", call_counter.GetCalls(), 18);
+  // Recuento (recursión anónima, sin NamedFunction): g (1) + y llamadas
+  // recursivas (4) + h = P_3^3 y S = 2 llamadas por nivel (8) = 13.
+  CheckEqual("llamadas de suma(3, 4)", call_counter.GetCalls(), 13);
 
   // ---------------------------------------------------------------------------
   // Prueba 15: caso límite y = 0. Solo se evalúa g: no hay ningún paso.
@@ -302,7 +305,8 @@ int main() {
   call_counter.Reset();
   CheckEqual("suma(9, 0)", addition_function->Evaluate({9, 0}, call_counter),
              9);
-  CheckEqual("llamadas: la recursión (1) + g (1)", call_counter.GetCalls(), 2);
+  CheckEqual("llamadas: solo g (1), sin llamadas recursivas",
+             call_counter.GetCalls(), 1);
 
   // ---------------------------------------------------------------------------
   // Prueba 16: h recibe (x, nivel, f(x, nivel)) EN ESE ORDEN. Con h = P_2^3
@@ -316,8 +320,8 @@ int main() {
   call_counter.Reset();
   CheckEqual("Rec[P_1^1, P_2^3](7, 5)",
              level_function->Evaluate({7, 5}, call_counter), 4);
-  // Recuento: 1 + g (1) + 5 niveles anotados + 5 h = 12.
-  CheckEqual("llamadas contadas", call_counter.GetCalls(), 12);
+  // Recuento: g (1) + 5 llamadas recursivas + 5 h (una P_2^3 por nivel) = 11.
+  CheckEqual("llamadas contadas", call_counter.GetCalls(), 11);
   CheckEqual("Rec[P_1^1, P_2^3](7, 0)",
              level_function->Evaluate({7, 0}, call_counter), 7);
 
@@ -340,7 +344,7 @@ int main() {
   // ---------------------------------------------------------------------------
   // Prueba 18: uno y suma construidas por la librería.
   // ---------------------------------------------------------------------------
-  std::cout << "18) FunctionLibrary: uno y suma (suma: 2 + 4y llamadas)\n";
+  std::cout << "18) FunctionLibrary: uno y suma (suma: 2 + 3y llamadas)\n";
   const FunctionPointer library_one = FunctionLibrary::One();
   const FunctionPointer library_addition = FunctionLibrary::Addition();
   call_counter.Reset();
@@ -348,22 +352,22 @@ int main() {
   CheckEqual("llamadas de uno(9)", call_counter.GetCalls(), 3);
   call_counter.Reset();
   CheckEqual("suma(3, 4)", library_addition->Evaluate({3, 4}, call_counter), 7);
-  CheckEqual("llamadas de suma(3, 4) = 2 + 4·4", call_counter.GetCalls(), 18);
+  CheckEqual("llamadas de suma(3, 4) = 2 + 3·4", call_counter.GetCalls(), 14);
   call_counter.Reset();
   CheckEqual("suma(7, 0)", library_addition->Evaluate({7, 0}, call_counter), 7);
   CheckEqual("llamadas de suma(7, 0) = 2", call_counter.GetCalls(), 2);
 
   // ---------------------------------------------------------------------------
-  // Prueba 19: producto. Llamadas: 2 + 6y + 4·x·y.
+  // Prueba 19: producto. Llamadas: 2 + 5y + 3·x·y.
   // ---------------------------------------------------------------------------
-  std::cout << "19) FunctionLibrary: producto (2 + 6y + 4xy llamadas)\n";
+  std::cout << "19) FunctionLibrary: producto (2 + 5y + 3xy llamadas)\n";
   const FunctionPointer library_multiplication =
       FunctionLibrary::Multiplication();
   call_counter.Reset();
   CheckEqual("producto(3, 4)",
              library_multiplication->Evaluate({3, 4}, call_counter), 12);
-  CheckEqual("llamadas de producto(3, 4) = 2 + 24 + 48",
-             call_counter.GetCalls(), 74);
+  CheckEqual("llamadas de producto(3, 4) = 2 + 20 + 36",
+             call_counter.GetCalls(), 58);
   call_counter.Reset();
   CheckEqual("producto(5, 0)",
              library_multiplication->Evaluate({5, 0}, call_counter), 0);
@@ -371,8 +375,8 @@ int main() {
   call_counter.Reset();
   CheckEqual("producto(0, 5)",
              library_multiplication->Evaluate({0, 5}, call_counter), 0);
-  CheckEqual("llamadas de producto(0, 5) = 2 + 30", call_counter.GetCalls(),
-             32);
+  CheckEqual("llamadas de producto(0, 5) = 2 + 25", call_counter.GetCalls(),
+             27);
 
   // ---------------------------------------------------------------------------
   // Prueba 20: potencia. Es el objetivo de la práctica.
@@ -383,11 +387,11 @@ int main() {
   call_counter.Reset();
   CheckEqual("potencia(2, 3)", library_power->Evaluate({2, 3}, call_counter),
              8);
-  CheckEqual("llamadas de potencia(2, 3)", call_counter.GetCalls(), 114);
+  CheckEqual("llamadas de potencia(2, 3)", call_counter.GetCalls(), 91);
   call_counter.Reset();
   CheckEqual("potencia(3, 2)", library_power->Evaluate({3, 2}, call_counter),
              9);
-  CheckEqual("llamadas de potencia(3, 2)", call_counter.GetCalls(), 100);
+  CheckEqual("llamadas de potencia(3, 2)", call_counter.GetCalls(), 80);
   call_counter.Reset();
   CheckEqual("potencia(5, 0) = 1",
              library_power->Evaluate({5, 0}, call_counter), 1);
@@ -399,11 +403,11 @@ int main() {
   call_counter.Reset();
   CheckEqual("potencia(0, 3) = 0",
              library_power->Evaluate({0, 3}, call_counter), 0);
-  CheckEqual("llamadas de potencia(0, 3)", call_counter.GetCalls(), 22);
+  CheckEqual("llamadas de potencia(0, 3)", call_counter.GetCalls(), 19);
   call_counter.Reset();
   CheckEqual("potencia(2, 20)", library_power->Evaluate({2, 20}, call_counter),
              1048576);
-  CheckEqual("llamadas de potencia(2, 20)", call_counter.GetCalls(), 8388964);
+  CheckEqual("llamadas de potencia(2, 20)", call_counter.GetCalls(), 6291754);
 
   // ---------------------------------------------------------------------------
   // Prueba 21: una función de la librería exige su aridad al evaluarla.
@@ -417,6 +421,27 @@ int main() {
   } catch (const ArityMismatchError& error) {
     std::cout << "  [OK]    " << error.what() << "\n";
   }
+
+  // ---------------------------------------------------------------------------
+  // Prueba 22: NamedFunction suma exactamente UNA llamada a la definición que
+  // envuelve, y conserva su valor, su aridad y su rechazo de definiciones
+  // nulas.
+  // ---------------------------------------------------------------------------
+  std::cout << "22) NamedFunction: una llamada más que su definición, mismo "
+               "valor y aridad\n";
+  const FunctionPointer named_addition =
+      std::make_shared<const NamedFunction>("suma", addition_function);
+  call_counter.Reset();
+  CheckEqual("suma(3, 4) con nombre",
+             named_addition->Evaluate({3, 4}, call_counter), 7);
+  // La definición anónima costaba 13 llamadas (prueba 14): ahora 13 + 1.
+  CheckEqual(
+      "llamadas: 13 de la definición + 1 de entrar en la función con nombre",
+      call_counter.GetCalls(), 14);
+  CheckEqual("aridad conservada", named_addition->GetArity(), 2);
+  std::cout << "  nombre: " << named_addition->GetName() << "\n";
+  CheckInvalidDefinition("definición nula",
+                         [&] { NamedFunction("suma", nullptr); });
 
   std::cout << (failed_checks == 0 ? "\nTodo correcto.\n"
                                    : "\nHAY COMPROBACIONES FALLIDAS.\n");

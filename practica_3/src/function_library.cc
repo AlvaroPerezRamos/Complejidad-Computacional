@@ -20,6 +20,7 @@
 #include "../include/basic_functions.h"
 #include "../include/combination.h"
 #include "../include/composition.h"
+#include "../include/named_function.h"
 #include "../include/primitive_recursion.h"
 
 FunctionPointer FunctionLibrary::Zero() {
@@ -38,7 +39,9 @@ FunctionPointer FunctionLibrary::Projection(std::size_t position,
 FunctionPointer FunctionLibrary::One() {
   // uno = S ∘ (Z)
   const Combination zero_combination(std::vector<FunctionPointer>{Zero()});
-  return std::make_shared<const Composition>(Successor(), zero_combination);
+  return std::make_shared<const NamedFunction>(
+      "uno",
+      std::make_shared<const Composition>(Successor(), zero_combination));
 }
 
 FunctionPointer FunctionLibrary::Addition() {
@@ -49,7 +52,9 @@ FunctionPointer FunctionLibrary::Addition() {
       std::vector<FunctionPointer>{Projection(3, 3)});
   const FunctionPointer recursive_step =
       std::make_shared<const Composition>(Successor(), accumulated_combination);
-  return std::make_shared<const PrimitiveRecursion>(base_case, recursive_step);
+  return std::make_shared<const NamedFunction>(
+      "suma",
+      std::make_shared<const PrimitiveRecursion>(base_case, recursive_step));
 }
 
 FunctionPointer FunctionLibrary::Multiplication() {
@@ -62,7 +67,9 @@ FunctionPointer FunctionLibrary::Multiplication() {
       std::vector<FunctionPointer>{Projection(3, 3), Projection(1, 3)});
   const FunctionPointer recursive_step = std::make_shared<const Composition>(
       Addition(), accumulated_and_parameter_combination);
-  return std::make_shared<const PrimitiveRecursion>(base_case, recursive_step);
+  return std::make_shared<const NamedFunction>(
+      "producto",
+      std::make_shared<const PrimitiveRecursion>(base_case, recursive_step));
 }
 
 FunctionPointer FunctionLibrary::Power() {
@@ -75,5 +82,7 @@ FunctionPointer FunctionLibrary::Power() {
       std::vector<FunctionPointer>{Projection(3, 3), Projection(1, 3)});
   const FunctionPointer recursive_step = std::make_shared<const Composition>(
       Multiplication(), accumulated_and_parameter_combination);
-  return std::make_shared<const PrimitiveRecursion>(base_case, recursive_step);
+  return std::make_shared<const NamedFunction>(
+      "potencia",
+      std::make_shared<const PrimitiveRecursion>(base_case, recursive_step));
 }

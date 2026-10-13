@@ -19,6 +19,10 @@
  * Es una función más (hereda de PrimitiveRecursiveFunction) que CONTIENE
  * otras funciones: así se pueden componer composiciones y formar árboles de
  * funciones tan profundos como haga falta.
+ *
+ * Recuento de llamadas: la composición NO anota llamada propia, solo las de
+ * las funciones que contiene. Para que cuente como llamada hay que darle
+ * nombre con NamedFunction (p. ej. uno = S ∘ (Z)).
  */
 
 #ifndef COMPOSITION_H_

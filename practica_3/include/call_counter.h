@@ -9,21 +9,15 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 08/10/2026
  * @file call_counter.h
- * @brief Definición de la clase CallCounter.
+ * @brief Definición de la clase CallCounter: cuenta las llamadas a funciones
+ * de una evaluación. No es global (estático): se pasa explícitamente a cada
+ * evaluación, de modo que dos evaluaciones independientes no se mezclan.
  */
 
 #ifndef CALL_COUNTER_H_
 #define CALL_COUNTER_H_
 
-/**
- * @class CallCounter
- * @brief Cuenta cuántas llamadas a funciones se realizan durante una
- * evaluación.
- *
- * No es un contador global (estático): se pasa explícitamente a cada
- * evaluación, de modo que dos evaluaciones independientes no se contaminan y
- * el comportamiento es fácil de probar.
- */
+/** @brief Contador de llamadas a funciones. */
 class CallCounter {
  public:
   /** @brief Anota una llamada más. */
@@ -36,7 +30,7 @@ class CallCounter {
   void Reset() { calls_ = 0; }
 
  private:
-  unsigned long long calls_ = 0; /**< Llamadas anotadas hasta ahora. */
+  unsigned long long calls_ = 0;
 };
 
 #endif  // CALL_COUNTER_H_

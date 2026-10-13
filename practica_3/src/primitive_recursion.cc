@@ -12,12 +12,13 @@
  * @brief Implementación de la clase PrimitiveRecursion.
  */
 
+#include "../include/primitive_recursion.h"
+
 #include <cstddef>
 #include <string>
 #include <utility>
 
 #include "../include/errors.h"
-#include "../include/primitive_recursion.h"
 
 namespace {
 
@@ -64,7 +65,8 @@ PrimitiveRecursion::PrimitiveRecursion(FunctionPointer base_case,
                                        FunctionPointer recursive_step)
     : PrimitiveRecursiveFunction(
           BuildRecursionName(base_case, recursive_step),
-          DeduceRecursionArity(base_case, recursive_step)),
+          DeduceRecursionArity(base_case, recursive_step),
+          /*counts_call=*/false),
       base_case_(std::move(base_case)),
       recursive_step_(std::move(recursive_step)) {}
 
@@ -90,7 +92,7 @@ Natural PrimitiveRecursion::Compute(const Arguments& arguments,
 
   // f(x, nivel + 1) = h(x, nivel, f(x, nivel)), con nivel = 0, 1, ..., y − 1.
   for (Natural level = 0; level < recursion_variable; ++level) {
-    call_counter.RegisterCall();  // La invocación de f(x, nivel) de la
+    call_counter.RegisterCall();  // Una llamada recursiva: f(x, nivel) en la
                                   // definición literal.
     step_arguments[level_position] = level;
     step_arguments[accumulated_position] = accumulated_value;

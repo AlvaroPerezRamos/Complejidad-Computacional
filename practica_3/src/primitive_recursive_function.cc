@@ -9,16 +9,19 @@
  * @author Álvaro Pérez Ramos - alu0101574042@ull.edu.es
  * @date 08/10/2026
  * @file primitive_recursive_function.cc
- * @brief Implementación de PrimitiveRecursiveFunction.
+ * @brief Implementación de la clase PrimitiveRecursiveFunction.
  */
 
-#include <utility>
 #include "../include/primitive_recursive_function.h"
+
+#include <utility>
+
 #include "../include/errors.h"
 
 PrimitiveRecursiveFunction::PrimitiveRecursiveFunction(std::string name,
-                                                       std::size_t arity)
-    : name_(std::move(name)), arity_(arity) {}
+                                                       std::size_t arity,
+                                                       bool counts_call)
+    : name_(std::move(name)), arity_(arity), counts_call_(counts_call) {}
 
 Natural PrimitiveRecursiveFunction::Evaluate(const Arguments& arguments,
                                              CallCounter& call_counter) const {
@@ -28,6 +31,8 @@ Natural PrimitiveRecursiveFunction::Evaluate(const Arguments& arguments,
                              " argumento(s) y ha recibido " +
                              std::to_string(arguments.size()) + ".");
   }
-  call_counter.RegisterCall();
+  if (counts_call_) {
+    call_counter.RegisterCall();
+  }
   return Compute(arguments, call_counter);
 }

@@ -15,21 +15,17 @@
  *     f(x, 0)    = g(x)                      (ecuación límite)
  *     f(x, S(y)) = h(x, y, f(x, y))          (ecuación de recursión)
  *
- * Decisión sobre el "−1": evaluar f(x, y) leyendo la ecuación de recursión
- * hacia atrás exigiría descomponer y = S(y'), es decir, restar 1. Aquí se
- * evita por completo: se evalúa de abajo arriba,
+ * Se evalúa de abajo arriba,
  *
  *     f(x,0) = g(x);  f(x,1) = h(x,0,f(x,0));  ...;  f(x,y) = h(x,y−1,f(x,y−1))
  *
- * con un contador de nivel que solo SUBE (0, 1, 2, ...). Es la misma función
- * y exactamente las mismas llamadas, pero sin ninguna resta y sin recursión
- * del lenguaje, de modo que no hay riesgo de desbordar la pila aunque y sea
- * grande.
+ * con un contador de nivel que sube (0, 1, 2, ...). Es la misma función y las
+ * mismas llamadas que la definición recursiva literal, pero sin recursión del
+ * lenguaje, de modo que no hay riesgo de desbordar la pila aunque y sea grande.
  *
- * Limitación conocida: no existe ninguna función de aridad 0 en este proyecto
- * (Z, S, Pᵢⁿ y las composiciones tienen aridad >= 1), así que g siempre tiene
- * al menos un parámetro. La recursión sin parámetros (g constante, como en
- * pred) no está soportada todavía.
+ * Recuento de llamadas: la recursión NO anota llamada propia al entrar; solo
+ * anota sus llamadas recursivas (una por nivel, y en total). La entrada en
+ * la función (suma, producto...) la anota NamedFunction.
  */
 
 #ifndef PRIMITIVE_RECURSION_H_
@@ -56,10 +52,10 @@ class PrimitiveRecursion : public PrimitiveRecursiveFunction {
    * @brief Evalúa f(x, y) de abajo arriba.
    *
    * Recuento de llamadas: la definición recursiva literal invoca f en los
-   * niveles y, y−1, ..., 0 (y+1 invocaciones), g una vez y h y veces. Aquí la
-   * invocación de f(x, y) la anota Evaluate(); las de los niveles 0..y−1 se
-   * anotan explícitamente en el bucle, para que el total coincida con el de la
-   * definición literal.
+   * niveles y, y−1, ..., 0 (y+1 invocaciones), g una vez y h y veces. La
+   * invocación de nivel y es la entrada en la función y la anota NamedFunction;
+   * las de los niveles y−1, ..., 0 son las y llamadas recursivas, que se
+   * anotan explícitamente en el bucle.
    */
   Natural Compute(const Arguments& arguments,
                   CallCounter& call_counter) const override;

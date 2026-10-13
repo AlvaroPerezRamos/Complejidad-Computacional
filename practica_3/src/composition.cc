@@ -59,7 +59,7 @@ Composition::Composition(FunctionPointer outer_function,
                          Combination combination)
     : PrimitiveRecursiveFunction(
           BuildCompositionName(outer_function, combination),
-          combination.GetArity()),
+          combination.GetArity(), /*counts_call=*/false),
       outer_function_(std::move(outer_function)),
       combination_(std::move(combination)) {}
 
